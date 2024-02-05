@@ -7,12 +7,12 @@ struct LifecycleManager
 {
     void draw(DivisionContext* context)
     {
-
     }
 
     void error(DivisionContext* context, int32_t errorCode, const char* errorMessage)
     {
-
+        std::cerr << "Error code: " << errorCode 
+                  << ". Error message: " << errorMessage << std::endl;
     }
 
     void cleanup(DivisionContext* context)
@@ -27,6 +27,7 @@ struct LifecycleManagerBuilder
 
     managerType build(DivisionContext* context)
     {
+        std::cout << "Hello from lifecycle builder" << std::endl;
         return LifecycleManager {};
     }
 };

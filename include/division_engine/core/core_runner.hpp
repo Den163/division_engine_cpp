@@ -1,12 +1,10 @@
-#include <concepts>
-#include <cstdint>
 #include <glm/glm.hpp>
-#include <string>
 
 #include <division_engine_core/context.h>
 #include <division_engine_core/division_lifecycle.h>
 #include <division_engine_core/renderer.h>
 #include <division_engine_core/settings.h>
+#include <string>
 
 #include "lifecycle_manager.hpp"
 
@@ -14,8 +12,8 @@ namespace division_engine::core
 {
 struct CoreRunner
 {
-    CoreRunner(const std::string& windowTitle, const glm::uvec2& windowSize)
-      : windowTitle(windowTitle)
+    CoreRunner(std::string windowTitle, glm::uvec2 windowSize)
+      : windowTitle(std::move(windowTitle))
       , windowSize(windowSize)
       , context(nullptr)
     {
@@ -42,8 +40,8 @@ struct CoreRunner
             .window_height = windowSize.y,
             .window_title = windowTitle.c_str(),
         };
-
         division_engine_context_initialize(&settings, context);
+        context->user_data = &lifecycleManagerBuilder;
 
         DivisionLifecycle lifecycle {
             .init_callback = builderInitCallback<T>,
@@ -67,17 +65,10 @@ private:
         using ManagerType = typename T::managerType;
 
         auto* builder = static_cast<T*>(context->user_data);
-        ManagerType* manager = new ManagerType;
+        auto* manager = new ManagerType;
         *manager = builder->build(context);
 
         context->user_data = manager;
-    }
-
-    template<LifecycleManager T>
-    static void drawCallback(DivisionContext* context)
-    {
-        T* manager = static_cast<T*>(context->user_data);
-        manager->draw(context);
     }
 
     template<LifecycleManager T>
@@ -85,6 +76,14 @@ private:
     {
         T* manager = static_cast<T*>(context->user_data);
         manager->cleanup(context);
+        delete manager;
+    }
+
+    template<LifecycleManager T>
+    static void drawCallback(DivisionContext* context)
+    {
+        T* manager = static_cast<T*>(context->user_data);
+        manager->draw(context);
     }
 
     template<LifecycleManager T>
