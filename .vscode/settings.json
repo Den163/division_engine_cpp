@@ -1,0 +1,5 @@
+{
+    "cmake.configureEnvironment": {
+        "DIVISION_ENGINE_CPP_EXAMPLES": "1",
+    }
+}

@@ -1,0 +1,13 @@
+BasedOnStyle: Mozilla
+
+AlignAfterOpenBracket: AlwaysBreak
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+BinPackArguments: False
+BreakBeforeBraces: Allman
+ColumnLimit: 90
+IndentWidth: 4
+IndentAccessModifiers: False
+AccessModifierOffset: -4
+PointerAlignment: Left
+SpaceBeforeCpp11BracedList: True
