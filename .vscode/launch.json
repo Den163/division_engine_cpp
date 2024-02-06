@@ -11,6 +11,7 @@
             "program": "${workspaceFolder}/build/examples/division_engine_cpp_example",
             "args": [],
             "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build example"
         },
     ]
 }

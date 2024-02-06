@@ -10,7 +10,16 @@
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}/build"
-            }
+            },
+        },
+        {
+            "label": "Build example",
+            "type": "cmake",
+            "command": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "targets": [ "division_engine_cpp_example" ]
         }
     ]
 }

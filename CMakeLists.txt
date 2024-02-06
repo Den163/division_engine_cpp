@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5)
 project(division_engine_cpp VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(division_engine_core)
 FetchContent_MakeAvailable(glm)
 
 set(DIVISION_ENGINE_CPP_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/division_engine/core/core_runner.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/core_runner.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})
@@ -32,7 +32,6 @@ target_compile_definitions(division_engine_cpp PUBLIC )
 target_include_directories(
     division_engine_cpp 
     PUBLIC include 
-    PRIVATE include/division_engine
 )
 target_link_libraries(division_engine_cpp 
     PUBLIC glm::glm
