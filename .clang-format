@@ -6,6 +6,7 @@ AlwaysBreakAfterReturnType: None
 BinPackArguments: False
 BreakBeforeBraces: Allman
 ColumnLimit: 90
+ContinuationIndentWidth: 4
 IndentWidth: 4
 IndentAccessModifiers: False
 AccessModifierOffset: -4

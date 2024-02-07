@@ -17,7 +17,8 @@
             "type": "cmake",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${workspaceFolder}",
+                "environment": { "DIVISION_ENGINE_CPP_EXAMPLES": 1 }
             },
             "targets": [ "division_engine_cpp_example" ]
         }

@@ -3,9 +3,9 @@ project(division_engine_cpp VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wno-c++98-compat -Wno-c++98-compat-pedantic")
+set(CMAKE_INSTALL_MESSAGE ALWAYS)
 
 include(FetchContent)
-include(CTest)
 
 FetchContent_Declare(
     division_engine_core
@@ -23,11 +23,11 @@ FetchContent_MakeAvailable(division_engine_core)
 FetchContent_MakeAvailable(glm)
 
 set(DIVISION_ENGINE_CPP_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/core_runner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context_helper.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})
-target_compile_definitions(division_engine_cpp PUBLIC )
+target_compile_definitions(division_engine_cpp PUBLIC)
 
 target_include_directories(
     division_engine_cpp 
@@ -41,5 +41,3 @@ target_link_libraries(division_engine_cpp
 if(DEFINED ENV{DIVISION_ENGINE_CPP_EXAMPLES})
     add_subdirectory(examples)
 endif()
-
-enable_testing()

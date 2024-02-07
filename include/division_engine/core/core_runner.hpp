@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glm/glm.hpp>
 
 #include <division_engine_core/context.h>
@@ -6,67 +8,63 @@
 #include <division_engine_core/settings.h>
 #include <string>
 
-#include "lifecycle_manager.hpp"
+#include <division_engine/core/lifecycle_manager.hpp>
 
 namespace division_engine::core
 {
 struct CoreRunner
 {
-    CoreRunner(std::string windowTitle, glm::uvec2 windowSize)
-      : windowTitle(std::move(windowTitle))
-      , windowSize(windowSize)
-      , context(nullptr)
+    CoreRunner(std::string window_title, glm::uvec2 window_size)
+      : _window_title(std::move(window_title))
+      , _window_size(window_size)
+      , _ctx(nullptr)
     {
     }
 
     ~CoreRunner()
     {
-        if (context)
+        if (_ctx)
         {
-            division_engine_context_finalize(context);
+            division_engine_context_finalize(_ctx);
 
-            delete context;
+            delete _ctx;
         }
     }
 
     template<LifecycleManagerBuilder T>
-    void run(T& lifecycleManagerBuilder)
+    void run(T& lifecycle_manager_builder)
     {
-        using ManagerType = typename T::managerType;
+        using ManagerType = typename T::manager_type;
 
-        context = new DivisionContext;
+        _ctx = new DivisionContext;
         DivisionSettings settings {
-            .window_width = windowSize.x,
-            .window_height = windowSize.y,
-            .window_title = windowTitle.c_str(),
+            .window_width = _window_size.x,
+            .window_height = _window_size.y,
+            .window_title = _window_title.c_str(),
         };
-        division_engine_context_initialize(&settings, context);
-        context->user_data = &lifecycleManagerBuilder;
+        division_engine_context_initialize(&settings, _ctx);
+        _ctx->user_data = &lifecycle_manager_builder;
 
         DivisionLifecycle lifecycle {
-            .init_callback = builderInitCallback<T>,
-            .draw_callback = drawCallback<ManagerType>,
+            .init_callback = builder_init_callback<T>,
+            .draw_callback = draw_callback<ManagerType>,
             .free_callback = cleanup<ManagerType>,
-            .error_callback = errorCallback<ManagerType>,
+            .error_callback = error_callback<ManagerType>,
         };
-        division_engine_context_register_lifecycle(context, &lifecycle);
-        division_engine_renderer_run_loop(context);
+        division_engine_context_register_lifecycle(_ctx, &lifecycle);
+        division_engine_renderer_run_loop(_ctx);
     }
 
 private:
-    DivisionContext* context;
-
-    std::string windowTitle;
-    glm::uvec2 windowSize;
+    DivisionContext* _ctx;
+    std::string _window_title;
+    glm::uvec2 _window_size;
 
     template<LifecycleManagerBuilder T>
-    static void builderInitCallback(DivisionContext* context)
+    static void builder_init_callback(DivisionContext* context)
     {
-        using ManagerType = typename T::managerType;
-
         auto* builder = static_cast<T*>(context->user_data);
-        auto* manager = new ManagerType;
-        *manager = builder->build(context);
+        auto* manager = builder->build(context);
 
         context->user_data = manager;
     }
@@ -75,23 +73,24 @@ private:
     static void cleanup(DivisionContext* context)
     {
         T* manager = static_cast<T*>(context->user_data);
-        manager->cleanup(context);
         delete manager;
     }
 
     template<LifecycleManager T>
-    static void drawCallback(DivisionContext* context)
+    static void draw_callback(DivisionContext* context)
     {
-        T* manager = static_cast<T*>(context->user_data);
-        manager->draw(context);
+        T& manager = *static_cast<T*>(context->user_data);
+        manager.draw(context);
     }
 
     template<LifecycleManager T>
-    static void
-    errorCallback(DivisionContext* context, int32_t errorCode, const char* errorMessage)
+    static void error_callback(
+      DivisionContext* context,
+      int32_t error_code,
+      const char* error_message)
     {
-        T* manager = static_cast<T*>(context->user_data);
-        manager->error(context, errorCode, errorMessage);
+        T& manager = *static_cast<T*>(context->user_data);
+        manager.error(context, error_code, error_message);
     }
 };
 } // namespace division_engine::core

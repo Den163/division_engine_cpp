@@ -10,24 +10,21 @@ template<typename T>
 concept LifecycleManager = requires(
   T manager,
   DivisionContext* context,
-  int32_t errorCode,
-  const char* errorMessage) {
+  int32_t error_code,
+  const char* error_message) {
     {
         manager.draw(context)
     };
     {
-        manager.error(context, errorCode, errorMessage)
-    };
-    {
-        manager.cleanup(context)
+        manager.error(context, error_code, error_message)
     };
 };
 
 template<typename T>
 concept LifecycleManagerBuilder =
-  LifecycleManager<typename T::managerType> && requires(T builder, DivisionContext* ctx) {
+  LifecycleManager<typename T::manager_type> && requires(T builder, DivisionContext* ctx) {
       {
           builder.build(ctx)
-      } -> std::same_as<typename T::managerType>;
+      } -> std::same_as<typename T::manager_type*>;
   };
 }

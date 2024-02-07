@@ -1,5 +1,6 @@
 {
     "cmake.configureEnvironment": {
         "DIVISION_ENGINE_CPP_EXAMPLES": "1",
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
