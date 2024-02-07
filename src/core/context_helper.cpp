@@ -44,15 +44,15 @@ DivisionId ContextHelper::create_bundled_shader(
     DivisionShaderSourceDescriptor shader_descs[] = {
         DivisionShaderSourceDescriptor {
             .type = DivisionShaderType::DIVISION_SHADER_VERTEX,
+            .entry_point_name = vertex_entry_point,
             .source = vertex_source.c_str(),
             .source_size = static_cast<uint32_t>(vertex_source.length()),
-            .entry_point_name = vertex_entry_point,
         },
         DivisionShaderSourceDescriptor {
             .type = DivisionShaderType::DIVISION_SHADER_FRAGMENT,
+            .entry_point_name = fragment_entry_point,
             .source = fragment_source.c_str(),
             .source_size = static_cast<uint32_t>(fragment_source.length()),
-            .entry_point_name = fragment_entry_point,
         }
     };
 
@@ -73,18 +73,20 @@ void ContextHelper::delete_shader(DivisionId shader_id)
 }
 
 DivisionId ContextHelper::create_vertex_buffer(
-    std::span<DivisionVertexAttributeSettings> per_vertex_attributes,
-    std::span<DivisionVertexAttributeSettings> per_instance_attributes,
+    std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
+    std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
     VertexBufferSize buffer_size,
     Topology topology)
 {
     const DivisionVertexBufferSettings settings {
-        .per_vertex_attributes = per_vertex_attributes.data(),
+        .size = buffer_size,
+        .per_vertex_attributes =
+            const_cast<DivisionVertexAttributeSettings*>(per_vertex_attributes.data()),
+        .per_instance_attributes =
+            const_cast<DivisionVertexAttributeSettings*>(per_instance_attributes.data()),
         .per_vertex_attribute_count = static_cast<int32_t>(per_vertex_attributes.size()),
-        .per_instance_attributes = per_instance_attributes.data(),
         .per_instance_attribute_count =
             static_cast<int32_t>(per_instance_attributes.size()),
-        .size = buffer_size,
         .topology = topology
     };
 

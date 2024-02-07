@@ -9,6 +9,5 @@
 namespace division_engine::core
 {
 template<typename T>
-concept VertexData = std::
-    is_constructible<std::span<DivisionVertexAttributeSettings>, decltype(T::vertex_attributes)>::value;
+concept VertexData = std::constructible_from<decltype(T::vertex_attributes)>;
 };

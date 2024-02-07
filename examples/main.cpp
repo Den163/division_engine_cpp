@@ -4,8 +4,6 @@
 #include "division_engine_core/shader.h"
 #include "division_engine_core/vertex_buffer.h"
 #include "glm/fwd.hpp"
-#include <__concepts/constructible.h>
-#include <__iterator/concepts.h>
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -30,12 +28,12 @@ struct MyVertexData
 
     static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
         DivisionVertexAttributeSettings {
-            .location = 0,
             .type = DivisionShaderVariableType::DIVISION_FVEC2,
+            .location = 0,
         },
         DivisionVertexAttributeSettings {
-            .location = 1,
             .type = DivisionShaderVariableType::DIVISION_FVEC2,
+            .location = 1,
         },
     };
 };
@@ -44,12 +42,12 @@ struct MyInstanceData
 {
     static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
         DivisionVertexAttributeSettings {
-            .location = 0,
             .type = DivisionShaderVariableType::DIVISION_FVEC2,
+            .location = 0,
         },
         DivisionVertexAttributeSettings {
-            .location = 1,
             .type = DivisionShaderVariableType::DIVISION_FVEC2,
+            .location = 1,
         },
     };
 };
