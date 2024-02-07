@@ -22,12 +22,6 @@ public:
     DivisionId create_bundled_shader(const std::filesystem::path& path_without_extension);
     void delete_shader(DivisionId shader_id);
 
-    DivisionId create_vertex_buffer(
-        std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
-        std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
-        VertexBufferSize buffer_size,
-        Topology topology);
-
     template<VertexData TVertexData, VertexData TInstanceData>
     DivisionId create_vertex_buffer(VertexBufferSize buffer_size, Topology topology)
     {
@@ -37,6 +31,14 @@ public:
             buffer_size,
             topology);
     }
+
+    DivisionId create_vertex_buffer(
+        std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
+        std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
+        VertexBufferSize buffer_size,
+        Topology topology);
+
+    void delete_vertex_buffer(DivisionId vertex_buffer_id);
 
 private:
     DivisionContext* _ctx;

@@ -98,4 +98,9 @@ DivisionId ContextHelper::create_vertex_buffer(
 
     return vertex_buffer_id;
 }
+
+void ContextHelper::delete_vertex_buffer(DivisionId vertex_buffer_id)
+{
+    division_engine_vertex_buffer_free(_ctx, vertex_buffer_id);
+}
 }
