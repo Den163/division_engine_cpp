@@ -24,6 +24,7 @@ FetchContent_MakeAvailable(glm)
 
 set(DIVISION_ENGINE_CPP_SOURCES
     src/core/context_helper.cpp
+    src/core/render_pass.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})

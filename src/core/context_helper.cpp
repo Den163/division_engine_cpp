@@ -1,4 +1,8 @@
-#include "division_engine_core/vertex_buffer.h"
+#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/uniform_buffer.h>
+#include <division_engine_core/vertex_buffer.h>
+
 #include <division_engine/core/context_helper.hpp>
 
 #include <division_engine/core/exception.hpp>
@@ -57,9 +61,7 @@ DivisionId ContextHelper::create_bundled_shader(
     };
 
     DivisionId shader_program;
-    bool success =
-        division_engine_shader_program_alloc(_ctx, shader_descs, 0, &shader_program);
-    if (!success)
+    if (!division_engine_shader_program_alloc(_ctx, shader_descs, 2, &shader_program))
     {
         throw Exception { std::string { "Failed to create a shader" } };
     }
@@ -102,5 +104,21 @@ DivisionId ContextHelper::create_vertex_buffer(
 void ContextHelper::delete_vertex_buffer(DivisionId vertex_buffer_id)
 {
     division_engine_vertex_buffer_free(_ctx, vertex_buffer_id);
+}
+
+void ContextHelper::delete_uniform(DivisionId buffer_id)
+{
+    division_engine_uniform_buffer_free(_ctx, buffer_id);
+}
+
+DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descriptor)
+{
+    DivisionId buffer_id;
+    if (!division_engine_uniform_buffer_alloc(_ctx, descriptor, &buffer_id))
+    {
+        throw Exception { "Failed to create uniform buffer" };
+    }
+
+    return buffer_id;
 }
 }
