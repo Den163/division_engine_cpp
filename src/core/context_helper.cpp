@@ -12,12 +12,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec4.hpp>
 
-#include "core/context_helper.hpp"
-#include "core/exception.hpp"
+#include <division_engine/core/context_helper.hpp>
+#include <division_engine/core/exception.hpp>
+#include <division_engine/utility/file.hpp>
+
 #include "division_engine_core/color.h"
 #include "glm/detail/qualifier.hpp"
 #include "glm/ext/vector_float4.hpp"
-#include "utility/file.hpp"
 
 namespace division_engine::core
 {

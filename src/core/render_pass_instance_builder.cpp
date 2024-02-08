@@ -4,10 +4,10 @@ namespace division_engine::core
 {
 RenderPassInstanceBuilder::RenderPassInstanceBuilder(DivisionId render_pass_descriptor_id)
   : _pass(DivisionRenderPassInstance {
-        .instance_count = 0,
         .vertex_count = 0,
-        .uniform_vertex_buffer_count = 0,
         .index_count = 0,
+        .instance_count = 0,
+        .uniform_vertex_buffer_count = 0,
         .render_pass_descriptor_id = render_pass_descriptor_id,
         .capabilities_mask = DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_NONE,
     })

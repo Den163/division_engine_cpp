@@ -1,4 +1,5 @@
 #include "division_engine/core/context_helper.hpp"
+#include "division_engine/core/render_pass_descriptor_builder.hpp"
 #include "division_engine/core/render_pass_instance_builder.hpp"
 #include "division_engine/core/types.hpp"
 #include "division_engine_core/context.h"
@@ -96,8 +97,8 @@ struct MyLifecycleManager
 
         const auto& instances = std::array {
             Inst {
-                .position = glm::vec2 { 0, 0 },
                 .size = glm::vec2 { 100, 100 },
+                .position = glm::vec2 { 0, 0 },
                 .color = glm::vec4 { 1, 1, 0, 1 },
                 .trbl_border_radius = glm::vec4 { 0 },
             },
