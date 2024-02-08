@@ -27,30 +27,25 @@ struct MyVertexData
     glm::vec2 uv;
 
     static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
-        DivisionVertexAttributeSettings {
-            .type = DivisionShaderVariableType::DIVISION_FVEC2,
-            .location = 0,
-        },
-        DivisionVertexAttributeSettings {
-            .type = DivisionShaderVariableType::DIVISION_FVEC2,
-            .location = 1,
-        },
+        make_vertex_attribute<decltype(MyVertexData::vertex_position)>(0),
+        make_vertex_attribute<decltype(MyVertexData::uv)>(1)
     };
-};
+} __attribute__ ((__packed__));
 
 struct MyInstanceData
 {
+    glm::vec2 size;
+    glm::vec2 position;
+    glm::vec4 color;
+    glm::vec4 trbl_border_radius;
+
     static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
-        DivisionVertexAttributeSettings {
-            .type = DivisionShaderVariableType::DIVISION_FVEC2,
-            .location = 0,
-        },
-        DivisionVertexAttributeSettings {
-            .type = DivisionShaderVariableType::DIVISION_FVEC2,
-            .location = 1,
-        },
+        make_vertex_attribute<decltype(MyInstanceData::size)>(2),
+        make_vertex_attribute<decltype(MyInstanceData::position)>(3),
+        make_vertex_attribute<decltype(MyInstanceData::color)>(4),
+        make_vertex_attribute<decltype(MyInstanceData::trbl_border_radius)>(5),
     };
-};
+} __attribute__ ((__packed__));
 
 struct MyLifecycleManager
 {

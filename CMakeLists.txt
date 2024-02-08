@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(division_engine_core)
 FetchContent_MakeAvailable(glm)
 
 set(DIVISION_ENGINE_CPP_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context_helper.cpp
+    src/core/context_helper.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})
