@@ -8,7 +8,7 @@
 #include <division_engine_core/settings.h>
 #include <string>
 
-#include <division_engine/core/lifecycle_manager.hpp>
+#include "lifecycle_manager.hpp"
 
 namespace division_engine::core
 {

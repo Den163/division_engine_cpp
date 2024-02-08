@@ -1,7 +1,11 @@
-#include "division_engine/core/exception.hpp"
-#include "division_engine/core/types.hpp"
-#include "division_engine_core/context.h"
-#include "division_engine_core/uniform_buffer.h"
+#pragma once
+
+#include <division_engine_core/context.h>
+#include <division_engine_core/uniform_buffer.h>
+
+#include "exception.hpp"
+#include "types.hpp"
+
 namespace division_engine::core
 {
 template<typename T>

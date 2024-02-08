@@ -3,16 +3,21 @@
 #include <division_engine_core/uniform_buffer.h>
 #include <division_engine_core/vertex_buffer.h>
 
-#include <division_engine/core/context_helper.hpp>
-
-#include <division_engine/core/exception.hpp>
-#include <division_engine/utility/file.hpp>
-
 #include <division_engine_core/shader.h>
 #include <exception>
 #include <sstream>
 #include <string>
 #include <tuple>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/vec4.hpp>
+
+#include "core/context_helper.hpp"
+#include "core/exception.hpp"
+#include "division_engine_core/color.h"
+#include "glm/detail/qualifier.hpp"
+#include "glm/ext/vector_float4.hpp"
+#include "utility/file.hpp"
 
 namespace division_engine::core
 {
@@ -91,7 +96,7 @@ DivisionId ContextHelper::create_vertex_buffer(
             static_cast<int32_t>(per_instance_attributes.size()),
         .topology = topology
     };
-
+    
     DivisionId vertex_buffer_id;
     if (!division_engine_vertex_buffer_alloc(_ctx, &settings, &vertex_buffer_id))
     {
@@ -120,5 +125,15 @@ DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descrip
     }
 
     return buffer_id;
+}
+void ContextHelper::draw_render_passes(
+    std::span<const DivisionRenderPassInstance> render_pass_instances,
+    glm::vec4 clear_color)
+{
+    division_engine_render_pass_instance_draw(
+        _ctx,
+        reinterpret_cast<DivisionColor*>(&clear_color.x),
+        render_pass_instances.data(),
+        render_pass_instances.size());
 }
 }

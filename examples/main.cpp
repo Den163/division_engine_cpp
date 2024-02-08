@@ -1,15 +1,17 @@
 #include "division_engine/core/context_helper.hpp"
+#include "division_engine/core/render_pass_instance_builder.hpp"
 #include "division_engine/core/types.hpp"
 #include "division_engine_core/context.h"
+#include "division_engine_core/render_pass_instance.h"
 #include "division_engine_core/shader.h"
 #include "division_engine_core/vertex_buffer.h"
 
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <functional>
 #include <initializer_list>
 #include <iostream>
-#include <filesystem>
 #include <iterator>
 #include <memory>
 #include <span>
@@ -53,14 +55,20 @@ struct Inst
 struct MyLifecycleManager
 {
     MyLifecycleManager(DivisionContext* context)
+      : _ctx_helper(ContextHelper { context })
     {
-        ContextHelper helper { context };
-        _shader_id = helper.create_bundled_shader(
-            std::filesystem::path { "resources" } / "shaders" / "canvas" / "rect");
+        using std::filesystem::path;
+
+        _shader_id = _ctx_helper.create_bundled_shader(
+            path { "resources" } / "shaders" / "canvas" / "rect");
 
         {
-            _screen_uniform_id = helper.create_uniform<glm::vec4>();
-            auto screen_uniform = helper.get_uniform_data<glm::vec2>(_screen_uniform_id);
+            _screen_uniform = DivisionIdWithBinding {
+                .id = _ctx_helper.create_uniform<glm::vec4>(),
+                .shader_location = 0,
+            };
+            auto screen_uniform =
+                _ctx_helper.get_uniform_data<glm::vec2>(_screen_uniform.id);
             *screen_uniform.data_ptr = glm::vec2 {
                 context->renderer_context->frame_buffer_width,
                 context->renderer_context->frame_buffer_height,
@@ -88,7 +96,7 @@ struct MyLifecycleManager
 
         const auto& instances = std::array {
             Inst {
-                .position = glm::vec2 { 512, 512 },
+                .position = glm::vec2 { 0, 0 },
                 .size = glm::vec2 { 100, 100 },
                 .color = glm::vec4 { 1, 1, 0, 1 },
                 .trbl_border_radius = glm::vec4 { 0 },
@@ -103,11 +111,11 @@ struct MyLifecycleManager
             .instance_count = static_cast<uint32_t>(instances.size()),
         };
 
-        _vertex_buffer_id = helper.create_vertex_buffer<Vert, Inst>(
+        _vertex_buffer_id = _ctx_helper.create_vertex_buffer<Vert, Inst>(
             buffer_size, Topology::DIVISION_TOPOLOGY_TRIANGLES);
         {
             auto buffer_data =
-                helper.get_vertex_buffer_data<Vert, Inst>(_vertex_buffer_id);
+                _ctx_helper.get_vertex_buffer_data<Vert, Inst>(_vertex_buffer_id);
             std::copy(
                 std::begin(verts),
                 std::end(verts),
@@ -122,15 +130,25 @@ struct MyLifecycleManager
                 std::begin(indices), std::end(indices), buffer_data.index_data().begin());
         }
 
-        auto render_pass_desc_id =  helper.render_pass_descriptor_builder()
-            .shader(_shader_id)
-            .vertex_buffer(_vertex_buffer_id)
-            .build();
+        auto render_pass_desc_id = _ctx_helper.render_pass_descriptor_builder()
+                                       .shader(_shader_id)
+                                       .vertex_buffer(_vertex_buffer_id)
+                                       .build();
+
+        _render_pass = RenderPassInstanceBuilder { render_pass_desc_id }
+                           .vertices(verts.size())
+                           .indices(indices.size())
+                           .instances(instances.size())
+                           .uniform_vertex_buffers({ &_screen_uniform, 1 })
+                           .uniform_fragment_buffers({ &_screen_uniform, 1 })
+                           .build();
     }
 
     ~MyLifecycleManager() { std::cout << "Lifecycle manager was destroyed" << std::endl; }
 
-    void draw(DivisionContext* context) {}
+    void draw(DivisionContext* context) {
+        _ctx_helper.draw_render_passes({ &_render_pass, 1 }, { 1,1,1,1 });
+    }
 
     void error(DivisionContext* context, int32_t errorCode, const char* errorMessage)
     {
@@ -141,7 +159,9 @@ struct MyLifecycleManager
 private:
     DivisionId _shader_id;
     DivisionId _vertex_buffer_id;
-    DivisionId _screen_uniform_id;
+    DivisionIdWithBinding _screen_uniform;
+    DivisionRenderPassInstance _render_pass;
+    ContextHelper _ctx_helper;
 };
 
 struct MyLifecycleManagerBuilder

@@ -1,4 +1,6 @@
-#include "division_engine_core/render_pass_descriptor.h"
+#pragma once
+
+#include <division_engine_core/render_pass_descriptor.h>
 
 #include <optional>
 #include <cassert>

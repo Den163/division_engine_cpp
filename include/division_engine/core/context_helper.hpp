@@ -1,15 +1,17 @@
 #pragma once
 
-#include "division_engine/core/exception.hpp"
-#include "division_engine/core/render_pass.hpp"
-#include <division_engine/core/types.hpp>
-#include <division_engine/core/uniform_data.hpp>
-#include <division_engine/core/vertex_data.hpp>
-
 #include <division_engine_core/context.h>
 
 #include <filesystem>
 #include <span>
+
+#include "division_engine_core/render_pass_instance.h"
+#include "exception.hpp"
+#include "glm/fwd.hpp"
+#include "render_pass_descriptor_builder.hpp"
+#include "types.hpp"
+#include "uniform_data.hpp"
+#include "vertex_data.hpp"
 
 namespace division_engine::core
 {
@@ -21,9 +23,6 @@ class ContextHelper
 public:
     ContextHelper(DivisionContext* context);
 
-    DivisionId create_bundled_shader(const std::filesystem::path& path_without_extension);
-    void delete_shader(DivisionId shader_id);
-
     template<VertexData TVertexData, VertexData TInstanceData>
     DivisionId create_vertex_buffer(VertexBufferSize buffer_size, Topology topology)
     {
@@ -34,20 +33,12 @@ public:
             topology);
     }
 
-    DivisionId create_vertex_buffer(
-        std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
-        std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
-        VertexBufferSize buffer_size,
-        Topology topology);
-
     template<typename TVertexData, typename TInstanceData>
     VertexBufferData<TVertexData, TInstanceData> get_vertex_buffer_data(
         DivisionId vertex_buffer_id)
     {
         return VertexBufferData<TVertexData, TInstanceData> { _ctx, vertex_buffer_id };
     }
-
-    void delete_vertex_buffer(DivisionId vertex_buffer_id);
 
     template<typename T>
     DivisionId create_uniform()
@@ -62,16 +53,30 @@ public:
         return UniformData<T> { _ctx, uniform_id };
     }
 
-    void delete_uniform(DivisionId buffer_id);
-
     RenderPassDescriptorBuilder render_pass_descriptor_builder()
     {
         return RenderPassDescriptorBuilder { _ctx };
     }
 
-private:
-    DivisionContext* _ctx;
+    DivisionId create_bundled_shader(const std::filesystem::path& path_without_extension);
+    void delete_shader(DivisionId shader_id);
+
+    DivisionId create_vertex_buffer(
+        std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
+        std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
+        VertexBufferSize buffer_size,
+        Topology topology);
+
+    void delete_vertex_buffer(DivisionId vertex_buffer_id);
 
     DivisionId create_uniform(DivisionUniformBufferDescriptor descriptor);
+    void delete_uniform(DivisionId buffer_id);
+
+    void draw_render_passes(
+        std::span<const DivisionRenderPassInstance> render_pass_instances,
+        glm::vec4 clear_color);
+
+private:
+    DivisionContext* _ctx;
 };
 }

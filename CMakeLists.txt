@@ -24,7 +24,8 @@ FetchContent_MakeAvailable(glm)
 
 set(DIVISION_ENGINE_CPP_SOURCES
     src/core/context_helper.cpp
-    src/core/render_pass.cpp
+    src/core/render_pass_descriptor_builder.cpp
+    src/core/render_pass_instance_builder.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})
@@ -33,6 +34,7 @@ target_compile_definitions(division_engine_cpp PUBLIC)
 target_include_directories(
     division_engine_cpp 
     PUBLIC include 
+    PRIVATE include/division_engine
 )
 target_link_libraries(division_engine_cpp 
     PUBLIC glm::glm
