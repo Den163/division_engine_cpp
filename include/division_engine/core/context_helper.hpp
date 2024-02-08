@@ -1,13 +1,14 @@
 #pragma once
 
-#include <division_engine_core/context.h>
-
 #include <filesystem>
+#include <glm/vec2.hpp>
 #include <span>
 
-#include "division_engine_core/render_pass_instance.h"
+#include <division_engine_core/context.h>
+#include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/texture.h>
+
 #include "exception.hpp"
-#include "glm/fwd.hpp"
 #include "render_pass_descriptor_builder.hpp"
 #include "types.hpp"
 #include "uniform_data.hpp"
@@ -71,6 +72,10 @@ public:
 
     DivisionId create_uniform(DivisionUniformBufferDescriptor descriptor);
     void delete_uniform(DivisionId buffer_id);
+
+    DivisionId create_texture(glm::vec2 size, DivisionTextureFormat format);
+    void set_texture_data(DivisionId texture_id, const uint8_t* data);
+    void delete_texture(DivisionId texture_id);
 
     void draw_render_passes(
         std::span<const DivisionRenderPassInstance> render_pass_instances,

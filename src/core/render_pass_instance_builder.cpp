@@ -8,6 +8,8 @@ RenderPassInstanceBuilder::RenderPassInstanceBuilder(DivisionId render_pass_desc
         .index_count = 0,
         .instance_count = 0,
         .uniform_vertex_buffer_count = 0,
+        .uniform_fragment_buffer_count = 0,
+        .fragment_texture_count = 0,
         .render_pass_descriptor_id = render_pass_descriptor_id,
         .capabilities_mask = DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_NONE,
     })

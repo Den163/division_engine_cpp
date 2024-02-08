@@ -70,10 +70,7 @@ struct MyLifecycleManager
             };
             auto screen_uniform =
                 _ctx_helper.get_uniform_data<glm::vec2>(_screen_uniform.id);
-            *screen_uniform.data_ptr = glm::vec2 {
-                context->renderer_context->frame_buffer_width,
-                context->renderer_context->frame_buffer_height,
-            };
+            *screen_uniform.data_ptr = glm::vec2 { 512, 512 };
         }
 
         const auto& verts = std::array {
@@ -131,6 +128,15 @@ struct MyLifecycleManager
                 std::begin(indices), std::end(indices), buffer_data.index_data().begin());
         }
 
+        _white_texture = DivisionIdWithBinding {
+            .id =
+                _ctx_helper.create_texture({ 1, 1 }, DIVISION_TEXTURE_FORMAT_RGBA32Uint),
+            .shader_location = 0,
+        };
+
+        uint8_t texture_data[] = { 255, 255, 255, 255 };
+        _ctx_helper.set_texture_data(_white_texture.id, texture_data);
+
         auto render_pass_desc_id = _ctx_helper.render_pass_descriptor_builder()
                                        .shader(_shader_id)
                                        .vertex_buffer(_vertex_buffer_id)
@@ -142,13 +148,15 @@ struct MyLifecycleManager
                            .instances(instances.size())
                            .uniform_vertex_buffers({ &_screen_uniform, 1 })
                            .uniform_fragment_buffers({ &_screen_uniform, 1 })
+                           .fragment_textures({ &_white_texture, 1 })
                            .build();
     }
 
     ~MyLifecycleManager() { std::cout << "Lifecycle manager was destroyed" << std::endl; }
 
-    void draw(DivisionContext* context) {
-        _ctx_helper.draw_render_passes({ &_render_pass, 1 }, { 1,1,1,1 });
+    void draw(DivisionContext* context)
+    {
+        _ctx_helper.draw_render_passes({ &_render_pass, 1 }, { 1, 1, 1, 1 });
     }
 
     void error(DivisionContext* context, int32_t errorCode, const char* errorMessage)
@@ -161,6 +169,7 @@ private:
     DivisionId _shader_id;
     DivisionId _vertex_buffer_id;
     DivisionIdWithBinding _screen_uniform;
+    DivisionIdWithBinding _white_texture;
     DivisionRenderPassInstance _render_pass;
     ContextHelper _ctx_helper;
 };

@@ -8,6 +8,8 @@ RenderPassDescriptorBuilder::RenderPassDescriptorBuilder(DivisionContext* contex
         .capabilities_mask = DIVISION_RENDER_PASS_DESCRIPTOR_CAPABILITY_NONE,
         .color_mask = DIVISION_COLOR_MASK_RGB,
     })
+  , _init_shader(false)
+  , _init_vertex_buffer(false)
 {
 }
 

@@ -1,5 +1,8 @@
+#include <cassert>
+#include <cstdint>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/texture.h>
 #include <division_engine_core/uniform_buffer.h>
 #include <division_engine_core/vertex_buffer.h>
 
@@ -16,8 +19,10 @@
 #include <division_engine/core/exception.hpp>
 #include <division_engine/utility/file.hpp>
 
+#include "core/types.hpp"
 #include "division_engine_core/color.h"
 #include "glm/detail/qualifier.hpp"
+#include "glm/ext/vector_float2.hpp"
 #include "glm/ext/vector_float4.hpp"
 
 namespace division_engine::core
@@ -97,7 +102,7 @@ DivisionId ContextHelper::create_vertex_buffer(
             static_cast<int32_t>(per_instance_attributes.size()),
         .topology = topology
     };
-    
+
     DivisionId vertex_buffer_id;
     if (!division_engine_vertex_buffer_alloc(_ctx, &settings, &vertex_buffer_id))
     {
@@ -136,5 +141,33 @@ void ContextHelper::draw_render_passes(
         reinterpret_cast<DivisionColor*>(&clear_color.x),
         render_pass_instances.data(),
         render_pass_instances.size());
+}
+
+DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat format)
+{
+    DivisionTexture texture {
+        .texture_format = format,
+        .min_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_LINEAR,
+        .mag_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_LINEAR,
+        .width = static_cast<uint32_t>(size.x),
+        .height = static_cast<uint32_t>(size.y),
+        .has_channels_swizzle = false,
+    };
+    DivisionId id;
+    if (!division_engine_texture_alloc(_ctx, &texture, &id))
+    {
+        throw Exception { "Failed to create a texture" };
+    }
+    return id;
+}
+
+void ContextHelper::set_texture_data(DivisionId texture_id, const uint8_t* data)
+{
+    division_engine_texture_set_data(_ctx, texture_id, &data);
+}
+
+void ContextHelper::delete_texture(DivisionId texture_id)
+{
+    division_engine_texture_free(_ctx, texture_id);
 }
 }
