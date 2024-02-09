@@ -34,13 +34,13 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
         _ctx_helper.render_pass_descriptor_builder()
             .shader(_shader_id)
             .vertex_buffer(_vertex_buffer_id)
-            // .enable_aplha_blending(
-            //     core::AlphaBlend {
-            //         DIVISION_ALPHA_BLEND_SRC_ALPHA,
-            //         DIVISION_ALPHA_BLEND_ONE_MINUS_SRC_ALPHA,
-            //     },
-            //     DIVISION_ALPHA_BLEND_OP_ADD
-            // )
+            .enable_aplha_blending(
+                core::AlphaBlend {
+                    DIVISION_ALPHA_BLEND_SRC_ALPHA,
+                    DIVISION_ALPHA_BLEND_ONE_MINUS_SRC_ALPHA,
+                },
+                DIVISION_ALPHA_BLEND_OP_ADD
+            )
             .build();
 
     _textures_heap.push_back(DivisionIdWithBinding {

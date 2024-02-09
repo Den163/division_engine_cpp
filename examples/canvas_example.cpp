@@ -33,7 +33,7 @@ struct MyManager
     }
 
     void cleanup(DivisionContext* context) {}
-    
+
     void error(DivisionContext* context, int error_code, const char* error_message)
     {
         std::cout << "Error code: " << error_code << ". Message: " << error_message

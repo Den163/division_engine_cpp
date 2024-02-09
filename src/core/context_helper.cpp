@@ -153,11 +153,17 @@ DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat f
 {
     DivisionTexture texture {
         .texture_format = format,
-        .min_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_LINEAR,
-        .mag_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_LINEAR,
+        .min_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
+        .mag_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
         .width = static_cast<uint32_t>(size.x),
         .height = static_cast<uint32_t>(size.y),
         .has_channels_swizzle = false,
+        .channels_swizzle = DivisionTextureChannelsSwizzle {
+            .red = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_RED,
+            .green = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_GREEN,
+            .blue = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_BLUE,
+            .alpha = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_ALPHA
+        }
     };
     DivisionId id;
     if (!division_engine_texture_alloc(_ctx, &texture, &id))
@@ -169,7 +175,7 @@ DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat f
 
 void ContextHelper::set_texture_data(DivisionId texture_id, const uint8_t* data)
 {
-    division_engine_texture_set_data(_ctx, texture_id, &data);
+    division_engine_texture_set_data(_ctx, texture_id, const_cast<uint8_t*>(data));
 }
 
 void ContextHelper::delete_texture(DivisionId texture_id)
