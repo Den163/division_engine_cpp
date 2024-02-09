@@ -19,9 +19,9 @@ struct MyManager
       , rect_drawer(state)
     {
         state.world.entity().set(RectInstance {
+            .size = { 100, 100 },
             .position = glm::vec2 { 0 },
             .color = { 0, 1, 0, 1 },
-            .size = { 100, 100 },
             .trbl_border_radius = glm::vec4 { 0 },
         });
     }
