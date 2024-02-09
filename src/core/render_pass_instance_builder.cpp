@@ -1,4 +1,5 @@
 #include "core/render_pass_instance_builder.hpp"
+#include "division_engine_core/render_pass_instance.h"
 
 namespace division_engine::core
 {
@@ -21,7 +22,7 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::instances(
     size_t first_instance)
 {
     _pass.capabilities_mask = static_cast<DivisionRenderPassInstanceCapabilityMask>(
-        _pass.capabilities_mask | DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_NONE);
+        _pass.capabilities_mask | DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_INSTANCED_RENDERING);
 
     _pass.instance_count = instance_count;
     _pass.first_instance = first_instance;

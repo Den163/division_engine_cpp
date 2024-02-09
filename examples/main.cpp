@@ -66,7 +66,7 @@ struct MyLifecycleManager
         {
             _screen_uniform = DivisionIdWithBinding {
                 .id = _ctx_helper.create_uniform<glm::vec4>(),
-                .shader_location = 0,
+                .shader_location = 1,
             };
             auto screen_uniform =
                 _ctx_helper.get_uniform_data<glm::vec2>(_screen_uniform.id);
@@ -114,6 +114,7 @@ struct MyLifecycleManager
         {
             auto buffer_data =
                 _ctx_helper.get_vertex_buffer_data<Vert, Inst>(_vertex_buffer_id);
+
             std::copy(
                 std::begin(verts),
                 std::end(verts),
