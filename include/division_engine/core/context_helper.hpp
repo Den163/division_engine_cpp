@@ -6,9 +6,11 @@
 
 #include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/renderer.h>
 #include <division_engine_core/texture.h>
 
 #include "exception.hpp"
+#include "glm/ext/vector_float2.hpp"
 #include "render_pass_descriptor_builder.hpp"
 #include "types.hpp"
 #include "uniform_data.hpp"
@@ -31,12 +33,13 @@ public:
             TVertexData::vertex_attributes,
             TInstanceData::vertex_attributes,
             buffer_size,
-            topology);
+            topology
+        );
     }
 
     template<typename TVertexData, typename TInstanceData>
-    VertexBufferData<TVertexData, TInstanceData> get_vertex_buffer_data(
-        DivisionId vertex_buffer_id)
+    VertexBufferData<TVertexData, TInstanceData>
+    borrow_vertex_buffer_data(DivisionId vertex_buffer_id)
     {
         return VertexBufferData<TVertexData, TInstanceData> { _ctx, vertex_buffer_id };
     }
@@ -59,6 +62,14 @@ public:
         return RenderPassDescriptorBuilder { _ctx };
     }
 
+    glm::vec2 get_frame_buffer_size() const
+    {
+        return {
+            _ctx->renderer_context->frame_buffer_width,
+            _ctx->renderer_context->frame_buffer_height,
+        };
+    }
+
     DivisionId create_bundled_shader(const std::filesystem::path& path_without_extension);
     void delete_shader(DivisionId shader_id);
 
@@ -66,7 +77,8 @@ public:
         std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
         std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
         VertexBufferSize buffer_size,
-        Topology topology);
+        Topology topology
+    );
 
     void delete_vertex_buffer(DivisionId vertex_buffer_id);
 
@@ -79,7 +91,8 @@ public:
 
     void draw_render_passes(
         std::span<const DivisionRenderPassInstance> render_pass_instances,
-        glm::vec4 clear_color);
+        glm::vec4 clear_color
+    );
 
 private:
     DivisionContext* _ctx;

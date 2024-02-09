@@ -16,8 +16,8 @@
 
 #define DIVISION_IMPL_VERTEX_ATTR_SPEC(c_type, division_type)                            \
     template<>                                                                           \
-    constexpr DivisionVertexAttributeSettings make_vertex_attribute<c_type>(             \
-        int location)                                                                    \
+    constexpr DivisionVertexAttributeSettings make_vertex_attribute<c_type>(int location \
+    )                                                                                    \
     {                                                                                    \
         return DivisionVertexAttributeSettings {                                         \
             .type = division_type,                                                       \
@@ -49,7 +49,8 @@ struct VertexBufferData
       , vertex_buffer_id(vertex_buffer_id)
     {
         if (!division_engine_vertex_buffer_borrow_data(
-                context_ptr, vertex_buffer_id, &borrowed_data))
+                context_ptr, vertex_buffer_id, &borrowed_data
+            ))
         {
             throw Exception { "Failed to get vertex buffer data" };
         }
@@ -58,7 +59,8 @@ struct VertexBufferData
     ~VertexBufferData()
     {
         division_engine_vertex_buffer_return_data(
-            context_ptr, vertex_buffer_id, &borrowed_data);
+            context_ptr, vertex_buffer_id, &borrowed_data
+        );
     }
 
     std::span<TVertexData> per_vertex_data()
@@ -77,8 +79,10 @@ struct VertexBufferData
 
     std::span<uint32_t> index_data()
     {
-        return std::span { static_cast<uint32_t*>(borrowed_data.index_data_ptr),
-                           borrowed_data.size.index_count };
+        return std::span {
+            static_cast<uint32_t*>(borrowed_data.index_data_ptr),
+            borrowed_data.size.index_count,
+        };
     }
 
     DivisionContext* context_ptr;

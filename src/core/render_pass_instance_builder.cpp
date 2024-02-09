@@ -17,13 +17,13 @@ RenderPassInstanceBuilder::RenderPassInstanceBuilder(DivisionId render_pass_desc
 {
 }
 
-RenderPassInstanceBuilder RenderPassInstanceBuilder::instances(
-    size_t instance_count,
-    size_t first_instance)
+RenderPassInstanceBuilder
+RenderPassInstanceBuilder::instances(size_t instance_count, size_t first_instance)
 {
     _pass.capabilities_mask = static_cast<DivisionRenderPassInstanceCapabilityMask>(
         _pass.capabilities_mask |
-        DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_INSTANCED_RENDERING);
+        DIVISION_RENDER_PASS_INSTANCE_CAPABILITY_INSTANCED_RENDERING
+    );
 
     _pass.instance_count = instance_count;
     _pass.first_instance = first_instance;
@@ -31,9 +31,8 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::instances(
     return *this;
 }
 
-RenderPassInstanceBuilder RenderPassInstanceBuilder::vertices(
-    size_t vertex_count,
-    size_t first_vertex)
+RenderPassInstanceBuilder
+RenderPassInstanceBuilder::vertices(size_t vertex_count, size_t first_vertex)
 {
     _pass.vertex_count = vertex_count;
     _pass.first_vertex = first_vertex;
@@ -49,7 +48,8 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::indices(size_t index_count)
 }
 
 RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_vertex_buffers(
-    std::span<DivisionIdWithBinding> vertex_uniforms)
+    std::span<DivisionIdWithBinding> vertex_uniforms
+)
 {
     _pass.uniform_vertex_buffers = vertex_uniforms.data(),
     _pass.uniform_vertex_buffer_count = vertex_uniforms.size();
@@ -58,7 +58,8 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_vertex_buffers(
 }
 
 RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_fragment_buffers(
-    std::span<DivisionIdWithBinding> fragment_uniforms)
+    std::span<DivisionIdWithBinding> fragment_uniforms
+)
 {
     _pass.uniform_fragment_buffers = fragment_uniforms.data();
     _pass.uniform_fragment_buffer_count = fragment_uniforms.size();
@@ -67,7 +68,8 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_fragment_buffers(
 }
 
 RenderPassInstanceBuilder RenderPassInstanceBuilder::fragment_textures(
-    std::span<DivisionIdWithBinding> fragment_textures)
+    std::span<DivisionIdWithBinding> fragment_textures
+)
 {
     _pass.fragment_textures = fragment_textures.data();
     _pass.fragment_texture_count = fragment_textures.size();

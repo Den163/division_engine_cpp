@@ -7,8 +7,17 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Launch example",
-            "program": "${workspaceFolder}/build/examples/division_engine_cpp_example",
+            "name": "Launch core example",
+            "program": "${workspaceFolder}/build/examples/division_core_example",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build example"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch canvas example",
+            "program": "${workspaceFolder}/build/examples/division_canvas_example",
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build example"

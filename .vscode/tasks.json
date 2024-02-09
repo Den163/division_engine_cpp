@@ -20,7 +20,7 @@
                 "cwd": "${workspaceFolder}",
                 "environment": { "DIVISION_ENGINE_CPP_EXAMPLES": 1 }
             },
-            "targets": [ "division_engine_cpp_example" ]
+            "targets": [ "division_core_example", "division_canvas_example" ]
         }
     ]
 }

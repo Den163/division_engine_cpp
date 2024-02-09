@@ -21,7 +21,8 @@ RenderPassDescriptorBuilder RenderPassDescriptorBuilder::shader(DivisionId shade
 }
 
 RenderPassDescriptorBuilder RenderPassDescriptorBuilder::vertex_buffer(
-    DivisionId vertex_buffer_id)
+    DivisionId vertex_buffer_id
+)
 {
     _init_vertex_buffer = true;
     _desc.vertex_buffer_id = vertex_buffer_id;
@@ -30,7 +31,8 @@ RenderPassDescriptorBuilder RenderPassDescriptorBuilder::vertex_buffer(
 
 RenderPassDescriptorBuilder RenderPassDescriptorBuilder::enable_aplha_blending(
     AlphaBlend alpha_blend,
-    DivisionAlphaBlendOperation alpha_blend_op)
+    DivisionAlphaBlendOperation alpha_blend_op
+)
 {
     DivisionAlphaBlendingOptions blend_options {
         .src = alpha_blend.src_blend(),
@@ -46,7 +48,8 @@ RenderPassDescriptorBuilder RenderPassDescriptorBuilder::enable_aplha_blending(
 
     _desc.alpha_blending_options = blend_options;
     _desc.capabilities_mask = static_cast<DivisionRenderPassDescriptorCapabilityMask>(
-        _desc.capabilities_mask | DIVISION_RENDER_PASS_DESCRIPTOR_CAPABILITY_ALPHA_BLEND);
+        _desc.capabilities_mask | DIVISION_RENDER_PASS_DESCRIPTOR_CAPABILITY_ALPHA_BLEND
+    );
 
     return *this;
 }

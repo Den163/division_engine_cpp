@@ -1,5 +1,8 @@
-add_executable(division_engine_cpp_example ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-target_link_libraries(division_engine_cpp_example division_engine_cpp)
+add_executable(division_core_example core_example.cpp)
+target_link_libraries(division_core_example division_engine_cpp)
+
+add_executable(division_canvas_example canvas_example.cpp)
+target_link_libraries(division_canvas_example division_engine_cpp)
 
 file(
     GLOB_RECURSE 

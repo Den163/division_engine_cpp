@@ -34,7 +34,8 @@ ContextHelper::ContextHelper(DivisionContext* context)
 }
 
 DivisionId ContextHelper::create_bundled_shader(
-    const std::filesystem::path& path_without_extension)
+    const std::filesystem::path& path_without_extension
+)
 {
     using path = std::filesystem::path;
 
@@ -44,13 +45,15 @@ DivisionId ContextHelper::create_bundled_shader(
             "vert",
             path { path_without_extension }.concat(".vert.metal"),
             "frag",
-            path { path_without_extension }.concat(".frag.metal"));
+            path { path_without_extension }.concat(".frag.metal")
+        );
 #else
         std::make_tuple(
             "main",
             path { path_without_extension }.concat(".vert"),
             "main",
-            path { path_without_extension }.concat(".frag"));
+            path { path_without_extension }.concat(".frag")
+        );
 #endif
 
     auto vertex_source = division_engine::utility::file::read_text(vertex_path);
@@ -89,7 +92,8 @@ DivisionId ContextHelper::create_vertex_buffer(
     std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
     std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
     VertexBufferSize buffer_size,
-    Topology topology)
+    Topology topology
+)
 {
     const DivisionVertexBufferSettings settings {
         .size = buffer_size,
@@ -134,13 +138,15 @@ DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descrip
 }
 void ContextHelper::draw_render_passes(
     std::span<const DivisionRenderPassInstance> render_pass_instances,
-    glm::vec4 clear_color)
+    glm::vec4 clear_color
+)
 {
     division_engine_render_pass_instance_draw(
         _ctx,
         reinterpret_cast<DivisionColor*>(&clear_color.x),
         render_pass_instances.data(),
-        render_pass_instances.size());
+        render_pass_instances.size()
+    );
 }
 
 DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat format)

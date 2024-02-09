@@ -61,7 +61,8 @@ struct MyLifecycleManager
         using std::filesystem::path;
 
         _shader_id = _ctx_helper.create_bundled_shader(
-            path { "resources" } / "shaders" / "canvas" / "rect");
+            path { "resources" } / "shaders" / "canvas" / "rect"
+        );
 
         {
             _screen_uniform = DivisionIdWithBinding {
@@ -110,23 +111,25 @@ struct MyLifecycleManager
         };
 
         _vertex_buffer_id = _ctx_helper.create_vertex_buffer<Vert, Inst>(
-            buffer_size, Topology::DIVISION_TOPOLOGY_TRIANGLES);
+            buffer_size, Topology::DIVISION_TOPOLOGY_TRIANGLES
+        );
         {
             auto buffer_data =
-                _ctx_helper.get_vertex_buffer_data<Vert, Inst>(_vertex_buffer_id);
+                _ctx_helper.borrow_vertex_buffer_data<Vert, Inst>(_vertex_buffer_id);
 
             std::copy(
-                std::begin(verts),
-                std::end(verts),
-                buffer_data.per_vertex_data().begin());
+                std::begin(verts), std::end(verts), buffer_data.per_vertex_data().begin()
+            );
 
             std::copy(
                 std::begin(instances),
                 std::end(instances),
-                buffer_data.per_instance_data().begin());
+                buffer_data.per_instance_data().begin()
+            );
 
             std::copy(
-                std::begin(indices), std::end(indices), buffer_data.index_data().begin());
+                std::begin(indices), std::end(indices), buffer_data.index_data().begin()
+            );
         }
 
         _white_texture = DivisionIdWithBinding {
@@ -135,22 +138,24 @@ struct MyLifecycleManager
             .shader_location = 0,
         };
 
-        uint8_t texture_data[] = { 255, 255, 255, 255 };
+        uint8_t texture_data[] = { 0xFF, 0xFF, 0xFF, 0xFF };
         _ctx_helper.set_texture_data(_white_texture.id, texture_data);
 
-        auto render_pass_desc_id = _ctx_helper.render_pass_descriptor_builder()
-                                       .shader(_shader_id)
-                                       .vertex_buffer(_vertex_buffer_id)
-                                       .build();
+        auto render_pass_desc_id =
+            _ctx_helper.render_pass_descriptor_builder()
+                .shader(_shader_id)
+                .vertex_buffer(_vertex_buffer_id)
+                .build();
 
-        _render_pass = RenderPassInstanceBuilder { render_pass_desc_id }
-                           .vertices(verts.size())
-                           .indices(indices.size())
-                           .instances(instances.size())
-                           .uniform_vertex_buffers({ &_screen_uniform, 1 })
-                           .uniform_fragment_buffers({ &_screen_uniform, 1 })
-                           .fragment_textures({ &_white_texture, 1 })
-                           .build();
+        _render_pass =
+            RenderPassInstanceBuilder { render_pass_desc_id }
+                .vertices(verts.size())
+                .indices(indices.size())
+                .instances(instances.size())
+                .uniform_vertex_buffers({ &_screen_uniform, 1 })
+                .uniform_fragment_buffers({ &_screen_uniform, 1 })
+                .fragment_textures({ &_white_texture, 1 })
+                .build();
     }
 
     ~MyLifecycleManager() { std::cout << "Lifecycle manager was destroyed" << std::endl; }
@@ -190,7 +195,7 @@ struct MyLifecycleManagerBuilder
 int main(int argc, char** argv)
 {
     division_engine::core::CoreRunner coreRunner {
-        std::string { "Hello division cpp" },
+        "Core example",
         { 512, 512 },
     };
 
