@@ -5,7 +5,6 @@
 #include "division_engine_core/render_pass_descriptor.h"
 #include "division_engine_core/render_pass_instance.h"
 
-#include <__algorithm/ranges_copy.h>
 #include <division_engine/core/context_helper.hpp>
 #include <division_engine/core/render_pass_instance_builder.hpp>
 

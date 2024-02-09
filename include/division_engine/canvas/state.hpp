@@ -2,7 +2,6 @@
 
 #include "division_engine/core/context_helper.hpp"
 #include "glm/ext/vector_float2.hpp"
-#include <_types/_uint8_t.h>
 #include <division_engine/core/types.hpp>
 #include <flecs.h>
 
