@@ -5,6 +5,7 @@
 #include "division_engine_core/render_pass_descriptor.h"
 #include "division_engine_core/render_pass_instance.h"
 
+#include <__algorithm/ranges_copy.h>
 #include <division_engine/core/context_helper.hpp>
 #include <division_engine/core/render_pass_instance_builder.hpp>
 
@@ -12,8 +13,11 @@
 #include <filesystem>
 #include <iterator>
 
+#include <ranges>
+
 namespace division_engine::canvas
 {
+const size_t WHITE_TEXTURE_INDEX = 0;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
   : _ctx_helper(state.context_helper)
@@ -21,6 +25,10 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
     })
+  , _textures_heap({ DivisionIdWithBinding {
+        .id = state.white_texture_id,
+        .shader_location = TEXTURE_LOCATION,
+    } })
 {
     using path = std::filesystem::path;
 
@@ -42,11 +50,6 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
                 DIVISION_ALPHA_BLEND_OP_ADD
             )
             .build();
-
-    _textures_heap.push_back(DivisionIdWithBinding {
-        .id = state.white_texture_id,
-        .shader_location = 0,
-    });
 }
 
 RectDrawer::~RectDrawer()
@@ -65,16 +68,15 @@ void RectDrawer::update(State& state)
 
         auto instances = data.per_instance_data();
 
-        state.world.each([&](RectInstance& rect) { 
-            instances[count++] = rect; 
-        });
+        state.world.each([&count, &instances](RectInstance& rect)
+                         { instances[count++] = rect; });
     }
 
     auto pass =
         core::RenderPassInstanceBuilder { _render_pass_descriptor_id }
             .uniform_fragment_buffers({ &_screen_size_uniform, 1 })
             .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
-            .fragment_textures(_textures_heap)
+            .fragment_textures({ &_textures_heap[WHITE_TEXTURE_INDEX], 1 })
             .vertices(RECT_VERTICES.size())
             .indices(RECT_INDICES.size())
             .instances(count)
@@ -99,11 +101,8 @@ core::DivisionId RectDrawer::make_vertex_buffer(
 
     auto data = context_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(id);
 
-    std::copy(
-        std::begin(RECT_VERTICES), std::end(RECT_VERTICES), data.per_vertex_data().data()
-    );
-
-    std::copy(std::begin(RECT_INDICES), std::end(RECT_INDICES), data.index_data().data());
+    std::ranges::copy(RECT_VERTICES, data.per_vertex_data().data());
+    std::ranges::copy(RECT_INDICES, data.index_data().data());
 
     return id;
 }
