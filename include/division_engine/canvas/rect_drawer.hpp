@@ -26,21 +26,6 @@ struct RectVertex
     };
 } __attribute__((__packed__));
 
-struct RectInstance
-{
-    glm::vec2 size;
-    glm::vec2 position;
-    glm::vec4 color;
-    glm::vec4 trbl_border_radius;
-
-    static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
-        core::make_vertex_attribute<decltype(RectInstance::size)>(2),
-        core::make_vertex_attribute<decltype(RectInstance::position)>(3),
-        core::make_vertex_attribute<decltype(RectInstance::color)>(4),
-        core::make_vertex_attribute<decltype(RectInstance::trbl_border_radius)>(5),
-    };
-} __attribute__((__packed__));
-
 class RectDrawer
 {
 public:
@@ -70,10 +55,7 @@ public:
     };
     static constexpr auto RECT_INDICES = std::array { 0u, 1u, 2u, 2u, 3u, 0u };
 
-    RectDrawer(
-        State& state,
-        size_t rect_capacity = DEFAULT_RECT_CAPACITY
-    );
+    RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
     ~RectDrawer();
 
     void update(State& state);
@@ -91,5 +73,11 @@ private:
 
     static DivisionId
     make_vertex_buffer(core::ContextHelper& context_helper, uint32_t instance_capacity);
+
+    DivisionRenderPassInstance make_render_pass_instance(
+        DivisionIdWithBinding* texture_ptr,
+        size_t first_instance,
+        size_t instance_count
+    );
 };
 } // namespace division_engine::canvas

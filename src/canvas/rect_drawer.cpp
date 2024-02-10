@@ -4,7 +4,13 @@
 #include "core/types.hpp"
 #include "division_engine_core/render_pass_descriptor.h"
 #include "division_engine_core/render_pass_instance.h"
+#include "flecs/addons/cpp/c_types.hpp"
+#include "flecs/addons/cpp/iter.hpp"
 
+#include <bits/ranges_algo.h>
+#include <bits/ranges_algobase.h>
+#include <division_engine/canvas/components/rect_instance.hpp>
+#include <division_engine/canvas/components/with_texture.hpp>
 #include <division_engine/core/context_helper.hpp>
 #include <division_engine/core/render_pass_instance_builder.hpp>
 
@@ -13,10 +19,14 @@
 #include <iterator>
 
 #include <ranges>
+#include <vector>
 
 namespace division_engine::canvas
 {
 const size_t WHITE_TEXTURE_INDEX = 0;
+
+using components::RectInstance;
+using components::WithTexture;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
   : _ctx_helper(state.context_helper)
@@ -59,7 +69,8 @@ RectDrawer::~RectDrawer()
 
 void RectDrawer::update(State& state)
 {
-    auto count = 0;
+    auto overall_instance_count = 0;
+    std::vector<DivisionRenderPassInstance> render_passes;
     {
         auto data = _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(
             _vertex_buffer_id
@@ -67,21 +78,51 @@ void RectDrawer::update(State& state)
 
         auto instances = data.per_instance_data();
 
-        state.world.each([&count, &instances](RectInstance& rect)
-                         { instances[count++] = rect; });
+        const auto& filter =
+            state.world.filter_builder<RectInstance, WithTexture>()
+                .term<WithTexture>()
+                .up(flecs::IsA)
+                .instanced()
+                .build();
+
+
+        filter.iter(
+            [&](flecs::iter& it, RectInstance* rects, WithTexture* tex_ptr)
+            {
+                auto lower_bound = std::lower_bound(
+                    _textures_heap.begin(),
+                    _textures_heap.end(),
+                    tex_ptr->texture_id,
+                    [](const auto& x, auto y) { return x.id < y; }
+                );
+                auto first_instance = overall_instance_count;
+                auto instance_count = it.count();
+
+                if (lower_bound == _textures_heap.end() ||
+                    lower_bound->id != tex_ptr->texture_id)
+                {
+                    _textures_heap.insert(
+                        lower_bound,
+                        DivisionIdWithBinding {
+                            .id = tex_ptr->texture_id,
+                            .shader_location = TEXTURE_LOCATION,
+                        }
+                    );
+                }
+
+                auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
+
+                std::ranges::copy_n(rects, instance_count, instances.data());
+                overall_instance_count += instance_count;
+
+                render_passes.push_back(make_render_pass_instance(
+                    &_textures_heap[texture_index], first_instance, instance_count
+                ));
+            }
+        );
     }
 
-    auto pass =
-        core::RenderPassInstanceBuilder { _render_pass_descriptor_id }
-            .uniform_fragment_buffers({ &_screen_size_uniform, 1 })
-            .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
-            .fragment_textures({ &_textures_heap[WHITE_TEXTURE_INDEX], 1 })
-            .vertices(RECT_VERTICES.size())
-            .indices(RECT_INDICES.size())
-            .instances(count)
-            .build();
-
-    _ctx_helper.draw_render_passes({ &pass, 1 }, glm::vec4 { 1 });
+    _ctx_helper.draw_render_passes(render_passes, glm::vec4 { 1 });
 }
 
 core::DivisionId RectDrawer::make_vertex_buffer(
@@ -104,5 +145,21 @@ core::DivisionId RectDrawer::make_vertex_buffer(
     std::ranges::copy(RECT_INDICES, data.index_data().data());
 
     return id;
+}
+
+DivisionRenderPassInstance RectDrawer::make_render_pass_instance(
+    DivisionIdWithBinding* texture_ptr,
+    size_t first_instance,
+    size_t instance_count
+)
+{
+    return core::RenderPassInstanceBuilder { _render_pass_descriptor_id }
+        .uniform_fragment_buffers({ &_screen_size_uniform, 1 })
+        .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
+        .fragment_textures({ texture_ptr, 1 })
+        .vertices(RECT_VERTICES.size())
+        .indices(RECT_INDICES.size())
+        .instances(instance_count, first_instance)
+        .build();
 }
 }
