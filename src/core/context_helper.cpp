@@ -152,18 +152,18 @@ void ContextHelper::draw_render_passes(
 DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat format)
 {
     DivisionTexture texture {
+        .channels_swizzle = DivisionTextureChannelsSwizzle {
+            .red = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_RED,
+            .green = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_GREEN,
+            .blue = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_BLUE,
+            .alpha = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_ALPHA
+        },
         .texture_format = format,
         .min_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
         .mag_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
         .width = static_cast<uint32_t>(size.x),
         .height = static_cast<uint32_t>(size.y),
         .has_channels_swizzle = false,
-        .channels_swizzle = DivisionTextureChannelsSwizzle {
-            .red = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_RED,
-            .green = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_GREEN,
-            .blue = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_BLUE,
-            .alpha = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_ALPHA
-        }
     };
     DivisionId id;
     if (!division_engine_texture_alloc(_ctx, &texture, &id))
