@@ -3,12 +3,13 @@
 #include "division_engine_core/context.h"
 #include "glm/fwd.hpp"
 
-#include <division_engine/canvas/components.hpp>
-#include <division_engine/canvas/rect_drawer.hpp>
-#include <division_engine/canvas/state.hpp>
-#include <division_engine/core/core_runner.hpp>
+#include "division_engine/canvas/components.hpp"
+#include "division_engine/canvas/rect_drawer.hpp"
+#include "division_engine/canvas/state.hpp"
+#include "division_engine/core/core_runner.hpp"
+#include "glm/vec2.hpp"
+
 #include <functional>
-#include <glm/vec2.hpp>
 #include <iostream>
 
 using namespace division_engine::canvas;
@@ -22,7 +23,7 @@ struct MyManager
       , rect_drawer(state)
     {
         auto with_white_tex =
-            state.world.entity().set(WithTexture { state.white_texture_id });
+            state.world.entity().set(RenderTexture { state.white_texture_id });
 
         state.world.entity()
             .set(RectInstance {

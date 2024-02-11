@@ -7,6 +7,7 @@
 
 #include "division_engine_core/context.h"
 #include "division_engine_core/renderer.h"
+#include "glm/fwd.hpp"
 
 namespace division_engine::canvas
 {
@@ -15,8 +16,9 @@ using DivisionId = core::DivisionId;
 struct State
 {
     flecs::world world;
-    core::ContextHelper context_helper;
+    glm::vec4 clear_color;
 
+    core::ContextHelper context_helper;
     DivisionId screen_size_uniform_id;
     DivisionId white_texture_id;
 
@@ -27,12 +29,16 @@ struct State
         white_texture_id = context_helper.create_texture(
             { 1, 1 }, DivisionTextureFormat::DIVISION_TEXTURE_FORMAT_RGBA32Uint
         );
+        clear_color = { 0, 0, 0, 1 };
         
         uint8_t tex_data[] = { 0xFF, 0xFF, 0xFF, 0xFF };
         context_helper.set_texture_data(white_texture_id, tex_data);
 
         update();
     }
+
+    State(State&) = delete;
+    State operator=(State&) = delete;
 
     void update()
     {

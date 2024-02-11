@@ -10,7 +10,7 @@
 #include <bits/ranges_algo.h>
 #include <bits/ranges_algobase.h>
 #include <division_engine/canvas/components/rect_instance.hpp>
-#include <division_engine/canvas/components/with_texture.hpp>
+#include <division_engine/canvas/components/render_texture.hpp>
 #include <division_engine/core/context_helper.hpp>
 #include <division_engine/core/render_pass_instance_builder.hpp>
 
@@ -26,7 +26,7 @@ namespace division_engine::canvas
 const size_t WHITE_TEXTURE_INDEX = 0;
 
 using components::RectInstance;
-using components::WithTexture;
+using components::RenderTexture;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
   : _ctx_helper(state.context_helper)
@@ -79,15 +79,15 @@ void RectDrawer::update(State& state)
         auto instances = data.per_instance_data();
 
         const auto& filter =
-            state.world.filter_builder<RectInstance, WithTexture>()
-                .term<WithTexture>()
+            state.world.filter_builder<RectInstance, RenderTexture>()
+                .term<RenderTexture>()
                 .up(flecs::IsA)
                 .instanced()
                 .build();
 
 
         filter.iter(
-            [&](flecs::iter& it, RectInstance* rects, WithTexture* tex_ptr)
+            [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
             {
                 auto lower_bound = std::lower_bound(
                     _textures_heap.begin(),

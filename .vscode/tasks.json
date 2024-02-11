@@ -18,9 +18,22 @@
             "command": "build",
             "options": {
                 "cwd": "${workspaceFolder}",
-                "environment": { "DIVISION_ENGINE_CPP_EXAMPLES": 1 }
+                "environment": {
+                    "DIVISION_ENGINE_CPP_EXAMPLES": 1
+                }
             },
-            "targets": [ "division_core_example", "division_canvas_example" ]
+            "targets": [
+                "division_core_example",
+                "division_canvas_example"
+            ]
+        },
+        {
+            "label": "Run clang-tidy analysis",
+            "type": "shell",
+            "command": "clang-tidy-15 -p ./build ./examples/*.cpp",
+            "options": {
+                "cwd": "${workspaceFolder}",
+            },
         }
     ]
 }

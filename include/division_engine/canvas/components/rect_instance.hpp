@@ -1,3 +1,4 @@
+#pragma once
 #include <division_engine_core/vertex_buffer.h>
 
 #include <division_engine/core/vertex_data.hpp>
