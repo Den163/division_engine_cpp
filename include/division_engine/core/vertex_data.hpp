@@ -1,18 +1,19 @@
 #pragma once
 
-#include <concepts>
-#include <cstdint>
+#include "exception.hpp"
+#include "types.hpp"
+
 #include <division_engine_core/shader.h>
 #include <division_engine_core/vertex_buffer.h>
 #include <glm/fwd.hpp>
+
+#include <concepts>
+#include <cstdint>
 #include <span>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#include "exception.hpp"
-#include "types.hpp"
 
 #define DIVISION_IMPL_VERTEX_ATTR_SPEC(c_type, division_type)                            \
     template<>                                                                           \

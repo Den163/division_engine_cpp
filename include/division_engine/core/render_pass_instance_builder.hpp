@@ -1,10 +1,11 @@
 #pragma once
 
+#include "types.hpp"
+
 #include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
-#include <span>
 
-#include "types.hpp"
+#include <span>
 
 namespace division_engine::core
 {

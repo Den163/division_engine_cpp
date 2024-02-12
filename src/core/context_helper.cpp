@@ -1,29 +1,23 @@
 #include <cassert>
 #include <cstdint>
-#include <division_engine_core/render_pass_descriptor.h>
-#include <division_engine_core/render_pass_instance.h>
-#include <division_engine_core/texture.h>
-#include <division_engine_core/uniform_buffer.h>
-#include <division_engine_core/vertex_buffer.h>
-
-#include <division_engine_core/shader.h>
 #include <exception>
 #include <sstream>
 #include <string>
 #include <tuple>
 
-#include <glm/gtc/type_ptr.hpp>
+#include <division_engine_core/color.h>
+#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/shader.h>
+#include <division_engine_core/texture.h>
+#include <division_engine_core/uniform_buffer.h>
+#include <division_engine_core/vertex_buffer.h>
 #include <glm/vec4.hpp>
 
-#include <division_engine/core/context_helper.hpp>
-#include <division_engine/core/exception.hpp>
-#include <division_engine/utility/file.hpp>
-
+#include "core/context_helper.hpp"
+#include "core/exception.hpp"
 #include "core/types.hpp"
-#include "division_engine_core/color.h"
-#include "glm/detail/qualifier.hpp"
-#include "glm/ext/vector_float2.hpp"
-#include "glm/ext/vector_float4.hpp"
+#include "utility/file.hpp"
 
 namespace division_engine::core
 {

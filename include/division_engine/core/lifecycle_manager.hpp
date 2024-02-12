@@ -1,7 +1,8 @@
 #pragma once
 
-#include <concepts>
 #include <division_engine_core/context.h>
+
+#include <concepts>
 
 namespace division_engine::core
 {

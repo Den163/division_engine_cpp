@@ -1,13 +1,13 @@
 #pragma once
 
 #include <filesystem>
-#include <glm/vec2.hpp>
 #include <span>
 
 #include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <division_engine_core/renderer.h>
 #include <division_engine_core/texture.h>
+#include <glm/vec2.hpp>
 
 #include "exception.hpp"
 #include "glm/ext/vector_float2.hpp"

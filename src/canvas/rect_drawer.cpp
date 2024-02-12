@@ -2,17 +2,16 @@
 #include "core/alpha_blend.hpp"
 #include "core/render_pass_instance_builder.hpp"
 #include "core/types.hpp"
-#include "division_engine_core/render_pass_descriptor.h"
-#include "division_engine_core/render_pass_instance.h"
-#include "flecs/addons/cpp/c_types.hpp"
-#include "flecs/addons/cpp/iter.hpp"
 
-#include <bits/ranges_algo.h>
-#include <bits/ranges_algobase.h>
-#include <division_engine/canvas/components/rect_instance.hpp>
-#include <division_engine/canvas/components/render_texture.hpp>
-#include <division_engine/core/context_helper.hpp>
-#include <division_engine/core/render_pass_instance_builder.hpp>
+#include "canvas/components/rect_instance.hpp"
+#include "canvas/components/render_texture.hpp"
+#include "core/context_helper.hpp"
+#include "core/render_pass_instance_builder.hpp"
+
+#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/render_pass_instance.h>
+#include <flecs/addons/cpp/c_types.hpp>
+#include <flecs/addons/cpp/iter.hpp>
 
 #include <algorithm>
 #include <filesystem>

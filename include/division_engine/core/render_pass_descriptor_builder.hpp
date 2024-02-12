@@ -1,16 +1,16 @@
 #pragma once
 
-#include <division_engine_core/context.h>
-#include <division_engine_core/render_pass_descriptor.h>
-#include <glm/fwd.hpp>
-#include <glm/vec4.hpp>
-#include <cassert>
-#include <cstring>
-#include <optional>
-
 #include "alpha_blend.hpp"
 #include "exception.hpp"
 #include "types.hpp"
+
+#include <division_engine_core/context.h>
+#include <division_engine_core/render_pass_descriptor.h>
+#include <glm/vec4.hpp>
+
+#include <cassert>
+#include <cstring>
+#include <optional>
 
 namespace division_engine::core
 {

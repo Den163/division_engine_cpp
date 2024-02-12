@@ -1,10 +1,10 @@
 #pragma once
 
-#include <division_engine_core/context.h>
-#include <division_engine_core/uniform_buffer.h>
-
 #include "exception.hpp"
 #include "types.hpp"
+
+#include <division_engine_core/context.h>
+#include <division_engine_core/uniform_buffer.h>
 
 namespace division_engine::core
 {

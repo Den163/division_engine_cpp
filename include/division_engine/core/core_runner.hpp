@@ -1,14 +1,14 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "lifecycle_manager.hpp"
 
 #include <division_engine_core/context.h>
 #include <division_engine_core/division_lifecycle.h>
 #include <division_engine_core/renderer.h>
 #include <division_engine_core/settings.h>
-#include <string>
+#include <glm/glm.hpp>
 
-#include "lifecycle_manager.hpp"
+#include <string>
 
 namespace division_engine::core
 {

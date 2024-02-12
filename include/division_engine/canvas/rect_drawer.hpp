@@ -1,16 +1,15 @@
 #pragma once
 
-#include "division_engine/canvas/state.hpp"
 #include "division_engine/core/context_helper.hpp"
 #include "division_engine/core/types.hpp"
-
-#include <array>
-#include <cstddef>
+#include "state.hpp"
 
 #include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
-
 #include <glm/vec2.hpp>
+
+#include <array>
+#include <cstddef>
 #include <vector>
 
 namespace division_engine::canvas
