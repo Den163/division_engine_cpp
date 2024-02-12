@@ -1,13 +1,13 @@
 #pragma once
 
 #include "division_engine/core/context_helper.hpp"
-#include "glm/ext/vector_float2.hpp"
-#include <division_engine/core/types.hpp>
-#include <flecs.h>
+#include "division_engine/core/types.hpp"
+#include "render_queue.hpp"
 
-#include "division_engine_core/context.h"
-#include "division_engine_core/renderer.h"
-#include "glm/fwd.hpp"
+#include <division_engine_core/context.h>
+#include <division_engine_core/renderer.h>
+#include <flecs.h>
+#include <glm/vec4.hpp>
 
 namespace division_engine::canvas
 {
@@ -21,6 +21,7 @@ struct State
     core::ContextHelper context_helper;
     DivisionId screen_size_uniform_id;
     DivisionId white_texture_id;
+    RenderQueue render_queue;
 
     State(DivisionContext* context)
       : context_helper(context)

@@ -69,59 +69,56 @@ RectDrawer::~RectDrawer()
 void RectDrawer::update(State& state)
 {
     auto overall_instance_count = 0;
-    std::vector<DivisionRenderPassInstance> render_passes;
-    {
-        auto data = _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(
-            _vertex_buffer_id
+    auto data =
+        _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(_vertex_buffer_id
         );
 
-        auto instances = data.per_instance_data();
+    auto instances = data.per_instance_data();
 
-        const auto& filter =
-            state.world.filter_builder<RectInstance, RenderTexture>()
-                .term<RenderTexture>()
-                .up(flecs::IsA)
-                .instanced()
-                .build();
+    const auto& filter =
+        state.world.filter_builder<RectInstance, RenderTexture>()
+            .term<RenderTexture>()
+            .up(flecs::IsA)
+            .instanced()
+            .build();
 
+    filter.iter(
+        [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
+        {
+            auto lower_bound = std::lower_bound(
+                _textures_heap.begin(),
+                _textures_heap.end(),
+                tex_ptr->texture_id,
+                [](const auto& x, auto y) { return x.id < y; }
+            );
+            auto first_instance = overall_instance_count;
+            auto instance_count = it.count();
 
-        filter.iter(
-            [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
+            if (lower_bound == _textures_heap.end() ||
+                lower_bound->id != tex_ptr->texture_id)
             {
-                auto lower_bound = std::lower_bound(
-                    _textures_heap.begin(),
-                    _textures_heap.end(),
-                    tex_ptr->texture_id,
-                    [](const auto& x, auto y) { return x.id < y; }
+                _textures_heap.insert(
+                    lower_bound,
+                    DivisionIdWithBinding {
+                        .id = tex_ptr->texture_id,
+                        .shader_location = TEXTURE_LOCATION,
+                    }
                 );
-                auto first_instance = overall_instance_count;
-                auto instance_count = it.count();
-
-                if (lower_bound == _textures_heap.end() ||
-                    lower_bound->id != tex_ptr->texture_id)
-                {
-                    _textures_heap.insert(
-                        lower_bound,
-                        DivisionIdWithBinding {
-                            .id = tex_ptr->texture_id,
-                            .shader_location = TEXTURE_LOCATION,
-                        }
-                    );
-                }
-
-                auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
-
-                std::ranges::copy_n(rects, instance_count, instances.data());
-                overall_instance_count += instance_count;
-
-                render_passes.push_back(make_render_pass_instance(
-                    &_textures_heap[texture_index], first_instance, instance_count
-                ));
             }
-        );
-    }
 
-    _ctx_helper.draw_render_passes(render_passes, glm::vec4 { 1 });
+            auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
+
+            std::ranges::copy_n(rects, instance_count, instances.data());
+            overall_instance_count += instance_count;
+
+            state.render_queue.enqueue_pass(
+                make_render_pass_instance(
+                    &_textures_heap[texture_index], first_instance, instance_count
+                ),
+                0
+            );
+        }
+    );
 }
 
 core::DivisionId RectDrawer::make_vertex_buffer(

@@ -25,6 +25,8 @@ struct MyManager
         auto with_white_tex =
             state.world.entity().set(RenderTexture { state.white_texture_id });
 
+        state.clear_color = { 1, 1, 1, 0 };
+
         state.world.entity()
             .set(RectInstance {
                 .size = { 100, 100 },
@@ -48,6 +50,7 @@ struct MyManager
     {
         state.update();
         rect_drawer.update(state);
+        state.render_queue.draw(context, state.clear_color);
     }
 
     void cleanup(DivisionContext* context) {}
