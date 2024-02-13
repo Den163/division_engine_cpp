@@ -31,7 +31,7 @@ void RenderQueue::draw(DivisionContext* context, const glm::vec4& clear_color)
 
     division_engine_render_pass_instance_draw(
         context,
-        reinterpret_cast<const DivisionColor*>(&clear_color),
+        reinterpret_cast<const DivisionColor*>(&clear_color), //NOLINT
         _sorted_passes.data(),
         static_cast<uint32_t>(_sorted_passes.size())
     );

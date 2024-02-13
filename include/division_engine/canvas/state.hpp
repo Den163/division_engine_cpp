@@ -23,23 +23,26 @@ struct State
     DivisionId white_texture_id;
     RenderQueue render_queue;
 
+    State(State&) = delete;
+    State operator=(State&) = delete;
+    State(State&&) = delete;
+    State& operator=(State&&) = delete;
+    ~State() = default;
+
     State(DivisionContext* context)
-      : context_helper(context)
+      : clear_color({ 0, 0, 0, 1 })
+      , context_helper(context)
+      , screen_size_uniform_id(context_helper.create_uniform<glm::vec2>())
+      , white_texture_id(context_helper.create_texture(
+            { 1, 1 },
+            DivisionTextureFormat::DIVISION_TEXTURE_FORMAT_RGBA32Uint
+        ))
     {
-        screen_size_uniform_id = context_helper.create_uniform<glm::vec2>();
-        white_texture_id = context_helper.create_texture(
-            { 1, 1 }, DivisionTextureFormat::DIVISION_TEXTURE_FORMAT_RGBA32Uint
-        );
-        clear_color = { 0, 0, 0, 1 };
-        
-        uint8_t tex_data[] = { 0xFF, 0xFF, 0xFF, 0xFF };
-        context_helper.set_texture_data(white_texture_id, tex_data);
+        const auto tex_data = std::array<uint8_t, 4> { 0xFF };
+        context_helper.set_texture_data(white_texture_id, tex_data.data());
 
         update();
     }
-
-    State(State&) = delete;
-    State operator=(State&) = delete;
 
     void update()
     {

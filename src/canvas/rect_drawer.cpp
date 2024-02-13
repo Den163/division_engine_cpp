@@ -7,7 +7,9 @@
 #include "canvas/components/render_texture.hpp"
 #include "core/context_helper.hpp"
 #include "core/render_pass_instance_builder.hpp"
+#include "division_engine_core/vertex_buffer.h"
 
+#include <__iterator/incrementable_traits.h>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <flecs/addons/cpp/c_types.hpp>
@@ -35,15 +37,15 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
     })
+  , _vertex_buffer_id(make_vertex_buffer(_ctx_helper, rect_capacity))
+  , _instance_capacity(rect_capacity)
 {
     using path = std::filesystem::path;
-
-    _instance_capacity = rect_capacity;
 
     _shader_id = _ctx_helper.create_bundled_shader(
         path { "resources" } / "shaders" / "canvas" / "rect"
     );
-    _vertex_buffer_id = make_vertex_buffer(_ctx_helper, rect_capacity);
+
     _render_pass_descriptor_id =
         _ctx_helper.render_pass_descriptor_builder()
             .shader(_shader_id)
@@ -80,6 +82,19 @@ void RectDrawer::update(State& state)
             .instanced()
             .build();
 
+    auto needed_capacity = filter.count();
+    if (_instance_capacity < needed_capacity)
+    {
+        _ctx_helper.resize_vertex_buffer(
+            _vertex_buffer_id,
+            DivisionVertexBufferSize {
+                .vertex_count = RECT_VERTICES.size(),
+                .index_count = RECT_INDICES.size(),
+                .instance_count = static_cast<uint32_t>(needed_capacity) }
+        );
+        _instance_capacity = needed_capacity;
+    }
+
     filter.iter(
         [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
         {
@@ -106,8 +121,11 @@ void RectDrawer::update(State& state)
 
             auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
 
-            std::ranges::copy_n(rects, instance_count, instances.data());
-            overall_instance_count += instance_count;
+            using diff_type = std::iter_difference_t<RectInstance*>;
+            std::ranges::copy_n(
+                rects, static_cast<diff_type>(instance_count), instances.data()
+            );
+            overall_instance_count += static_cast<int>(instance_count);
 
             state.render_queue.enqueue_pass(
                 make_render_pass_instance(

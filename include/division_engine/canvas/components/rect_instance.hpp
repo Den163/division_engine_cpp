@@ -18,7 +18,7 @@ struct RectInstance
     glm::vec4 color;
     glm::vec4 trbl_border_radius;
 
-    static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
+    static constexpr auto vertex_attributes = std::array {
         core::make_vertex_attribute<decltype(RectInstance::size)>(2),
         core::make_vertex_attribute<decltype(RectInstance::position)>(3),
         core::make_vertex_attribute<decltype(RectInstance::color)>(4),

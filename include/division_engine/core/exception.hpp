@@ -13,8 +13,6 @@ public:
     {
     }
 
-    virtual ~Exception() throw() {}
-
     const char* what() const throw() override { return _message.c_str(); }
 
 private:

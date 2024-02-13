@@ -1,0 +1,4 @@
+Diagnostics:
+  ClangTidy:
+    Add: cppcoreguidelines-*
+    Remove: [cppcoreguidelines-owning-memory, cppcoreguidelines-pro-type-union-access]

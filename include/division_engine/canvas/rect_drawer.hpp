@@ -19,7 +19,7 @@ struct RectVertex
     glm::vec2 vertex_position;
     glm::vec2 uv;
 
-    static constexpr DivisionVertexAttributeSettings vertex_attributes[] = {
+    static constexpr auto vertex_attributes = std::array {
         core::make_vertex_attribute<decltype(RectVertex::vertex_position)>(0),
         core::make_vertex_attribute<decltype(RectVertex::uv)>(1)
     };
@@ -54,6 +54,10 @@ public:
     };
     static constexpr auto RECT_INDICES = std::array { 0u, 1u, 2u, 2u, 3u, 0u };
 
+    RectDrawer(const RectDrawer&) = default;
+    RectDrawer(RectDrawer&&) = delete;
+    RectDrawer& operator=(const RectDrawer&) = default;
+    RectDrawer& operator=(RectDrawer&&) = delete;
     RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
     ~RectDrawer();
 

@@ -30,7 +30,12 @@
         {
             "label": "Run clang-tidy analysis",
             "type": "shell",
-            "command": "clang-tidy-15 -p ./build ./examples/*.cpp",
+            "linux": {
+                "command": "clang-tidy-15 -p ./build ./examples/*.cpp",
+            },
+            "osx": {
+                "command": "clang-tidy -p ./build ./examples/*.cpp",
+            },
             "options": {
                 "cwd": "${workspaceFolder}",
             },

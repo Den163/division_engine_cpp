@@ -15,6 +15,7 @@ struct AlphaBlend
       , _dst_blend(dst_blend)
       , _constant_color(std::nullopt)
     {
+        // NOLINTNEXTLINE
         assert(!is_constant_color_blend(src_blend) & !is_constant_color_blend(dst_blend));
     }
 
@@ -26,6 +27,7 @@ struct AlphaBlend
       , _dst_blend(dst_blend)
       , _constant_color(constant_color)
     {
+        // NOLINTNEXTLINE
         assert(is_constant_color_blend(src_blend) | is_constant_color_blend(dst_blend));
     }
 

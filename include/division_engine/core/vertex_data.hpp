@@ -45,9 +45,15 @@ DIVISION_IMPL_VERTEX_ATTR_SPEC(glm::mat4x4, DivisionShaderVariableType::DIVISION
 template<typename TVertexData, typename TInstanceData>
 struct VertexBufferData
 {
+    VertexBufferData(const VertexBufferData&) = delete;
+    VertexBufferData(VertexBufferData&&) = delete;
+    VertexBufferData& operator=(const VertexBufferData&) = delete;
+    VertexBufferData& operator=(VertexBufferData&&) = delete;
+
     VertexBufferData(DivisionContext* context_ptr, DivisionId vertex_buffer_id)
       : context_ptr(context_ptr)
       , vertex_buffer_id(vertex_buffer_id)
+      , borrowed_data()
     {
         if (!division_engine_vertex_buffer_borrow_data(
                 context_ptr, vertex_buffer_id, &borrowed_data

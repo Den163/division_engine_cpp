@@ -14,6 +14,11 @@ namespace division_engine::core
 {
 struct CoreRunner
 {
+    CoreRunner(const CoreRunner&) = default;
+    CoreRunner(CoreRunner&&) = delete;
+    CoreRunner& operator=(const CoreRunner&) = default;
+    CoreRunner& operator=(CoreRunner&&) = delete;
+    
     CoreRunner(std::string window_title, glm::uvec2 window_size)
       : _ctx(nullptr)
       , _window_title(std::move(window_title))

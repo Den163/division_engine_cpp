@@ -11,12 +11,19 @@ namespace division_engine::core
 template<typename T>
 struct UniformData
 {
+    UniformData() = delete;
+    UniformData(UniformData&) = delete;
+    UniformData(UniformData&&) = delete;
+    UniformData& operator=(const UniformData&) = delete;
+    UniformData& operator=(UniformData&&) = delete;
+
     UniformData(DivisionContext* context_ptr, DivisionId uniform_id)
-      : context_ptr(context_ptr)
+      : data_ptr(static_cast<T*>(
+            division_engine_uniform_buffer_borrow_data_pointer(context_ptr, uniform_id)
+        ))
+      , context_ptr(context_ptr)
       , uniform_id(uniform_id)
     {
-        data_ptr = static_cast<T*>(
-            division_engine_uniform_buffer_borrow_data_pointer(context_ptr, uniform_id));
 
         if (data_ptr == nullptr)
         {
@@ -27,7 +34,8 @@ struct UniformData
     ~UniformData()
     {
         division_engine_uniform_buffer_return_data_pointer(
-            context_ptr, uniform_id, data_ptr);
+            context_ptr, uniform_id, data_ptr
+        );
     }
 
     T* data_ptr;

@@ -20,9 +20,8 @@ RenderPassDescriptorBuilder RenderPassDescriptorBuilder::shader(DivisionId shade
     return *this;
 }
 
-RenderPassDescriptorBuilder RenderPassDescriptorBuilder::vertex_buffer(
-    DivisionId vertex_buffer_id
-)
+RenderPassDescriptorBuilder
+RenderPassDescriptorBuilder::vertex_buffer(DivisionId vertex_buffer_id)
 {
     _init_vertex_buffer = true;
     _desc.vertex_buffer_id = vertex_buffer_id;
@@ -43,7 +42,11 @@ RenderPassDescriptorBuilder RenderPassDescriptorBuilder::enable_aplha_blending(
     if (alpha_blend.with_constant_color())
     {
         glm::vec4 col = alpha_blend.constant_color();
-        std::memcpy(blend_options.constant_blend_color, &col, sizeof(glm::vec4));
+        std::memcpy(
+            static_cast<float*>(blend_options.constant_blend_color),
+            &col,
+            sizeof(glm::vec4)
+        );
     }
 
     _desc.alpha_blending_options = blend_options;
@@ -63,8 +66,7 @@ DivisionId RenderPassDescriptorBuilder::build()
         };
     }
 
-    DivisionId pass_desc_id;
-
+    DivisionId pass_desc_id; // NOLINT
     if (!division_engine_render_pass_descriptor_alloc(_ctx, &_desc, &pass_desc_id))
     {
         throw Exception { "Failed to create the render pass" };

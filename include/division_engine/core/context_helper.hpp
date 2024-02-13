@@ -9,6 +9,7 @@
 #include <division_engine_core/texture.h>
 #include <glm/vec2.hpp>
 
+#include "division_engine_core/vertex_buffer.h"
 #include "exception.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "render_pass_descriptor_builder.hpp"
@@ -80,6 +81,8 @@ public:
         Topology topology
     );
 
+    void
+    resize_vertex_buffer(DivisionId vertex_buffer_id, DivisionVertexBufferSize new_size);
     void delete_vertex_buffer(DivisionId vertex_buffer_id);
 
     DivisionId create_uniform(DivisionUniformBufferDescriptor descriptor);

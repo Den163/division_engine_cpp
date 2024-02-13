@@ -1,6 +1,7 @@
 #include "core/render_pass_instance_builder.hpp"
 
 #include <division_engine_core/render_pass_instance.h>
+#include <sys/_types/_int32_t.h>
 
 namespace division_engine::core
 {
@@ -53,7 +54,7 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_vertex_buffers(
 )
 {
     _pass.uniform_vertex_buffers = vertex_uniforms.data(),
-    _pass.uniform_vertex_buffer_count = vertex_uniforms.size();
+    _pass.uniform_vertex_buffer_count = static_cast<int32_t>(vertex_uniforms.size());
 
     return *this;
 }
@@ -63,7 +64,7 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::uniform_fragment_buffers(
 )
 {
     _pass.uniform_fragment_buffers = fragment_uniforms.data();
-    _pass.uniform_fragment_buffer_count = fragment_uniforms.size();
+    _pass.uniform_fragment_buffer_count = static_cast<int32_t>(fragment_uniforms.size());
 
     return *this;
 }
@@ -73,7 +74,7 @@ RenderPassInstanceBuilder RenderPassInstanceBuilder::fragment_textures(
 )
 {
     _pass.fragment_textures = fragment_textures.data();
-    _pass.fragment_texture_count = fragment_textures.size();
+    _pass.fragment_texture_count = static_cast<int32_t>(fragment_textures.size());
 
     return *this;
 }

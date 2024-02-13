@@ -18,6 +18,13 @@ using namespace division_engine::core;
 
 struct MyManager
 {
+    MyManager() = delete;
+    MyManager(MyManager&&) = delete;
+    MyManager& operator=(MyManager&&) = delete;
+    MyManager(MyManager&) = delete;
+    MyManager operator=(MyManager&) = delete;
+    ~MyManager() = default;
+
     MyManager(DivisionContext* context)
       : state(context)
       , rect_drawer(state)
@@ -27,9 +34,10 @@ struct MyManager
 
         state.clear_color = { 1, 1, 1, 0 };
 
+        const size_t RECT_SIZE = 100;
         state.world.entity()
             .set(RectInstance {
-                .size = { 100, 100 },
+                .size = { RECT_SIZE, RECT_SIZE },
                 .position = glm::vec2 { 0 },
                 .color = { 0, 1, 0, 1 },
                 .trbl_border_radius = glm::vec4 { 0 },
@@ -38,10 +46,10 @@ struct MyManager
 
         state.world.entity()
             .set(RectInstance {
-                .size = { 100, 100 },
-                .position = { 256, 256 },
+                .size = { RECT_SIZE, RECT_SIZE },
+                .position = { 256, 256 }, // NOLINT
                 .color = { 0, 1, 0, 1 },
-                .trbl_border_radius = glm::vec4 { 10 },
+                .trbl_border_radius = glm::vec4 { 10 }, // NOLINT
             })
             .is_a(with_white_tex);
     }
@@ -74,6 +82,7 @@ struct MyManagerBuilder
 
 int main(int argc, char** argv)
 {
+    const size_t WINDOW_SIZE = 512;
     MyManagerBuilder manager;
-    CoreRunner { "Canvas example", { 512, 512 } }.run(manager);
+    CoreRunner { "Canvas example", { WINDOW_SIZE, WINDOW_SIZE } }.run(manager);
 }

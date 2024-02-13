@@ -27,9 +27,8 @@ ContextHelper::ContextHelper(DivisionContext* context)
 {
 }
 
-DivisionId ContextHelper::create_bundled_shader(
-    const std::filesystem::path& path_without_extension
-)
+DivisionId
+ContextHelper::create_bundled_shader(const std::filesystem::path& path_without_extension)
 {
     using path = std::filesystem::path;
 
@@ -53,7 +52,7 @@ DivisionId ContextHelper::create_bundled_shader(
     auto vertex_source = division_engine::utility::file::read_text(vertex_path);
     auto fragment_source = division_engine::utility::file::read_text(fragment_path);
 
-    DivisionShaderSourceDescriptor shader_descs[] = {
+    auto shader_descs = std::array {
         DivisionShaderSourceDescriptor {
             .type = DivisionShaderType::DIVISION_SHADER_VERTEX,
             .entry_point_name = vertex_entry_point,
@@ -68,8 +67,10 @@ DivisionId ContextHelper::create_bundled_shader(
         }
     };
 
-    DivisionId shader_program;
-    if (!division_engine_shader_program_alloc(_ctx, shader_descs, 2, &shader_program))
+    DivisionId shader_program = 0;
+    if (!division_engine_shader_program_alloc(
+            _ctx, shader_descs.data(), shader_descs.size(), &shader_program
+        ))
     {
         throw Exception { std::string { "Failed to create a shader" } };
     }
@@ -89,25 +90,36 @@ DivisionId ContextHelper::create_vertex_buffer(
     Topology topology
 )
 {
-    const DivisionVertexBufferSettings settings {
+    const DivisionVertexBufferConstSettings settings {
         .size = buffer_size,
         .per_vertex_attributes =
-            const_cast<DivisionVertexAttributeSettings*>(per_vertex_attributes.data()),
+            per_vertex_attributes.data(),
         .per_instance_attributes =
-            const_cast<DivisionVertexAttributeSettings*>(per_instance_attributes.data()),
+            per_instance_attributes.data(),
         .per_vertex_attribute_count = static_cast<int32_t>(per_vertex_attributes.size()),
         .per_instance_attribute_count =
             static_cast<int32_t>(per_instance_attributes.size()),
         .topology = topology
     };
 
-    DivisionId vertex_buffer_id;
+    DivisionId vertex_buffer_id = 0;
     if (!division_engine_vertex_buffer_alloc(_ctx, &settings, &vertex_buffer_id))
     {
         throw Exception { "Failed to create vertex buffer" };
     }
 
     return vertex_buffer_id;
+}
+
+void ContextHelper::resize_vertex_buffer(
+    DivisionId vertex_buffer_id,
+    DivisionVertexBufferSize new_size
+)
+{
+    if (!division_engine_vertex_buffer_resize(_ctx, vertex_buffer_id, new_size))
+    {
+        throw Exception { "Failed to resize vertex buffer" };
+    }
 }
 
 void ContextHelper::delete_vertex_buffer(DivisionId vertex_buffer_id)
@@ -122,7 +134,7 @@ void ContextHelper::delete_uniform(DivisionId buffer_id)
 
 DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descriptor)
 {
-    DivisionId buffer_id;
+    DivisionId buffer_id = 0;
     if (!division_engine_uniform_buffer_alloc(_ctx, descriptor, &buffer_id))
     {
         throw Exception { "Failed to create uniform buffer" };
@@ -137,7 +149,7 @@ void ContextHelper::draw_render_passes(
 {
     division_engine_render_pass_instance_draw(
         _ctx,
-        reinterpret_cast<DivisionColor*>(&clear_color.x),
+        reinterpret_cast<DivisionColor*>(&clear_color), // NOLINT
         render_pass_instances.data(),
         render_pass_instances.size()
     );
@@ -146,20 +158,22 @@ void ContextHelper::draw_render_passes(
 DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat format)
 {
     DivisionTexture texture {
-        .channels_swizzle = DivisionTextureChannelsSwizzle {
-            .red = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_RED,
-            .green = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_GREEN,
-            .blue = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_BLUE,
-            .alpha = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_ALPHA
-        },
+        .channels_swizzle =
+            DivisionTextureChannelsSwizzle {
+                .red = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_RED,
+                .green = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_GREEN,
+                .blue = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_BLUE,
+                .alpha = DIVISION_TEXTURE_CHANNEL_SWIZZLE_VARIANT_ALPHA },
         .texture_format = format,
-        .min_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
-        .mag_filter = DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
+        .min_filter =
+            DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
+        .mag_filter =
+            DivisionTextureMinMagFilter::DIVISION_TEXTURE_MIN_MAG_FILTER_NEAREST,
         .width = static_cast<uint32_t>(size.x),
         .height = static_cast<uint32_t>(size.y),
         .has_channels_swizzle = false,
     };
-    DivisionId id;
+    DivisionId id = 0;
     if (!division_engine_texture_alloc(_ctx, &texture, &id))
     {
         throw Exception { "Failed to create a texture" };
@@ -169,7 +183,7 @@ DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat f
 
 void ContextHelper::set_texture_data(DivisionId texture_id, const uint8_t* data)
 {
-    division_engine_texture_set_data(_ctx, texture_id, const_cast<uint8_t*>(data));
+    division_engine_texture_set_data(_ctx, texture_id, data);
 }
 
 void ContextHelper::delete_texture(DivisionId texture_id)
