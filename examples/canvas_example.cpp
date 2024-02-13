@@ -14,7 +14,7 @@
 #include <functional>
 #include <iostream>
 
-const size_t RECT_COUNT = 1'000;
+const size_t RECT_COUNT = 1'000'000;
 
 using namespace division_engine;
 using namespace division_engine::canvas;
@@ -38,6 +38,7 @@ struct MyManager
     MyManager(DivisionContext* context)
       : state(context)
       , rect_drawer(state)
+      , _query(state.world.query<RectInstance, Velocity>())
     {
         auto with_white_tex =
             state.world.entity().set(RenderTexture { state.white_texture_id });
@@ -66,10 +67,18 @@ struct MyManager
         state.update();
         rect_drawer.update(state);
 
+        update_rects();
+        
+        state.render_queue.draw(context, state.clear_color);
+    }
+
+    void update_rects()
+    {
         const auto screen_size = state.context_helper.get_screen_size();
 
-        state.world.each(
-            [screen_size](RectInstance& rect, Velocity& vel) {
+        _query.each(
+            [screen_size](RectInstance& rect, Velocity& vel)
+            {
                 auto& dir = vel.value;
                 auto next_pos = rect.position + dir;
                 if (next_pos.x > screen_size.x)
@@ -97,8 +106,6 @@ struct MyManager
                 rect.position = next_pos;
             }
         );
-
-        state.render_queue.draw(context, state.clear_color);
     }
 
     void cleanup(DivisionContext* context) {}
@@ -111,6 +118,7 @@ struct MyManager
 
     State state;
     RectDrawer rect_drawer;
+    flecs::query<RectInstance, Velocity> _query;
 };
 
 struct MyManagerBuilder

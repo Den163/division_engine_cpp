@@ -68,14 +68,14 @@ RectDrawer::~RectDrawer()
 void RectDrawer::update(State& state)
 {
     auto overall_instance_count = 0;
-    const auto& filter =
-        state.world.filter_builder<RectInstance, RenderTexture>()
+    _query =
+        state.world.query_builder<RectInstance, RenderTexture>()
             .term<RenderTexture>()
             .up(flecs::IsA)
             .instanced()
             .build();
 
-    auto needed_capacity = filter.count();
+    auto needed_capacity = _query.count();
     if (_instance_capacity < needed_capacity)
     {
         _ctx_helper.resize_vertex_buffer(
@@ -93,7 +93,7 @@ void RectDrawer::update(State& state)
         );
     auto instances = data.per_instance_data();
 
-    filter.iter(
+    _query.iter(
         [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
         {
             auto lower_bound = std::lower_bound(

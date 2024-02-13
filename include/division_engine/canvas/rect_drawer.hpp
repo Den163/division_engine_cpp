@@ -1,5 +1,7 @@
 #pragma once
 
+#include "components/rect_instance.hpp"
+#include "components/render_texture.hpp"
 #include "division_engine/core/context_helper.hpp"
 #include "division_engine/core/types.hpp"
 #include "state.hpp"
@@ -64,6 +66,7 @@ public:
     void update(State& state);
 
 private:
+    flecs::query<components::RectInstance, components::RenderTexture> _query;
     std::vector<DivisionIdWithBinding> _textures_heap;
     core::ContextHelper _ctx_helper;
     DivisionIdWithBinding _screen_size_uniform;
