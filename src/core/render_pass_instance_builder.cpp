@@ -1,7 +1,6 @@
 #include "core/render_pass_instance_builder.hpp"
 
 #include <division_engine_core/render_pass_instance.h>
-#include <sys/_types/_int32_t.h>
 
 namespace division_engine::core
 {

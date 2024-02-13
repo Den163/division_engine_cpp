@@ -9,7 +9,6 @@
 #include "core/render_pass_instance_builder.hpp"
 #include "division_engine_core/vertex_buffer.h"
 
-#include <__iterator/incrementable_traits.h>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <flecs/addons/cpp/c_types.hpp>
