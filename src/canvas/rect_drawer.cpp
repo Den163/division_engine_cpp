@@ -57,6 +57,16 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
                 DIVISION_ALPHA_BLEND_OP_ADD
             )
             .build();
+
+    _query = state.world.query_builder<RectInstance, RenderOrder, RenderTexture>()
+                 .term<RenderTexture>()
+                 .up(flecs::IsA)
+                 .order_by<RenderOrder>(
+                     [](auto e, const auto* ex, auto y, const auto* ey)
+                     { return static_cast<int>(ex->order) - static_cast<int>(ey->order); }
+                 )
+                 .instanced()
+                 .build();
 }
 
 RectDrawer::~RectDrawer()
@@ -68,12 +78,6 @@ RectDrawer::~RectDrawer()
 void RectDrawer::update(State& state)
 {
     auto overall_instance_count = 0;
-    _query =
-        state.world.query_builder<RectInstance, RenderTexture>()
-            .term<RenderTexture>()
-            .up(flecs::IsA)
-            .instanced()
-            .build();
 
     auto needed_capacity = _query.count();
     if (_instance_capacity < needed_capacity)
@@ -94,7 +98,10 @@ void RectDrawer::update(State& state)
     auto instances = data.per_instance_data();
 
     _query.iter(
-        [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)
+        [&](flecs::iter& it,
+            RectInstance* rects,
+            RenderOrder* ord_ptr,
+            RenderTexture* tex_ptr)
         {
             auto lower_bound = std::lower_bound(
                 _textures_heap.begin(),

@@ -1,4 +1,5 @@
 #include "division_engine/canvas/components/rect_instance.hpp"
+#include "division_engine/canvas/components/render_order.hpp"
 #include "division_engine/core/context_helper.hpp"
 #include "division_engine/core/lifecycle_manager.hpp"
 #include "division_engine_core/context.h"
@@ -58,6 +59,7 @@ struct MyManager
                     .trbl_border_radius { 0 },
                 })
                 .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
+                .set(RenderOrder { static_cast<uint32_t>(i) })
                 .is_a(with_white_tex);
         }
     }

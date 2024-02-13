@@ -2,6 +2,7 @@
 
 #include "components/rect_instance.hpp"
 #include "components/render_texture.hpp"
+#include "division_engine/canvas/components/render_order.hpp"
 #include "division_engine/core/context_helper.hpp"
 #include "division_engine/core/types.hpp"
 #include "state.hpp"
@@ -31,6 +32,9 @@ class RectDrawer
 {
 public:
     using DivisionId = core::DivisionId;
+    using RenderTexture = components::RenderTexture;
+    using RectInstance = components::RectInstance;
+    using RenderOrder = components::RenderOrder;
 
     static const size_t DEFAULT_RECT_CAPACITY = 64;
     static const size_t SCREEN_SIZE_UNIFORM_LOCATION = 1;
@@ -66,7 +70,7 @@ public:
     void update(State& state);
 
 private:
-    flecs::query<components::RectInstance, components::RenderTexture> _query;
+    flecs::query<RectInstance, RenderOrder, RenderTexture> _query;
     std::vector<DivisionIdWithBinding> _textures_heap;
     core::ContextHelper _ctx_helper;
     DivisionIdWithBinding _screen_size_uniform;
