@@ -69,12 +69,6 @@ RectDrawer::~RectDrawer()
 void RectDrawer::update(State& state)
 {
     auto overall_instance_count = 0;
-    auto data =
-        _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(_vertex_buffer_id
-        );
-
-    auto instances = data.per_instance_data();
-
     const auto& filter =
         state.world.filter_builder<RectInstance, RenderTexture>()
             .term<RenderTexture>()
@@ -94,6 +88,11 @@ void RectDrawer::update(State& state)
         );
         _instance_capacity = needed_capacity;
     }
+
+    auto data =
+        _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(_vertex_buffer_id
+        );
+    auto instances = data.per_instance_data();
 
     filter.iter(
         [&](flecs::iter& it, RectInstance* rects, RenderTexture* tex_ptr)

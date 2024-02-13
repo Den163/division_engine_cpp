@@ -1,4 +1,4 @@
 Diagnostics:
   ClangTidy:
-    Add: cppcoreguidelines-*
+    Add: [cppcoreguidelines-*, clang-analyzer-*, performance-*]
     Remove: [cppcoreguidelines-owning-memory, cppcoreguidelines-pro-type-union-access]

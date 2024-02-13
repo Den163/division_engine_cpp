@@ -38,8 +38,11 @@ struct State
             DivisionTextureFormat::DIVISION_TEXTURE_FORMAT_RGBA32Uint
         ))
     {
-        const auto tex_data = std::array<uint8_t, 4> { 0xFF };
-        context_helper.set_texture_data(white_texture_id, tex_data.data());
+        const uint32_t RGBA_WHITE_PIXEL = 0xFFFFFFFF;
+        context_helper.set_texture_data(
+            white_texture_id, 
+            reinterpret_cast<const uint8_t*>(&RGBA_WHITE_PIXEL) // NOLINT
+        );
 
         update();
     }
