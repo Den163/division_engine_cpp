@@ -1,3 +1,4 @@
+#include "division_engine/canvas/components/rect_instance.hpp"
 #include "division_engine/core/context_helper.hpp"
 #include "division_engine/core/lifecycle_manager.hpp"
 #include "division_engine_core/context.h"
@@ -7,14 +8,23 @@
 #include "division_engine/canvas/rect_drawer.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/core/core_runner.hpp"
+#include "glm/gtc/random.hpp"
 #include "glm/vec2.hpp"
 
 #include <functional>
 #include <iostream>
 
+const size_t RECT_COUNT = 1'000;
+
+using namespace division_engine;
 using namespace division_engine::canvas;
 using namespace division_engine::canvas::components;
 using namespace division_engine::core;
+
+struct Velocity
+{
+    glm::vec2 value;
+};
 
 struct MyManager
 {
@@ -32,32 +42,62 @@ struct MyManager
         auto with_white_tex =
             state.world.entity().set(RenderTexture { state.white_texture_id });
 
-        state.clear_color = { 1, 1, 1, 0 };
+        state.clear_color = color::WHITE;
 
-        const size_t RECT_SIZE = 100;
-        state.world.entity()
-            .set(RectInstance {
-                .size = { RECT_SIZE, RECT_SIZE },
-                .position = glm::vec2 { 0 },
-                .color = { 0, 1, 0, 1 },
-                .trbl_border_radius = glm::vec4 { 0 },
-            })
-            .is_a(with_white_tex);
+        const size_t RECT_SIZE = 10;
+        const auto screen_size = state.context_helper.get_screen_size();
 
-        state.world.entity()
-            .set(RectInstance {
-                .size = { RECT_SIZE, RECT_SIZE },
-                .position = { 256, 256 }, // NOLINT
-                .color = { 0, 1, 0, 1 },
-                .trbl_border_radius = glm::vec4 { 10 }, // NOLINT
-            })
-            .is_a(with_white_tex);
+        for (int i = 0; i < RECT_COUNT; i++)
+        {
+            state.world.entity()
+                .set(RectInstance {
+                    .size { RECT_SIZE },
+                    .position = glm::linearRand(glm::vec2 { 0 }, screen_size),
+                    .color = glm::linearRand(color::BLACK, color::WHITE),
+                    .trbl_border_radius { 0 },
+                })
+                .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
+                .is_a(with_white_tex);
+        }
     }
 
     void draw(DivisionContext* context)
     {
         state.update();
         rect_drawer.update(state);
+
+        const auto screen_size = state.context_helper.get_screen_size();
+
+        state.world.each(
+            [screen_size](RectInstance& rect, Velocity& vel) {
+                auto& dir = vel.value;
+                auto next_pos = rect.position + dir;
+                if (next_pos.x > screen_size.x)
+                {
+                    next_pos.x = screen_size.x;
+                    dir.x = -dir.x;
+                }
+                else if (next_pos.x < 0)
+                {
+                    next_pos.x = 0;
+                    dir.x = -dir.x;
+                }
+
+                if (next_pos.y > screen_size.y)
+                {
+                    next_pos.y = screen_size.y;
+                    dir.y = -dir.y;
+                }
+                else if (next_pos.y < 0)
+                {
+                    next_pos.y = 0;
+                    dir.y = -dir.y;
+                }
+
+                rect.position = next_pos;
+            }
+        );
+
         state.render_queue.draw(context, state.clear_color);
     }
 

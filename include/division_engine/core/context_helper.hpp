@@ -63,7 +63,7 @@ public:
         return RenderPassDescriptorBuilder { _ctx };
     }
 
-    glm::vec2 get_frame_buffer_size() const
+    glm::vec2 get_screen_size() const
     {
         return {
             _ctx->renderer_context->frame_buffer_width,
