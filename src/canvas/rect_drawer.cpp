@@ -22,21 +22,19 @@
 
 namespace division_engine::canvas
 {
-const size_t WHITE_TEXTURE_INDEX = 0;
-
 using components::RectInstance;
 using components::RenderTexture;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
-  : _ctx_helper(state.context_helper)
+  : _textures_heap({ DivisionIdWithBinding {
+        .id = state.white_texture_id,
+        .shader_location = TEXTURE_LOCATION,
+    } })
+  , _ctx_helper(state.context_helper)
   , _screen_size_uniform(DivisionIdWithBinding {
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
     })
-  , _textures_heap({ DivisionIdWithBinding {
-        .id = state.white_texture_id,
-        .shader_location = TEXTURE_LOCATION,
-    } })
 {
     using path = std::filesystem::path;
 

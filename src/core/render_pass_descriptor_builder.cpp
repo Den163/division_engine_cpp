@@ -3,11 +3,11 @@
 namespace division_engine::core
 {
 RenderPassDescriptorBuilder::RenderPassDescriptorBuilder(DivisionContext* context_ptr)
-  : _ctx(context_ptr)
-  , _desc(DivisionRenderPassDescriptor {
+  : _desc(DivisionRenderPassDescriptor {
         .capabilities_mask = DIVISION_RENDER_PASS_DESCRIPTOR_CAPABILITY_NONE,
         .color_mask = DIVISION_COLOR_MASK_RGB,
     })
+  , _ctx(context_ptr)
   , _init_shader(false)
   , _init_vertex_buffer(false)
 {

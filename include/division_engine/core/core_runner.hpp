@@ -15,9 +15,9 @@ namespace division_engine::core
 struct CoreRunner
 {
     CoreRunner(std::string window_title, glm::uvec2 window_size)
-      : _window_title(std::move(window_title))
+      : _ctx(nullptr)
+      , _window_title(std::move(window_title))
       , _window_size(window_size)
-      , _ctx(nullptr)
     {
     }
 

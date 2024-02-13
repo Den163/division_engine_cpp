@@ -15,7 +15,6 @@ struct UniformData
       : context_ptr(context_ptr)
       , uniform_id(uniform_id)
     {
-        DivisionUniformBufferDescriptor desc { .data_bytes = sizeof(T) };
         data_ptr = static_cast<T*>(
             division_engine_uniform_buffer_borrow_data_pointer(context_ptr, uniform_id));
 
