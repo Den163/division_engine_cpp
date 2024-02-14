@@ -14,7 +14,7 @@
 #include <division_engine_core/vertex_buffer.h>
 #include <glm/vec4.hpp>
 
-#include "core/context_helper.hpp"
+#include "core/context.hpp"
 #include "core/exception.hpp"
 #include "core/types.hpp"
 #include "utility/file.hpp"
@@ -22,13 +22,13 @@
 namespace division_engine::core
 {
 
-ContextHelper::ContextHelper(DivisionContext* context)
+Context::Context(DivisionContext* context)
   : _ctx(context)
 {
 }
 
 DivisionId
-ContextHelper::create_bundled_shader(const std::filesystem::path& path_without_extension)
+Context::create_bundled_shader(const std::filesystem::path& path_without_extension)
 {
     using path = std::filesystem::path;
 
@@ -78,12 +78,12 @@ ContextHelper::create_bundled_shader(const std::filesystem::path& path_without_e
     return shader_program;
 }
 
-void ContextHelper::delete_shader(DivisionId shader_id)
+void Context::delete_shader(DivisionId shader_id)
 {
     division_engine_shader_program_free(_ctx, shader_id);
 }
 
-DivisionId ContextHelper::create_vertex_buffer(
+DivisionId Context::create_vertex_buffer(
     std::span<const DivisionVertexAttributeSettings> per_vertex_attributes,
     std::span<const DivisionVertexAttributeSettings> per_instance_attributes,
     VertexBufferSize buffer_size,
@@ -111,7 +111,7 @@ DivisionId ContextHelper::create_vertex_buffer(
     return vertex_buffer_id;
 }
 
-void ContextHelper::resize_vertex_buffer(
+void Context::resize_vertex_buffer(
     DivisionId vertex_buffer_id,
     DivisionVertexBufferSize new_size
 )
@@ -122,17 +122,17 @@ void ContextHelper::resize_vertex_buffer(
     }
 }
 
-void ContextHelper::delete_vertex_buffer(DivisionId vertex_buffer_id)
+void Context::delete_vertex_buffer(DivisionId vertex_buffer_id)
 {
     division_engine_vertex_buffer_free(_ctx, vertex_buffer_id);
 }
 
-void ContextHelper::delete_uniform(DivisionId buffer_id)
+void Context::delete_uniform(DivisionId buffer_id)
 {
     division_engine_uniform_buffer_free(_ctx, buffer_id);
 }
 
-DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descriptor)
+DivisionId Context::create_uniform(DivisionUniformBufferDescriptor descriptor)
 {
     DivisionId buffer_id = 0;
     if (!division_engine_uniform_buffer_alloc(_ctx, descriptor, &buffer_id))
@@ -142,7 +142,7 @@ DivisionId ContextHelper::create_uniform(DivisionUniformBufferDescriptor descrip
 
     return buffer_id;
 }
-void ContextHelper::draw_render_passes(
+void Context::draw_render_passes(
     std::span<const DivisionRenderPassInstance> render_pass_instances,
     glm::vec4 clear_color
 )
@@ -155,7 +155,7 @@ void ContextHelper::draw_render_passes(
     );
 }
 
-DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat format)
+DivisionId Context::create_texture(glm::vec2 size, DivisionTextureFormat format)
 {
     DivisionTexture texture {
         .channels_swizzle =
@@ -181,12 +181,12 @@ DivisionId ContextHelper::create_texture(glm::vec2 size, DivisionTextureFormat f
     return id;
 }
 
-void ContextHelper::set_texture_data(DivisionId texture_id, const uint8_t* data)
+void Context::set_texture_data(DivisionId texture_id, const uint8_t* data)
 {
     division_engine_texture_set_data(_ctx, texture_id, data);
 }
 
-void ContextHelper::delete_texture(DivisionId texture_id)
+void Context::delete_texture(DivisionId texture_id)
 {
     division_engine_texture_free(_ctx, texture_id);
 }

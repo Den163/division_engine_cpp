@@ -14,10 +14,10 @@ concept LifecycleManager = requires(
   int32_t error_code,
   const char* error_message) {
     {
-        manager.draw(context)
+        manager.draw()
     };
     {
-        manager.error(context, error_code, error_message)
+        manager.error(error_code, error_message)
     };
 };
 

@@ -29,7 +29,8 @@ FetchContent_MakeAvailable(flecs)
 add_subdirectory(division_engine_core)
 
 set(DIVISION_ENGINE_CPP_SOURCES
-    src/core/context_helper.cpp
+    src/core/context.cpp
+    src/core/core_runner.cpp
     src/core/render_pass_descriptor_builder.cpp
     src/core/render_pass_instance_builder.cpp
     src/canvas/rect_drawer.cpp

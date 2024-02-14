@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <span>
 
-#include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <division_engine_core/renderer.h>
 #include <division_engine_core/texture.h>
@@ -22,10 +21,10 @@ namespace division_engine::core
 using VertexBufferSize = DivisionVertexBufferSize;
 using Topology = DivisionRenderTopology;
 
-class ContextHelper
+class Context
 {
 public:
-    ContextHelper(DivisionContext* context);
+    Context(DivisionContext* context);
 
     template<VertexData TVertexData, VertexData TInstanceData>
     DivisionId create_vertex_buffer(VertexBufferSize buffer_size, Topology topology)
@@ -58,17 +57,19 @@ public:
         return UniformData<T> { _ctx, uniform_id };
     }
 
-    RenderPassDescriptorBuilder render_pass_descriptor_builder()
-    {
-        return RenderPassDescriptorBuilder { _ctx };
-    }
-
     glm::vec2 get_screen_size() const
     {
         return {
             _ctx->renderer_context->frame_buffer_width,
             _ctx->renderer_context->frame_buffer_height,
         };
+    }
+
+    DivisionContext* get_ptr() { return _ctx; }
+
+    RenderPassDescriptorBuilder render_pass_descriptor_builder()
+    {
+        return RenderPassDescriptorBuilder { _ctx };
     }
 
     DivisionId create_bundled_shader(const std::filesystem::path& path_without_extension);

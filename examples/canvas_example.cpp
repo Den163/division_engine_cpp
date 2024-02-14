@@ -1,14 +1,12 @@
+#include "division_engine/canvas/components.hpp"
 #include "division_engine/canvas/components/rect_instance.hpp"
 #include "division_engine/canvas/components/render_order.hpp"
-#include "division_engine/core/context_helper.hpp"
-#include "division_engine/core/lifecycle_manager.hpp"
-#include "division_engine_core/context.h"
-#include "glm/fwd.hpp"
-
-#include "division_engine/canvas/components.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
 #include "division_engine/canvas/state.hpp"
+#include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
+#include "division_engine/core/lifecycle_manager.hpp"
+
 #include "glm/gtc/random.hpp"
 #include "glm/vec2.hpp"
 
@@ -47,7 +45,7 @@ struct MyManager
         state.clear_color = color::WHITE;
 
         const size_t RECT_SIZE = 10;
-        const auto screen_size = state.context_helper.get_screen_size();
+        const auto screen_size = state.context.get_screen_size();
 
         for (int i = 0; i < RECT_COUNT; i++)
         {
@@ -64,19 +62,19 @@ struct MyManager
         }
     }
 
-    void draw(DivisionContext* context)
+    void draw()
     {
         state.update();
         rect_drawer.update(state);
 
         update_rects();
-        
-        state.render_queue.draw(context, state.clear_color);
+
+        state.render_queue.draw(state.context.get_ptr(), state.clear_color);
     }
 
     void update_rects()
     {
-        const auto screen_size = state.context_helper.get_screen_size();
+        const auto screen_size = state.context.get_screen_size();
 
         _query.each(
             [screen_size](RectInstance& rect, Velocity& vel)
@@ -110,9 +108,7 @@ struct MyManager
         );
     }
 
-    void cleanup(DivisionContext* context) {}
-
-    void error(DivisionContext* context, int error_code, const char* error_message)
+    void error(int error_code, const char* error_message)
     {
         std::cout << "Error code: " << error_code << ". Message: " << error_message
                   << std::endl;

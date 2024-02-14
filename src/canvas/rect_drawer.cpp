@@ -5,7 +5,7 @@
 
 #include "canvas/components/rect_instance.hpp"
 #include "canvas/components/render_texture.hpp"
-#include "core/context_helper.hpp"
+#include "core/context.hpp"
 #include "core/render_pass_instance_builder.hpp"
 #include "division_engine_core/vertex_buffer.h"
 
@@ -31,7 +31,7 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
         .id = state.white_texture_id,
         .shader_location = TEXTURE_LOCATION,
     } })
-  , _ctx_helper(state.context_helper)
+  , _ctx_helper(state.context)
   , _screen_size_uniform(DivisionIdWithBinding {
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
@@ -143,7 +143,7 @@ void RectDrawer::update(State& state)
 }
 
 core::DivisionId RectDrawer::make_vertex_buffer(
-    core::ContextHelper& context_helper,
+    core::Context& context_helper,
     uint32_t instance_capacity
 )
 {

@@ -3,7 +3,7 @@
 #include "components/rect_instance.hpp"
 #include "components/render_texture.hpp"
 #include "division_engine/canvas/components/render_order.hpp"
-#include "division_engine/core/context_helper.hpp"
+#include "division_engine/core/context.hpp"
 #include "division_engine/core/types.hpp"
 #include "state.hpp"
 
@@ -72,7 +72,7 @@ public:
 private:
     flecs::query<RectInstance, RenderOrder, RenderTexture> _query;
     std::vector<DivisionIdWithBinding> _textures_heap;
-    core::ContextHelper _ctx_helper;
+    core::Context _ctx_helper;
     DivisionIdWithBinding _screen_size_uniform;
 
     DivisionId _shader_id;
@@ -82,7 +82,7 @@ private:
     uint32_t _instance_capacity;
 
     static DivisionId
-    make_vertex_buffer(core::ContextHelper& context_helper, uint32_t instance_capacity);
+    make_vertex_buffer(core::Context& context_helper, uint32_t instance_capacity);
 
     DivisionRenderPassInstance make_render_pass_instance(
         DivisionIdWithBinding* texture_ptr,
@@ -90,4 +90,4 @@ private:
         size_t instance_count
     );
 };
-} // namespace division_engine::canvas
+}
