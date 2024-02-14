@@ -6,15 +6,15 @@
 #include <division_engine_core/render_pass_instance.h>
 #include <division_engine_core/renderer.h>
 #include <division_engine_core/texture.h>
+
 #include <glm/vec2.hpp>
 
-#include "division_engine_core/vertex_buffer.h"
 #include "exception.hpp"
-#include "glm/ext/vector_float2.hpp"
 #include "render_pass_descriptor_builder.hpp"
 #include "types.hpp"
 #include "uniform_data.hpp"
 #include "vertex_data.hpp"
+#include "vertex_buffer_data.hpp"
 
 namespace division_engine::core
 {
