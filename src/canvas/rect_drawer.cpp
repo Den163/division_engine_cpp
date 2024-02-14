@@ -103,14 +103,12 @@ void RectDrawer::update(State& state)
             RenderOrder* ord_ptr,
             RenderTexture* tex_ptr)
         {
-            auto lower_bound = std::lower_bound(
+            const auto lower_bound = std::lower_bound(
                 _textures_heap.begin(),
                 _textures_heap.end(),
                 tex_ptr->texture_id,
                 [](const auto& x, auto y) { return x.id < y; }
             );
-            auto first_instance = overall_instance_count;
-            auto instance_count = it.count();
 
             if (lower_bound == _textures_heap.end() ||
                 lower_bound->id != tex_ptr->texture_id)
@@ -124,17 +122,20 @@ void RectDrawer::update(State& state)
                 );
             }
 
-            auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
+            const auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
 
-            using diff_type = std::iter_difference_t<RectInstance*>;
-            std::ranges::copy_n(
-                rects, static_cast<diff_type>(instance_count), instances.data()
-            );
-            overall_instance_count += static_cast<int>(instance_count);
+            const auto first_instance = overall_instance_count;
+            const auto rect_count = it.count();
+            const auto& batch_rects = std::span { rects, rect_count };
+
+            auto batch_instances = instances.subspan(first_instance, rect_count);
+
+            std::copy(batch_rects.begin(), batch_rects.end(), batch_instances.begin());
+            overall_instance_count += static_cast<int>(rect_count);
 
             state.render_queue.enqueue_pass(
                 make_render_pass_instance(
-                    &_textures_heap[texture_index], first_instance, instance_count
+                    &_textures_heap[texture_index], first_instance, rect_count
                 ),
                 0
             );
@@ -142,10 +143,8 @@ void RectDrawer::update(State& state)
     );
 }
 
-core::DivisionId RectDrawer::make_vertex_buffer(
-    core::Context& context_helper,
-    uint32_t instance_capacity
-)
+core::DivisionId
+RectDrawer::make_vertex_buffer(core::Context& context_helper, uint32_t instance_capacity)
 {
     auto id = context_helper.create_vertex_buffer<RectVertex, RectInstance>(
         core::VertexBufferSize {
