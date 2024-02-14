@@ -33,4 +33,14 @@ void CoreRunner::run(const DivisionLifecycle* lifecycle)
     division_engine_context_register_lifecycle(_ctx, lifecycle);
     division_engine_renderer_run_loop(_ctx);
 }
+
+void* CoreRunner::get_context_user_data(DivisionContext* context_ptr)
+{
+    return context_ptr->user_data;
+}
+
+void CoreRunner::set_context_user_data(DivisionContext* context_ptr, void* user_data_ptr)
+{
+    context_ptr->user_data = user_data_ptr;
+}
 }

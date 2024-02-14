@@ -2,12 +2,12 @@
 
 #include "lifecycle_manager.hpp"
 
-#include <division_engine_core/context.h>
 #include <division_engine_core/division_lifecycle.h>
-#include <functional>
 #include <glm/glm.hpp>
 
 #include <string>
+
+struct DivisionContext;
 
 namespace division_engine::core
 {
@@ -24,14 +24,36 @@ struct CoreRunner
     template<LifecycleManagerBuilder T>
     void run(T& lifecycle_manager_builder)
     {
-        using ManagerType = typename T::manager_type;
+        using manager_type = T::manager_type;
 
-        _ctx->user_data = &lifecycle_manager_builder;
+        set_context_user_data(_ctx, &lifecycle_manager_builder);
         DivisionLifecycle lifecycle {
-            .init_callback = build_callback<T>,
-            .draw_callback = draw_callback<ManagerType>,
-            .free_callback = cleanup<ManagerType>,
-            .error_callback = error_callback<ManagerType>,
+            .init_callback =
+                [](DivisionContext* ctx)
+            {
+                T& builder = *static_cast<T*>(get_context_user_data(ctx));
+                auto* manager = builder.build(ctx);
+
+                set_context_user_data(ctx, manager);
+            },
+            .draw_callback =
+                [](DivisionContext* ctx)
+            {
+                auto& manager = *static_cast<manager_type*>(get_context_user_data(ctx));
+                manager.draw();
+            },
+            .free_callback =
+                [](DivisionContext* ctx)
+            {
+                auto* manager = static_cast<manager_type*>(get_context_user_data(ctx));
+                delete manager;
+            },
+            .error_callback =
+                [](DivisionContext* ctx, int error_code, const char* error_message)
+            {
+                auto& manager = *static_cast<manager_type*>(get_context_user_data(ctx));
+                manager.error(error_code, error_message);
+            },
         };
 
         run(&lifecycle);
@@ -44,38 +66,7 @@ private:
 
     void run(const DivisionLifecycle* lifecycle);
 
-    template<LifecycleManagerBuilder T>
-    static void build_callback(DivisionContext* context)
-    {
-        T& builder = *static_cast<T*>(context->user_data);
-        auto* manager = builder.build(context);
-
-        context->user_data = manager;
-    }
-
-    template<LifecycleManager T>
-    static void cleanup(DivisionContext* context)
-    {
-        T* manager = static_cast<T*>(context->user_data);
-        delete manager;
-    }
-
-    template<LifecycleManager T>
-    static void draw_callback(DivisionContext* context)
-    {
-        T& manager = *static_cast<T*>(context->user_data);
-        manager.draw();
-    }
-
-    template<LifecycleManager T>
-    static void error_callback(
-        DivisionContext* context,
-        int32_t error_code,
-        const char* error_message
-    )
-    {
-        T& manager = *static_cast<T*>(context->user_data);
-        manager.error(error_code, error_message);
-    }
+    static void* get_context_user_data(DivisionContext* context_ptr);
+    static void set_context_user_data(DivisionContext* context_ptr, void* user_data_ptr);
 };
 }
