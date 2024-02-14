@@ -4,13 +4,14 @@
 #include "exception.hpp"
 #include "types.hpp"
 
-#include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <glm/vec4.hpp>
 
 #include <cassert>
 #include <cstring>
 #include <optional>
+
+struct DivisionContext;
 
 namespace division_engine::core
 {
@@ -24,7 +25,8 @@ public:
 
     RenderPassDescriptorBuilder enable_aplha_blending(
         AlphaBlend alpha_blend,
-        DivisionAlphaBlendOperation alpha_blend_op);
+        DivisionAlphaBlendOperation alpha_blend_op
+    );
 
     DivisionId build();
 

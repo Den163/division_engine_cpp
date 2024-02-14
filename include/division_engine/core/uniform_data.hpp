@@ -3,8 +3,9 @@
 #include "exception.hpp"
 #include "types.hpp"
 
-#include <division_engine_core/context.h>
 #include <division_engine_core/uniform_buffer.h>
+
+struct DivisionContext;
 
 namespace division_engine::core
 {

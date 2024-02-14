@@ -1,9 +1,8 @@
 #pragma once
 
-#include "types.hpp"
-
-#include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
+
+#include "types.hpp"
 
 #include <span>
 
