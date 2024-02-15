@@ -24,7 +24,7 @@ struct CoreRunner
     template<LifecycleManagerBuilder T>
     void run(T& lifecycle_manager_builder)
     {
-        using manager_type = T::manager_type;
+        using manager_type = typename T::manager_type;
 
         set_context_user_data(_ctx, &lifecycle_manager_builder);
         DivisionLifecycle lifecycle {

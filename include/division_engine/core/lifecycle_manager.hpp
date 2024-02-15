@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <stdint.h>
 
 struct DivisionContext;
 
