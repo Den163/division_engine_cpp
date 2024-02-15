@@ -5,8 +5,9 @@
 #include <string>
 #include <tuple>
 
-#include <division_engine_core/color.h>
-#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/types/color.h>
+
+#include <division_engine_core/renderer.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <division_engine_core/shader.h>
 #include <division_engine_core/texture.h>
@@ -16,7 +17,6 @@
 
 #include "core/context.hpp"
 #include "core/exception.hpp"
-#include "core/types.hpp"
 #include "utility/file.hpp"
 
 namespace division_engine::core
@@ -92,10 +92,8 @@ DivisionId Context::create_vertex_buffer(
 {
     const DivisionVertexBufferConstSettings settings {
         .size = buffer_size,
-        .per_vertex_attributes =
-            per_vertex_attributes.data(),
-        .per_instance_attributes =
-            per_instance_attributes.data(),
+        .per_vertex_attributes = per_vertex_attributes.data(),
+        .per_instance_attributes = per_instance_attributes.data(),
         .per_vertex_attribute_count = static_cast<int32_t>(per_vertex_attributes.size()),
         .per_instance_attribute_count =
             static_cast<int32_t>(per_instance_attributes.size()),
@@ -189,5 +187,12 @@ void Context::set_texture_data(DivisionId texture_id, const uint8_t* data)
 void Context::delete_texture(DivisionId texture_id)
 {
     division_engine_texture_free(_ctx, texture_id);
+}
+glm::vec2 Context::get_screen_size() const
+{
+    return {
+        _ctx->renderer_context->frame_buffer_width,
+        _ctx->renderer_context->frame_buffer_height,
+    };
 }
 }

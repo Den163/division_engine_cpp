@@ -1,7 +1,6 @@
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/render_pass_descriptor_builder.hpp"
 #include "division_engine/core/render_pass_instance_builder.hpp"
-#include "division_engine/core/types.hpp"
 #include "division_engine_core/context.h"
 #include "division_engine_core/render_pass_instance.h"
 #include "division_engine_core/shader.h"

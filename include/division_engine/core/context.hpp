@@ -3,15 +3,14 @@
 #include <filesystem>
 #include <span>
 
-#include <division_engine_core/render_pass_instance.h>
-#include <division_engine_core/renderer.h>
-#include <division_engine_core/texture.h>
+#include <division_engine_core/types/id.h>
+#include <division_engine_core/types/render_pass_instance.h>
+#include <division_engine_core/types/texture.h>
 
 #include <glm/vec2.hpp>
 
 #include "exception.hpp"
 #include "render_pass_descriptor_builder.hpp"
-#include "types.hpp"
 #include "uniform_data.hpp"
 #include "vertex_data.hpp"
 #include "vertex_buffer_data.hpp"
@@ -57,13 +56,7 @@ public:
         return UniformData<T> { _ctx, uniform_id };
     }
 
-    glm::vec2 get_screen_size() const
-    {
-        return {
-            _ctx->renderer_context->frame_buffer_width,
-            _ctx->renderer_context->frame_buffer_height,
-        };
-    }
+    glm::vec2 get_screen_size() const;
 
     DivisionContext* get_ptr() { return _ctx; }
 

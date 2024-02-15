@@ -1,14 +1,14 @@
 #pragma once
 
 #include "components/rect_instance.hpp"
+#include "components/render_order.hpp"
 #include "components/render_texture.hpp"
-#include "division_engine/canvas/components/render_order.hpp"
+
 #include "division_engine/core/context.hpp"
-#include "division_engine/core/types.hpp"
+
 #include "state.hpp"
 
-#include <division_engine_core/context.h>
-#include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/types/render_pass_instance.h>
 #include <glm/vec2.hpp>
 
 #include <array>
@@ -31,7 +31,6 @@ struct RectVertex
 class RectDrawer
 {
 public:
-    using DivisionId = core::DivisionId;
     using RenderTexture = components::RenderTexture;
     using RectInstance = components::RectInstance;
     using RenderOrder = components::RenderOrder;

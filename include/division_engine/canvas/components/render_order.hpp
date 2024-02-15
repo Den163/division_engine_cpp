@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 
 namespace division_engine::canvas::components

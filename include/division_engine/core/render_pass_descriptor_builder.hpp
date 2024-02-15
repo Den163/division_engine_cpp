@@ -2,9 +2,10 @@
 
 #include "alpha_blend.hpp"
 #include "exception.hpp"
-#include "types.hpp"
 
-#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/types/render_pass_descriptor.h>
+#include <division_engine_core/types/id.h>
+
 #include <glm/vec4.hpp>
 
 #include <cassert>

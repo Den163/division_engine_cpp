@@ -1,10 +1,10 @@
 #pragma once
 
 #include "exception.hpp"
-#include "types.hpp"
 
-#include <division_engine_core/shader.h>
-#include <division_engine_core/vertex_buffer.h>
+#include <division_engine_core/types/id.h>
+#include <division_engine_core/types/shader.h>
+#include <division_engine_core/types/vertex_buffer.h>
 #include <glm/fwd.hpp>
 
 #include <concepts>

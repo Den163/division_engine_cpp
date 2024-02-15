@@ -1,9 +1,9 @@
 #include "canvas/render_queue.hpp"
 #include "canvas/state.hpp"
 
-#include <division_engine_core/color.h>
 #include <division_engine_core/context.h>
 #include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/types/color.h>
 
 #include <algorithm>
 #include <ranges>

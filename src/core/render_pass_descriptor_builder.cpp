@@ -1,5 +1,7 @@
 #include "core/render_pass_descriptor_builder.hpp"
 
+#include <division_engine_core/render_pass_descriptor.h>
+
 namespace division_engine::core
 {
 RenderPassDescriptorBuilder::RenderPassDescriptorBuilder(DivisionContext* context_ptr)

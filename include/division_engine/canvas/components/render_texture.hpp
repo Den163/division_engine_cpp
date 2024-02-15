@@ -1,10 +1,11 @@
 #pragma once
-#include <division_engine/core/types.hpp>
+
+#include <division_engine_core/types/id.h>
 
 namespace division_engine::canvas::components
 {
 struct RenderTexture
 {
-    core::DivisionId texture_id;
+    DivisionId texture_id;
 };
 }

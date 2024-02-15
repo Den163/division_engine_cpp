@@ -1,6 +1,6 @@
 #pragma once
-#include <division_engine_core/vertex_buffer.h>
 
+#include <division_engine_core/types/vertex_buffer.h>
 #include <division_engine/core/vertex_data.hpp>
 
 #include <glm/vec2.hpp>

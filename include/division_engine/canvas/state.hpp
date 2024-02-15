@@ -1,18 +1,16 @@
 #pragma once
 
 #include "division_engine/core/context.hpp"
-#include "division_engine/core/types.hpp"
 #include "division_engine/color.hpp"
 #include "render_queue.hpp"
 
-#include <division_engine_core/context.h>
-#include <division_engine_core/renderer.h>
+#include <division_engine_core/types/id.h>
+
 #include <flecs.h>
 #include <glm/vec4.hpp>
 
 namespace division_engine::canvas
 {
-using DivisionId = core::DivisionId;
 
 struct State
 {

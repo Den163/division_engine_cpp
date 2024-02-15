@@ -1,6 +1,6 @@
 #pragma once
 
-#include <division_engine_core/render_pass_descriptor.h>
+#include <division_engine_core/types/render_pass_descriptor.h>
 #include <glm/vec4.hpp>
 
 #include <optional>

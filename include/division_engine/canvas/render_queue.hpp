@@ -1,12 +1,13 @@
 #pragma once
 
-#include <division_engine_core/context.h>
-#include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/types/render_pass_instance.h>
 #include <glm/vec4.hpp>
 
 #include <cstdint>
 #include <utility>
 #include <vector>
+
+struct DivisionContext;
 
 namespace division_engine::canvas
 {

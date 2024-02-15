@@ -1,7 +1,6 @@
 #include "canvas/rect_drawer.hpp"
 #include "core/alpha_blend.hpp"
 #include "core/render_pass_instance_builder.hpp"
-#include "core/types.hpp"
 
 #include "canvas/components/rect_instance.hpp"
 #include "canvas/components/render_texture.hpp"
@@ -143,7 +142,7 @@ void RectDrawer::update(State& state)
     );
 }
 
-core::DivisionId
+DivisionId
 RectDrawer::make_vertex_buffer(core::Context& context_helper, uint32_t instance_capacity)
 {
     auto id = context_helper.create_vertex_buffer<RectVertex, RectInstance>(

@@ -2,7 +2,7 @@
 
 #include "lifecycle_manager.hpp"
 
-#include <division_engine_core/division_lifecycle.h>
+#include <division_engine_core/types/division_lifecycle.h>
 #include <glm/glm.hpp>
 
 #include <string>

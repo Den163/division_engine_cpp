@@ -1,8 +1,8 @@
 #pragma once
 
 #include "exception.hpp"
-#include "types.hpp"
 
+#include <division_engine_core/types/id.h>
 #include <division_engine_core/vertex_buffer.h>
 
 #include <span>
