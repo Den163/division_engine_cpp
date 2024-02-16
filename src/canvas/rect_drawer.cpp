@@ -10,8 +10,6 @@
 
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
-#include <flecs/addons/cpp/c_types.hpp>
-#include <flecs/addons/cpp/iter.hpp>
 
 #include <algorithm>
 #include <filesystem>
