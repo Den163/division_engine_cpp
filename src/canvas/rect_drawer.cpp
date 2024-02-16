@@ -102,7 +102,7 @@ void RectDrawer::update(State& state)
             RenderOrder* ord_ptr,
             RenderTexture* tex_ptr)
         {
-            const auto lower_bound = std::lower_bound(
+            auto lower_bound = std::lower_bound(
                 _textures_heap.begin(),
                 _textures_heap.end(),
                 tex_ptr->texture_id,
@@ -112,7 +112,7 @@ void RectDrawer::update(State& state)
             if (lower_bound == _textures_heap.end() ||
                 lower_bound->id != tex_ptr->texture_id)
             {
-                _textures_heap.insert(
+                lower_bound = _textures_heap.insert(
                     lower_bound,
                     DivisionIdWithBinding {
                         .id = tex_ptr->texture_id,

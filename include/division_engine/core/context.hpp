@@ -1,5 +1,6 @@
 #pragma once
 
+#include <_types/_uint8_t.h>
 #include <filesystem>
 #include <span>
 
@@ -9,6 +10,7 @@
 
 #include <glm/vec2.hpp>
 
+#include "division_engine_core/types/font.h"
 #include "exception.hpp"
 #include "render_pass_descriptor_builder.hpp"
 #include "uniform_data.hpp"
@@ -82,7 +84,7 @@ public:
     DivisionId create_uniform(DivisionUniformBufferDescriptor descriptor);
     void delete_uniform(DivisionId buffer_id);
 
-    DivisionId create_texture(glm::vec2 size, DivisionTextureFormat format);
+    DivisionId create_texture(glm::ivec2 size, DivisionTextureFormat format);
     void set_texture_data(DivisionId texture_id, const uint8_t* data);
     void delete_texture(DivisionId texture_id);
 
@@ -90,6 +92,11 @@ public:
         std::span<const DivisionRenderPassInstance> render_pass_instances,
         glm::vec4 clear_color
     );
+
+    DivisionId create_font(const std::filesystem::path& font_path, uint32_t font_height);
+    DivisionFontGlyph get_font_glyph(DivisionId font_id, char32_t character);
+    void rasterize_glyph(DivisionId font_id, char32_t character, uint8_t* buffer);
+    void delete_font(DivisionId font_id);
 
 private:
     DivisionContext* _ctx;

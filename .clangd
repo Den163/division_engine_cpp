@@ -1,4 +1,9 @@
 Diagnostics:
   ClangTidy:
     Add: [cppcoreguidelines-*, clang-analyzer-*, performance-*]
-    Remove: [cppcoreguidelines-owning-memory, cppcoreguidelines-pro-type-union-access]
+    Remove: [
+        cppcoreguidelines-no-malloc,
+        cppcoreguidelines-owning-memory, 
+        cppcoreguidelines-pro-bounds-pointer-arithmetic,
+        cppcoreguidelines-pro-type-union-access, 
+    ]

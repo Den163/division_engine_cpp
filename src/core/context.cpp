@@ -7,8 +7,8 @@
 
 #include <division_engine_core/types/color.h>
 
-#include <division_engine_core/renderer.h>
 #include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/renderer.h>
 #include <division_engine_core/shader.h>
 #include <division_engine_core/texture.h>
 #include <division_engine_core/uniform_buffer.h>
@@ -17,6 +17,9 @@
 
 #include "core/context.hpp"
 #include "core/exception.hpp"
+#include "division_engine_core/font.h"
+#include "division_engine_core/types/font.h"
+#include "division_engine_core/types/id.h"
 #include "utility/file.hpp"
 
 namespace division_engine::core
@@ -153,7 +156,7 @@ void Context::draw_render_passes(
     );
 }
 
-DivisionId Context::create_texture(glm::vec2 size, DivisionTextureFormat format)
+DivisionId Context::create_texture(glm::ivec2 size, DivisionTextureFormat format)
 {
     DivisionTexture texture {
         .channels_swizzle =
@@ -195,4 +198,52 @@ glm::vec2 Context::get_screen_size() const
         _ctx->renderer_context->frame_buffer_height,
     };
 }
+DivisionId Context::create_font(const std::filesystem::path& font_path, uint32_t font_height)
+{
+
+    DivisionId font_id; // NOLINT
+    if (!division_engine_font_alloc(_ctx, font_path.c_str(), font_height, &font_id))
+    {
+        throw Exception {
+            std::string { "Failed to create new font by path: " } + font_path.c_str(),
+        };
+    }
+
+    return font_id;
+}
+
+DivisionFontGlyph Context::get_font_glyph(DivisionId font_id, char32_t character)
+{
+    DivisionFontGlyph glyph;
+    if (!division_engine_font_get_glyph(
+            _ctx, font_id, static_cast<int32_t>(character), &glyph
+        ))
+    {
+        throw Exception {
+            std::string { "Failed to get a glyph for the character: " } +
+                std::to_string(character),
+        };
+    }
+
+    return glyph;
+}
+
+void Context::rasterize_glyph(DivisionId font_id, char32_t character, uint8_t* buffer)
+{
+    if (!division_engine_font_rasterize_glyph(
+            _ctx, font_id, static_cast<int32_t>(character), buffer
+        ))
+    {
+        throw Exception {
+            std::string { "Failed to rasterize glyph for the character: " } +
+                std::to_string(character),
+        };
+    }
+}
+
+void Context::delete_font(DivisionId font_id)
+{
+    division_engine_font_free(_ctx, font_id);
+}
+
 }

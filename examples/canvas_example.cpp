@@ -5,15 +5,22 @@
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
+#include "division_engine/core/font_texture.hpp"
 #include "division_engine/core/lifecycle_manager.hpp"
 
 #include "glm/gtc/random.hpp"
 #include "glm/vec2.hpp"
 
+#include <filesystem>
 #include <functional>
 #include <iostream>
+#include <string>
 
-const size_t RECT_COUNT = 1'000'000;
+const size_t RECT_COUNT = 2;
+
+const auto FONT_SIZE = 64;
+const auto FONT_PATH =
+    std::filesystem::path { "resources" } / "fonts" / "Roboto-Medium.ttf";
 
 using namespace division_engine;
 using namespace division_engine::canvas;
@@ -34,26 +41,34 @@ struct MyManager
     MyManager operator=(MyManager&) = delete;
     ~MyManager() = default;
 
-    MyManager(DivisionContext* context)
-      : state(context)
-      , rect_drawer(state)
-      , _query(state.world.query<RectInstance, Velocity>())
+    MyManager(DivisionContext* context_ptr)
+      : _state(context_ptr)
+      , _rect_drawer(_state)
+      , _font_texture( FontTexture { _state.context, FONT_PATH, FONT_SIZE } )
+      , _query(_state.world.query<RectInstance, Velocity>())
     {
-        auto with_white_tex =
-            state.world.entity().set(RenderTexture { state.white_texture_id });
+        const auto with_white_tex =
+            _state.world.entity().set(RenderTexture { _font_texture.texture_id() });
+        const std::basic_string<char32_t> input_string  { U"Привет!" };
+        for (char32_t ch : input_string)
+        {
+            _font_texture.reserve_character(ch);
+        }
 
-        state.clear_color = color::WHITE;
+        _font_texture.upload_texture();
 
-        const size_t RECT_SIZE = 10;
-        const auto screen_size = state.context.get_screen_size();
+        _state.clear_color = color::WHITE;
+
+        const size_t RECT_SIZE = 256;
+        const auto screen_size = _state.context.get_screen_size();
 
         for (int i = 0; i < RECT_COUNT; i++)
         {
-            state.world.entity()
+            _state.world.entity()
                 .set(RectInstance {
                     .size { RECT_SIZE },
                     .position = glm::linearRand(glm::vec2 { 0 }, screen_size),
-                    .color = glm::linearRand(color::BLACK, color::WHITE),
+                    .color = glm::vec4 { 1 },
                     .trbl_border_radius { 0 },
                 })
                 .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
@@ -64,17 +79,17 @@ struct MyManager
 
     void draw()
     {
-        state.update();
-        rect_drawer.update(state);
+        _state.update();
+        _rect_drawer.update(_state);
 
         update_rects();
 
-        state.render_queue.draw(state.context.get_ptr(), state.clear_color);
+        _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
     void update_rects()
     {
-        const auto screen_size = state.context.get_screen_size();
+        const auto screen_size = _state.context.get_screen_size();
 
         _query.each(
             [screen_size](RectInstance& rect, Velocity& vel)
@@ -114,8 +129,9 @@ struct MyManager
                   << std::endl;
     }
 
-    State state;
-    RectDrawer rect_drawer;
+    State _state;
+    RectDrawer _rect_drawer;
+    FontTexture _font_texture;
     flecs::query<RectInstance, Velocity> _query;
 };
 
