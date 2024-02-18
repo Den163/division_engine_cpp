@@ -12,8 +12,7 @@
 
 #include <filesystem>
 #include <ranges>
-#include <string_view>
-#include <type_traits>
+#include <string>
 
 namespace division_engine::canvas
 {
@@ -158,8 +157,7 @@ void TextDrawer::update(State& state)
                     break;
                 }
 
-                using str_diff_type =
-                    std::remove_reference<decltype(text_str)>::type::difference_type;
+                using str_diff_type = std::u16string::difference_type;
 
                 const auto word_start_it =
                     text_str.begin() + static_cast<str_diff_type>(i);

@@ -66,13 +66,12 @@ struct MyManager
 
         _state.world.entity()
             .set(RenderableText {
-                .color = color::BLACK,
+                .color = color::PURPLE,
                 .text = u"Hello text drawer",
-                .font_size = FONT_SIZE
+                .font_size = FONT_SIZE,
             })
             .set(RenderBounds {
-                Rect::from_center(glm::vec2 { 256,256 }, glm::vec2 { 256, 256 })
-            })
+                Rect::from_center(glm::vec2 { 256, 256 }, glm::vec2 { 256, 256 }) })
             .set(RenderOrder { 10 });
 
         for (int i = 0; i < RECT_COUNT; i++)
