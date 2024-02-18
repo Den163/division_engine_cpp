@@ -4,7 +4,7 @@
 #include "components/render_texture.hpp"
 #include "components/renderable_rect.hpp"
 
-#include "division_engine/canvas/components/render_bounds.hpp"
+#include "components/render_bounds.hpp"
 #include "division_engine/core/context.hpp"
 
 #include "state.hpp"

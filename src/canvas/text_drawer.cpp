@@ -1,7 +1,8 @@
 #include "division_engine/canvas/text_drawer.hpp"
 
+#include "canvas/components/render_batch.hpp"
+#include "core/alpha_blend.hpp"
 #include "core/render_pass_instance_builder.hpp"
-#include "division_engine/core/alpha_blend.hpp"
 #include "flecs/addons/cpp/mixins/query/builder.hpp"
 #include "glm/ext/vector_float2.hpp"
 
@@ -22,6 +23,8 @@ const auto RASTERIZED_FONT_SIZE = 64.f;
 const auto INSTANCE_CAPACITY = 1024;
 const auto SCREEN_SIZE_UNIFORM_LOCATION = 1;
 const auto TEXTURE_LOCATION = 0;
+
+using namespace components;
 
 TextDrawer::TextDrawer(
     Context& context,
@@ -79,6 +82,8 @@ TextDrawer::TextDrawer(
             .query_builder<const RenderBounds, const RenderableText, const RenderOrder>()
             .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
                                    { return x->compare(*y); })
+            .term<RenderBatch>()
+            .up(flecs::IsA)
             .build();
 }
 
@@ -97,7 +102,6 @@ void TextDrawer::update(State& state)
     auto vb_data =
         _ctx.borrow_vertex_buffer_data<TextCharVertex, TextCharInstance>(_vertex_buffer_id
         );
-
     auto instances = vb_data.per_instance_data();
 
     if (_query.count() == 0)

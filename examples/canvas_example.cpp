@@ -1,5 +1,6 @@
 #include "division_engine/canvas/border_radius.hpp"
 #include "division_engine/canvas/components.hpp"
+#include "division_engine/canvas/components/render_batch.hpp"
 #include "division_engine/canvas/components/render_bounds.hpp"
 #include "division_engine/canvas/components/render_order.hpp"
 #include "division_engine/canvas/components/renderable_rect.hpp"
@@ -17,23 +18,25 @@
 #include "glm/gtc/random.hpp"
 #include "glm/vec2.hpp"
 
+#include <array>
 #include <filesystem>
 #include <functional>
 #include <iostream>
 #include <locale>
 #include <string>
 
-const size_t RECT_COUNT = 2;
-const size_t RECT_SIZE = 128;
-
-const auto FONT_SIZE = 20;
-const auto FONT_PATH =
-    std::filesystem::path { "resources" } / "fonts" / "Roboto-Medium.ttf";
-
 using namespace division_engine;
 using namespace division_engine::canvas;
 using namespace division_engine::canvas::components;
 using namespace division_engine::core;
+
+const size_t RECT_COUNT = 1000;
+const size_t RECT_SIZE = 16;
+const size_t TEXT_RECT_SIZE = 256;
+
+const auto FONT_SIZE = 20;
+const auto FONT_PATH =
+    std::filesystem::path { "resources" } / "fonts" / "Roboto-Medium.ttf";
 
 struct Velocity
 {
@@ -58,11 +61,31 @@ struct MyManager
         const auto with_white_tex =
             _state.world.entity().set(RenderTexture { _state.white_texture_id });
 
+        const auto batch0 = _state.world.entity().set(RenderBatch { 0 });
+        const auto batch1 = _state.world.entity().set(RenderBatch { 1 });
+        const auto batch2 = _state.world.entity().set(RenderBatch { 2 });
+
         const std::u16string input_string { u"Привет" };
 
         _state.clear_color = color::WHITE;
 
         const auto screen_size = _state.context.get_screen_size();
+
+        for (int i = 0; i < RECT_COUNT; i++)
+        {
+            _state.world.entity()
+                .set(RenderableRect {
+                    .color = glm::linearRand(color::WHITE, color::BLACK),
+                    .border_radius = BorderRadius::all(0),
+                })
+                .set(RenderBounds { Rect::from_center(
+                    glm::linearRand(glm::vec2 { 0 }, screen_size), glm::vec2 { RECT_SIZE }
+                ) })
+                .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
+                .set(RenderOrder { static_cast<uint32_t>(i) })
+                .is_a(with_white_tex)
+                .is_a(batch0);
+        }
 
         _state.world.entity()
             .set(RenderableText {
@@ -71,23 +94,22 @@ struct MyManager
                 .font_size = FONT_SIZE,
             })
             .set(RenderBounds {
-                Rect::from_center(glm::vec2 { 256, 256 }, glm::vec2 { 256, 256 }) })
-            .set(RenderOrder { 10 });
+                Rect::from_center(glm::vec2 { 256, 256 }, glm::vec2 { TEXT_RECT_SIZE }) })
+            .set(RenderOrder { RECT_COUNT })
+            .is_a(batch1);
 
-        for (int i = 0; i < RECT_COUNT; i++)
-        {
-            _state.world.entity()
-                .set(RenderableRect {
-                    .color = glm::linearRand(color::BLACK, color::WHITE),
-                    .border_radius = BorderRadius::all(0),
-                })
-                .set(RenderBounds { Rect::from_center(
-                    glm::linearRand(glm::vec2 { 0 }, screen_size), glm::vec2 { RECT_SIZE }
-                ) })
-                .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
-                .set(RenderOrder { static_cast<uint32_t>(i) })
-                .is_a(with_white_tex);
-        }
+        _state.world.entity()
+            .set(RenderableRect {
+                .color = color::RED,
+                .border_radius = BorderRadius::all(0),
+            })
+            .set(RenderBounds { Rect::from_center(
+                glm::linearRand(glm::vec2 { 0 }, screen_size), glm::vec2 { 128 }
+            ) })
+            .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
+            .set(RenderOrder { RECT_COUNT + 1 })
+            .is_a(with_white_tex)
+            .is_a(batch2);
     }
 
     void draw()

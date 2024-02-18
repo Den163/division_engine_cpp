@@ -1,5 +1,6 @@
 #pragma once
 
+#include "components/render_batch.hpp"
 #include "components/render_order.hpp"
 #include "components/render_texture.hpp"
 #include "components/renderable_rect.hpp"

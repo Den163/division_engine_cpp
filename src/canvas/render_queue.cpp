@@ -1,4 +1,5 @@
 #include "canvas/render_queue.hpp"
+
 #include "canvas/state.hpp"
 
 #include <division_engine_core/context.h>

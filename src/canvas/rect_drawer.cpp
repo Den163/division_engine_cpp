@@ -1,5 +1,6 @@
 #include "canvas/rect_drawer.hpp"
 
+#include "canvas/components/render_batch.hpp"
 #include "core/alpha_blend.hpp"
 #include "core/context.hpp"
 #include "core/render_pass_instance_builder.hpp"
@@ -20,8 +21,7 @@
 
 namespace division_engine::canvas
 {
-using components::RenderableRect;
-using components::RenderTexture;
+using namespace components;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
   : _texture_bindings({ DivisionIdWithBinding {
@@ -62,6 +62,9 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
                 const RenderableRect,
                 const RenderOrder,
                 const RenderTexture>()
+            
+            .term<RenderBatch>()
+            .up(flecs::IsA)
             .term<RenderTexture>()
             .up(flecs::IsA)
             .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
@@ -80,7 +83,7 @@ void RectDrawer::update(State& state)
 {
     auto overall_instance_count = 0;
 
-    auto needed_capacity = _query.count();
+    const auto needed_capacity = _query.count();
     if (_instance_capacity < needed_capacity)
     {
         _ctx_helper.resize_vertex_buffer(
@@ -123,6 +126,7 @@ void RectDrawer::update(State& state)
             const auto rect_count = it.count();
 
             auto batch_instances = instances.subspan(first_instance, rect_count);
+            uint32_t order = 0;
 
             for (auto i : it)
             {
@@ -135,6 +139,8 @@ void RectDrawer::update(State& state)
                     .color = rect.color,
                     .trbl_border_radius = rect.border_radius.top_left_right_bottom
                 };
+
+                order = ord_ptr[i].order;
             }
 
             overall_instance_count += static_cast<int>(rect_count);
@@ -143,7 +149,7 @@ void RectDrawer::update(State& state)
                 make_render_pass_instance(
                     &_texture_bindings[texture_index], first_instance, rect_count
                 ),
-                0
+                order
             );
         }
     );
