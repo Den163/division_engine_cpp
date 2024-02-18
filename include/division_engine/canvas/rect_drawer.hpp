@@ -86,7 +86,12 @@ public:
     void update(State& state);
 
 private:
-    flecs::query<RenderBounds, RenderableRect, RenderOrder, RenderTexture> _query;
+    flecs::query<
+        const RenderBounds,
+        const RenderableRect,
+        const RenderOrder,
+        const RenderTexture>
+        _query;
     std::vector<DivisionIdWithBinding> _texture_bindings;
     core::Context _ctx_helper;
     DivisionIdWithBinding _screen_size_uniform;

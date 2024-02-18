@@ -18,7 +18,7 @@ void RenderQueue::enqueue_pass(const DivisionRenderPassInstance& pass, uint32_t 
 void RenderQueue::draw(DivisionContext* context, const glm::vec4& clear_color)
 {
     std::ranges::sort(
-        _render_passes, [](const auto& x, const auto& y) { return y.second - x.second; }
+        _render_passes, [](const auto& x, const auto& y) { return x.second < y.second; }
     );
     
     _sorted_passes.resize(_render_passes.size());

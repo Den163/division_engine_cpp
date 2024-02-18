@@ -90,7 +90,7 @@ private:
 
     FontTexture _font_texture;
     std::vector<DivisionIdWithBinding> _texture_bindings;
-    flecs::query<RenderBounds, RenderableText, RenderOrder> _query;
+    flecs::query<const RenderBounds, const RenderableText, const RenderOrder> _query;
 
     Context _ctx;
 

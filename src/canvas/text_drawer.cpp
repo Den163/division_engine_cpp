@@ -73,10 +73,12 @@ TextDrawer::TextDrawer(
         .shader_location = TEXTURE_LOCATION,
     });
 
-    _query = state.world.query_builder<RenderBounds, RenderableText, RenderOrder>()
-                 .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
-                                        { return x->compare(*y); })
-                 .build();
+    _query =
+        state.world
+            .query_builder<const RenderBounds, const RenderableText, const RenderOrder>()
+            .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
+                                   { return x->compare(*y); })
+            .build();
 }
 
 TextDrawer::~TextDrawer()
@@ -97,8 +99,17 @@ void TextDrawer::update(State& state)
 
     auto instances = vb_data.per_instance_data();
 
+    if (_query.count() == 0)
+    {
+        return;
+    }
+
+    uint32_t order = 0;
+
     _query.each(
-        [&](RenderBounds& bounds, RenderableText& renderable, RenderOrder& render_order)
+        [&](const RenderBounds& bounds,
+            const RenderableText& renderable,
+            const RenderOrder& render_order)
         {
             const auto& text_str = renderable.text;
             for (auto ch : text_str)
@@ -200,6 +211,7 @@ void TextDrawer::update(State& state)
             }
 
             overall_instance_count += rendered_char_count;
+            order = render_order.order;
         }
     );
 
@@ -213,7 +225,7 @@ void TextDrawer::update(State& state)
             .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
             .build();
 
-    state.render_queue.enqueue_pass(pass, 1);
+    state.render_queue.enqueue_pass(pass, order);
     _font_texture.upload_texture();
 }
 

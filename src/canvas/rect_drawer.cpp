@@ -58,13 +58,15 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
 
     _query =
         state.world
-            .query_builder<RenderBounds, RenderableRect, RenderOrder, RenderTexture>()
+            .query_builder<
+                const RenderBounds,
+                const RenderableRect,
+                const RenderOrder,
+                const RenderTexture>()
             .term<RenderTexture>()
             .up(flecs::IsA)
-            .order_by<RenderOrder>(
-                [](auto, const auto* x, auto, const auto* y)
-                { return x->compare(*y); }
-            )
+            .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
+                                   { return x->compare(*y); })
             .instanced()
             .build();
 }
@@ -99,10 +101,10 @@ void RectDrawer::update(State& state)
 
     _query.iter(
         [&](flecs::iter& it,
-            RenderBounds* render_bounds,
-            RenderableRect* rects,
-            RenderOrder* ord_ptr,
-            RenderTexture* tex_ptr)
+            const RenderBounds* render_bounds,
+            const RenderableRect* rects,
+            const RenderOrder* ord_ptr,
+            const RenderTexture* tex_ptr)
         {
             auto new_texture_binding = DivisionIdWithBinding {
                 .id = tex_ptr->texture_id,
