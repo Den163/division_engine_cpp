@@ -1,15 +1,16 @@
 #include "canvas/rect_drawer.hpp"
-#include "core/alpha_blend.hpp"
-#include "core/render_pass_instance_builder.hpp"
 
-#include "canvas/components/rect_instance.hpp"
-#include "canvas/components/render_texture.hpp"
+#include "core/alpha_blend.hpp"
 #include "core/context.hpp"
 #include "core/render_pass_instance_builder.hpp"
-#include "division_engine_core/vertex_buffer.h"
 
+#include "canvas/components/render_texture.hpp"
+#include "utility/algorithm.hpp"
+
+#include <__iterator/distance.h>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
+#include <division_engine_core/vertex_buffer.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -20,11 +21,11 @@
 
 namespace division_engine::canvas
 {
-using components::RectInstance;
+using components::RenderableRect;
 using components::RenderTexture;
 
 RectDrawer::RectDrawer(State& state, size_t rect_capacity)
-  : _textures_heap({ DivisionIdWithBinding {
+  : _texture_bindings({ DivisionIdWithBinding {
         .id = state.white_texture_id,
         .shader_location = TEXTURE_LOCATION,
     } })
@@ -55,15 +56,17 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
             )
             .build();
 
-    _query = state.world.query_builder<RectInstance, RenderOrder, RenderTexture>()
-                 .term<RenderTexture>()
-                 .up(flecs::IsA)
-                 .order_by<RenderOrder>(
-                     [](auto e, const auto* ex, auto y, const auto* ey)
-                     { return static_cast<int>(ex->order) - static_cast<int>(ey->order); }
-                 )
-                 .instanced()
-                 .build();
+    _query =
+        state.world
+            .query_builder<RenderBounds, RenderableRect, RenderOrder, RenderTexture>()
+            .term<RenderTexture>()
+            .up(flecs::IsA)
+            .order_by<RenderOrder>(
+                [](auto, const auto* x, auto, const auto* y)
+                { return x->compare(*y); }
+            )
+            .instanced()
+            .build();
 }
 
 RectDrawer::~RectDrawer()
@@ -96,43 +99,48 @@ void RectDrawer::update(State& state)
 
     _query.iter(
         [&](flecs::iter& it,
-            RectInstance* rects,
+            RenderBounds* render_bounds,
+            RenderableRect* rects,
             RenderOrder* ord_ptr,
             RenderTexture* tex_ptr)
         {
-            auto lower_bound = std::lower_bound(
-                _textures_heap.begin(),
-                _textures_heap.end(),
-                tex_ptr->texture_id,
-                [](const auto& x, auto y) { return x.id < y; }
+            auto new_texture_binding = DivisionIdWithBinding {
+                .id = tex_ptr->texture_id,
+                .shader_location = TEXTURE_LOCATION,
+            };
+
+            auto insert_pos_iter = utility::algorithm::sorted_insert(
+                _texture_bindings,
+                new_texture_binding,
+                [](const auto& x, const auto& y) { return x.id < y.id; }
             );
 
-            if (lower_bound == _textures_heap.end() ||
-                lower_bound->id != tex_ptr->texture_id)
-            {
-                lower_bound = _textures_heap.insert(
-                    lower_bound,
-                    DivisionIdWithBinding {
-                        .id = tex_ptr->texture_id,
-                        .shader_location = TEXTURE_LOCATION,
-                    }
-                );
-            }
-
-            const auto texture_index = std::distance(_textures_heap.begin(), lower_bound);
+            const auto texture_index =
+                std::distance(_texture_bindings.begin(), insert_pos_iter);
 
             const auto first_instance = overall_instance_count;
             const auto rect_count = it.count();
-            const auto& batch_rects = std::span { rects, rect_count };
 
             auto batch_instances = instances.subspan(first_instance, rect_count);
 
-            std::copy(batch_rects.begin(), batch_rects.end(), batch_instances.begin());
+            for (auto i : it)
+            {
+                const auto& rect = rects[i];
+                const auto& bounds = render_bounds[i].value;
+
+                batch_instances[i] = RectInstance {
+                    .position = glm::vec2 { bounds.left(), bounds.bottom() },
+                    .size = bounds.size(),
+                    .color = rect.color,
+                    .trbl_border_radius = rect.border_radius.top_left_right_bottom
+                };
+            }
+
             overall_instance_count += static_cast<int>(rect_count);
 
             state.render_queue.enqueue_pass(
                 make_render_pass_instance(
-                    &_textures_heap[texture_index], first_instance, rect_count
+                    &_texture_bindings[texture_index], first_instance, rect_count
                 ),
                 0
             );

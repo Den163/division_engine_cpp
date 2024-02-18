@@ -104,7 +104,7 @@ void FontTexture::layout_glyph(char32_t character, size_t index)
             continue;
         }
 
-        const glm::ivec2 position { free_block.position, _font_size + row };
+        const glm::ivec2 position { free_block.position, _font_size * row };
 
         free_block.position += gapped_glyph_width;
         free_block.width = free_after;

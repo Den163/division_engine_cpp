@@ -35,6 +35,7 @@ public:
     ~FontTexture();
 
     DivisionId texture_id() const { return _texture_id; }
+    glm::ivec2 texture_size() const { return _resolution; }
 
     const DivisionFontGlyph& glyph_at(size_t index) const { return _glyphs[index]; }
     const glm::ivec2& glyph_position_at(size_t index) const
@@ -44,6 +45,10 @@ public:
 
     void upload_texture();
     size_t reserve_character(char32_t character);
+    size_t glyph_index(char32_t character) const
+    {
+        return _character_to_glyph_index.at(character);
+    }
 
 private:
     struct FreeBlock

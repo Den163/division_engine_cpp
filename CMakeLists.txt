@@ -36,6 +36,7 @@ set(DIVISION_ENGINE_CPP_SOURCES
     src/core/render_pass_instance_builder.cpp
     src/canvas/rect_drawer.cpp
     src/canvas/render_queue.cpp
+    src/canvas/text_drawer.cpp
 )
 
 add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})

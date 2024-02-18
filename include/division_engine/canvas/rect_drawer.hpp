@@ -1,9 +1,10 @@
 #pragma once
 
-#include "components/rect_instance.hpp"
 #include "components/render_order.hpp"
 #include "components/render_texture.hpp"
+#include "components/renderable_rect.hpp"
 
+#include "division_engine/canvas/components/render_bounds.hpp"
 #include "division_engine/core/context.hpp"
 
 #include "state.hpp"
@@ -17,6 +18,21 @@
 
 namespace division_engine::canvas
 {
+struct RectInstance
+{
+    glm::vec2 size;
+    glm::vec2 position;
+    glm::vec4 color;
+    glm::vec4 trbl_border_radius;
+
+    static constexpr auto vertex_attributes = std::array {
+        core::make_vertex_attribute<decltype(size)>(2),
+        core::make_vertex_attribute<decltype(position)>(3),
+        core::make_vertex_attribute<decltype(color)>(4),
+        core::make_vertex_attribute<decltype(trbl_border_radius)>(5),
+    };
+} __attribute__((__packed__));
+
 struct RectVertex
 {
     glm::vec2 vertex_position;
@@ -32,8 +48,9 @@ class RectDrawer
 {
 public:
     using RenderTexture = components::RenderTexture;
-    using RectInstance = components::RectInstance;
     using RenderOrder = components::RenderOrder;
+    using RenderBounds = components::RenderBounds;
+    using RenderableRect = components::RenderableRect;
 
     static const size_t DEFAULT_RECT_CAPACITY = 64;
     static const size_t SCREEN_SIZE_UNIFORM_LOCATION = 1;
@@ -69,8 +86,8 @@ public:
     void update(State& state);
 
 private:
-    flecs::query<RectInstance, RenderOrder, RenderTexture> _query;
-    std::vector<DivisionIdWithBinding> _textures_heap;
+    flecs::query<RenderBounds, RenderableRect, RenderOrder, RenderTexture> _query;
+    std::vector<DivisionIdWithBinding> _texture_bindings;
     core::Context _ctx_helper;
     DivisionIdWithBinding _screen_size_uniform;
 
