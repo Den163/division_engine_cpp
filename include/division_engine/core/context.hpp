@@ -1,21 +1,20 @@
 #pragma once
 
-#include <_types/_uint8_t.h>
 #include <filesystem>
 #include <span>
 
+#include <division_engine_core/types/font.h>
 #include <division_engine_core/types/id.h>
 #include <division_engine_core/types/render_pass_instance.h>
 #include <division_engine_core/types/texture.h>
 
 #include <glm/vec2.hpp>
 
-#include "division_engine_core/types/font.h"
 #include "exception.hpp"
 #include "render_pass_descriptor_builder.hpp"
 #include "uniform_data.hpp"
-#include "vertex_data.hpp"
 #include "vertex_buffer_data.hpp"
+#include "vertex_data.hpp"
 
 namespace division_engine::core
 {

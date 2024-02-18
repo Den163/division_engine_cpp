@@ -10,6 +10,7 @@
 #include <division_engine_core/types/vertex_buffer.h>
 #include <flecs.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <ranges>
 #include <string>
@@ -41,9 +42,9 @@ TextDrawer::TextDrawer(
     ))
   , _vertex_buffer_id(_ctx.create_vertex_buffer<TextCharVertex, TextCharInstance>(
         DivisionVertexBufferSize {
-            .instance_count = INSTANCE_CAPACITY,
             .vertex_count = RECT_VERTICES.size(),
             .index_count = RECT_INDICES.size(),
+            .instance_count = INSTANCE_CAPACITY,
         },
         DIVISION_TOPOLOGY_TRIANGLES
     ))
@@ -283,10 +284,10 @@ void TextDrawer::add_word_to_vertex_buffer(
 
         const auto instance_position = word_pos + offset;
         instances[i] = TextCharInstance {
+            .color = color,
             .texel_coord = glyph_pos,
             .size = scaled_size,
             .position = instance_position,
-            .color = color,
             .glyph_in_tex_size = glyph_size,
             .tex_size = _font_texture.texture_size()
         };

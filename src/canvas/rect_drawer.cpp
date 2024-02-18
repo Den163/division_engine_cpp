@@ -7,7 +7,6 @@
 #include "canvas/components/render_texture.hpp"
 #include "utility/algorithm.hpp"
 
-#include <__iterator/distance.h>
 #include <division_engine_core/render_pass_descriptor.h>
 #include <division_engine_core/render_pass_instance.h>
 #include <division_engine_core/vertex_buffer.h>
@@ -131,8 +130,8 @@ void RectDrawer::update(State& state)
                 const auto& bounds = render_bounds[i].value;
 
                 batch_instances[i] = RectInstance {
-                    .position = glm::vec2 { bounds.left(), bounds.bottom() },
                     .size = bounds.size(),
+                    .position = glm::vec2 { bounds.left(), bounds.bottom() },
                     .color = rect.color,
                     .trbl_border_radius = rect.border_radius.top_left_right_bottom
                 };
