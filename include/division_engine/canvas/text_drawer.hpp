@@ -103,6 +103,13 @@ private:
 
     WordInfo get_next_word(const std::u16string_view& text, float font_scale) const;
 
+    size_t add_renderable_to_vertex_buffer(
+        std::span<TextCharInstance> instances,
+        const RenderBounds& bounds,
+        const RenderableText& renderable,
+        const RenderOrder& render_order
+    );
+
     void add_word_to_vertex_buffer(
         const std::u16string_view& word,
         const glm::vec2& position,

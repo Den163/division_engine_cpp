@@ -3,8 +3,6 @@
 #include "canvas/components/render_batch.hpp"
 #include "core/alpha_blend.hpp"
 #include "core/render_pass_instance_builder.hpp"
-#include "flecs/addons/cpp/mixins/query/builder.hpp"
-#include "glm/ext/vector_float2.hpp"
 
 #include <division_engine_core/types/id.h>
 #include <division_engine_core/types/render_pass_descriptor.h>
@@ -135,85 +133,11 @@ void TextDrawer::update(State& state)
                 _instance_capacity = needed_capacity;
             }
 
-            const auto font_scale = renderable.font_size / RASTERIZED_FONT_SIZE;
-            const auto space_index = _font_texture.reserve_character(u' ');
-            const auto space_glyph = _font_texture.glyph_at(space_index);
-            const auto space_advance_x =
-                static_cast<float>(space_glyph.advance_x) * font_scale;
+            auto subinstances = instances.last(instances.size() - overall_instance_count);
 
-            const auto bounds_rect = bounds.value;
-            const auto font_size = renderable.font_size;
-
-            glm::vec2 pen_pos { bounds_rect.left(), bounds_rect.top() - font_size };
-            size_t rendered_char_count = 0;
-
-            size_t i = 0;
-            while (i < text_str.size())
-            {
-                const auto ch = text_str[i];
-
-                switch (ch)
-                {
-                    case u' ':
-                    {
-                        pen_pos.x += space_advance_x;
-                        i += 1;
-                        continue;
-                    }
-                    case u'\n':
-                    {
-                        pen_pos = { bounds_rect.left(), pen_pos.y - font_size };
-                        i += 1;
-                        continue;
-                    }
-                }
-
-                if (pen_pos.y < bounds_rect.bottom())
-                {
-                    break;
-                }
-
-                using str_diff_type = std::u16string::difference_type;
-
-                const auto word_start_it =
-                    text_str.begin() + static_cast<str_diff_type>(i);
-                const auto word = get_next_word(
-                    std::u16string_view {
-                        word_start_it,
-                        text_str.end(),
-                    },
-                    font_scale
-                );
-
-                if (pen_pos.x + word.width > bounds_rect.right())
-                {
-                    pen_pos = { bounds_rect.left(), pen_pos.y - font_size };
-                }
-
-                if ((word.width > bounds_rect.size().x) |
-                    (pen_pos.y < bounds_rect.bottom()))
-                {
-                    break;
-                }
-
-                const auto word_instance_index =
-                    overall_instance_count + rendered_char_count;
-
-                const auto word_end_it =
-                    text_str.begin() +
-                    static_cast<str_diff_type>(i + word.character_count);
-                add_word_to_vertex_buffer(
-                    { word_start_it, word_end_it },
-                    pen_pos,
-                    renderable.color,
-                    font_scale,
-                    instances.subspan(word_instance_index, word.character_count)
-                );
-
-                pen_pos.x += word.width;
-                rendered_char_count += word.character_count;
-                i += word.character_count;
-            }
+            size_t rendered_char_count = add_renderable_to_vertex_buffer(
+                subinstances, bounds, renderable, render_order
+            );
 
             overall_instance_count += rendered_char_count;
             order = render_order.order;
@@ -232,6 +156,92 @@ void TextDrawer::update(State& state)
 
     state.render_queue.enqueue_pass(pass, order);
     _font_texture.upload_texture();
+}
+
+size_t TextDrawer::add_renderable_to_vertex_buffer(
+    std::span<TextCharInstance> instances,
+    const RenderBounds& bounds,
+    const RenderableText& renderable,
+    const RenderOrder& render_order
+)
+{
+    const auto& text_str = renderable.text;
+    const auto font_scale = renderable.font_size / RASTERIZED_FONT_SIZE;
+    const auto space_index = _font_texture.reserve_character(u' ');
+    const auto space_glyph = _font_texture.glyph_at(space_index);
+    const auto space_advance_x = static_cast<float>(space_glyph.advance_x) * font_scale;
+
+    const auto bounds_rect = bounds.value;
+    const auto font_size = renderable.font_size;
+
+    glm::vec2 pen_pos { bounds_rect.left(), bounds_rect.top() - font_size };
+    size_t rendered_char_count = 0;
+
+    size_t i = 0;
+    while (i < text_str.size())
+    {
+        const auto ch = text_str[i];
+
+        switch (ch)
+        {
+            case u' ':
+            {
+                pen_pos.x += space_advance_x;
+                i += 1;
+                continue;
+            }
+            case u'\n':
+            {
+                pen_pos = { bounds_rect.left(), pen_pos.y - font_size };
+                i += 1;
+                continue;
+            }
+        }
+
+        if (pen_pos.y < bounds_rect.bottom())
+        {
+            break;
+        }
+
+        using str_diff_type = std::u16string::difference_type;
+
+        const auto word_start_it = text_str.begin() + static_cast<str_diff_type>(i);
+        const auto word = get_next_word(
+            std::u16string_view {
+                word_start_it,
+                text_str.end(),
+            },
+            font_scale
+        );
+
+        if (pen_pos.x + word.width > bounds_rect.right())
+        {
+            pen_pos = { bounds_rect.left(), pen_pos.y - font_size };
+        }
+
+        if ((word.width > bounds_rect.size().x) | (pen_pos.y < bounds_rect.bottom()))
+        {
+            break;
+        }
+
+        auto word_instances =
+            instances.subspan(rendered_char_count, word.character_count);
+        const auto word_end_it =
+            text_str.begin() + static_cast<str_diff_type>(i + word.character_count);
+        add_word_to_vertex_buffer(
+            { word_start_it, word_end_it },
+            pen_pos,
+            renderable.color,
+            font_scale,
+            word_instances
+        );
+
+        pen_pos.x += word.width;
+        rendered_char_count += word.character_count;
+        i += word.character_count;
+    }
+
+    return rendered_char_count;
 }
 
 TextDrawer::WordInfo
