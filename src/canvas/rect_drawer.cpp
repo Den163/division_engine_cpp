@@ -62,7 +62,6 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
                 const RenderableRect,
                 const RenderOrder,
                 const RenderTexture>()
-            
             .term<RenderBatch>()
             .up(flecs::IsA)
             .term<RenderTexture>()

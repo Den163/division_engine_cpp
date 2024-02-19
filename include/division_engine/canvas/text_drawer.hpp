@@ -24,12 +24,7 @@ namespace division_engine::canvas
 class TextDrawer
 {
 public:
-    using FontTexture = core::FontTexture;
     using Context = core::Context;
-    using RenderableText = components::RenderableText;
-    using RenderBounds = components::RenderBounds;
-    using RenderOrder = components::RenderOrder;
-    using RenderTexture = components::RenderTexture;
 
     struct TextCharVertex
     {
@@ -37,8 +32,8 @@ public:
         glm::vec2 uv;
 
         static constexpr auto vertex_attributes = std::array {
-            core::make_vertex_attribute<decltype(position)>(0),
-            core::make_vertex_attribute<decltype(uv)>(1),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(position, 0),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(uv, 1)
         };
     } __attribute__((__packed__));
 
@@ -52,12 +47,12 @@ public:
         glm::vec2 tex_size;
 
         static constexpr auto vertex_attributes = std::array {
-            core::make_vertex_attribute<decltype(color)>(2),
-            core::make_vertex_attribute<decltype(texel_coord)>(3),
-            core::make_vertex_attribute<decltype(size)>(4),
-            core::make_vertex_attribute<decltype(position)>(5),
-            core::make_vertex_attribute<decltype(glyph_in_tex_size)>(6),
-            core::make_vertex_attribute<decltype(tex_size)>(7),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(color, 2),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(texel_coord, 3),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(size, 4),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(position, 5),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(glyph_in_tex_size, 6),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(tex_size, 7),
         };
     } __attribute__((__packed__));
 
@@ -82,6 +77,12 @@ public:
     void update(State& state);
 
 private:
+    using FontTexture = core::FontTexture;
+    using RenderableText = components::RenderableText;
+    using RenderBounds = components::RenderBounds;
+    using RenderOrder = components::RenderOrder;
+    using RenderTexture = components::RenderTexture;
+
     struct WordInfo
     {
         size_t character_count;
@@ -106,8 +107,7 @@ private:
     size_t add_renderable_to_vertex_buffer(
         std::span<TextCharInstance> instances,
         const RenderBounds& bounds,
-        const RenderableText& renderable,
-        const RenderOrder& render_order
+        const RenderableText& renderable
     );
 
     void add_word_to_vertex_buffer(

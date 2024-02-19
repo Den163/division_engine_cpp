@@ -3,6 +3,7 @@
 #include "canvas/components/render_batch.hpp"
 #include "core/alpha_blend.hpp"
 #include "core/render_pass_instance_builder.hpp"
+#include "flecs/addons/cpp/iter.hpp"
 
 #include <division_engine_core/types/id.h>
 #include <division_engine_core/types/render_pass_descriptor.h>
@@ -107,62 +108,66 @@ void TextDrawer::update(State& state)
         return;
     }
 
-    uint32_t order = 0;
-
-    _query.each(
-        [&](const RenderBounds& bounds,
-            const RenderableText& renderable,
-            const RenderOrder& render_order)
+    _query.iter(
+        [&](flecs::iter& it,
+            const RenderBounds* bounds_ptr,
+            const RenderableText* renderable_ptr,
+            const RenderOrder* render_order_ptr)
         {
-            const auto& text_str = renderable.text;
-            for (auto ch : text_str)
+            for (const auto i : it)
             {
-                _font_texture.reserve_character(ch);
+                const auto& bounds = bounds_ptr[i];
+                const auto& renderable = renderable_ptr[i];
+                const auto& text_str = renderable.text;
+
+                for (auto ch : text_str)
+                {
+                    _font_texture.reserve_character(ch);
+                }
+
+                const auto needed_capacity = overall_instance_count + text_str.size();
+                if (_instance_capacity < needed_capacity)
+                {
+                    _ctx.resize_vertex_buffer(
+                        _vertex_buffer_id,
+                        DivisionVertexBufferSize {
+                            .vertex_count = RECT_VERTICES.size(),
+                            .index_count = RECT_INDICES.size(),
+                            .instance_count = static_cast<uint32_t>(needed_capacity) }
+                    );
+                    _instance_capacity = needed_capacity;
+                }
+
+                auto subinstances =
+                    instances.last(instances.size() - overall_instance_count);
+
+                size_t rendered_char_count =
+                    add_renderable_to_vertex_buffer(subinstances, bounds, renderable);
+
+                overall_instance_count += rendered_char_count;
             }
 
-            const auto needed_capacity = overall_instance_count + text_str.size();
-            if (_instance_capacity < needed_capacity)
-            {
-                _ctx.resize_vertex_buffer(
-                    _vertex_buffer_id,
-                    DivisionVertexBufferSize {
-                        .vertex_count = RECT_VERTICES.size(),
-                        .index_count = RECT_INDICES.size(),
-                        .instance_count = static_cast<uint32_t>(needed_capacity) }
-                );
-                _instance_capacity = needed_capacity;
-            }
+            const auto pass =
+                RenderPassInstanceBuilder { _render_pass_descriptor_id }
+                    .instances(overall_instance_count)
+                    .vertices(RECT_VERTICES.size())
+                    .indices(RECT_INDICES.size())
+                    .fragment_textures({ &_texture_bindings[0], 1 })
+                    .uniform_fragment_buffers({ &_screen_size_uniform, 1 })
+                    .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
+                    .build();
 
-            auto subinstances = instances.last(instances.size() - overall_instance_count);
-
-            size_t rendered_char_count = add_renderable_to_vertex_buffer(
-                subinstances, bounds, renderable, render_order
-            );
-
-            overall_instance_count += rendered_char_count;
-            order = render_order.order;
+            state.render_queue.enqueue_pass(pass, render_order_ptr[0].order);
         }
     );
-
-    const auto pass =
-        RenderPassInstanceBuilder { _render_pass_descriptor_id }
-            .instances(overall_instance_count)
-            .vertices(RECT_VERTICES.size())
-            .indices(RECT_INDICES.size())
-            .fragment_textures({ &_texture_bindings[0], 1 })
-            .uniform_fragment_buffers({ &_screen_size_uniform, 1 })
-            .uniform_vertex_buffers({ &_screen_size_uniform, 1 })
-            .build();
-
-    state.render_queue.enqueue_pass(pass, order);
+    
     _font_texture.upload_texture();
 }
 
 size_t TextDrawer::add_renderable_to_vertex_buffer(
     std::span<TextCharInstance> instances,
     const RenderBounds& bounds,
-    const RenderableText& renderable,
-    const RenderOrder& render_order
+    const RenderableText& renderable
 )
 {
     const auto& text_str = renderable.text;

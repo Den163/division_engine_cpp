@@ -6,6 +6,7 @@
 
 #include "components/render_bounds.hpp"
 #include "division_engine/core/context.hpp"
+#include "division_engine/core/vertex_data.hpp"
 
 #include "state.hpp"
 
@@ -18,32 +19,6 @@
 
 namespace division_engine::canvas
 {
-struct RectInstance
-{
-    glm::vec2 size;
-    glm::vec2 position;
-    glm::vec4 color;
-    glm::vec4 trbl_border_radius;
-
-    static constexpr auto vertex_attributes = std::array {
-        core::make_vertex_attribute<decltype(size)>(2),
-        core::make_vertex_attribute<decltype(position)>(3),
-        core::make_vertex_attribute<decltype(color)>(4),
-        core::make_vertex_attribute<decltype(trbl_border_radius)>(5),
-    };
-} __attribute__((__packed__));
-
-struct RectVertex
-{
-    glm::vec2 vertex_position;
-    glm::vec2 uv;
-
-    static constexpr auto vertex_attributes = std::array {
-        core::make_vertex_attribute<decltype(RectVertex::vertex_position)>(0),
-        core::make_vertex_attribute<decltype(RectVertex::uv)>(1)
-    };
-} __attribute__((__packed__));
-
 class RectDrawer
 {
 public:
@@ -52,9 +27,31 @@ public:
     using RenderBounds = components::RenderBounds;
     using RenderableRect = components::RenderableRect;
 
-    static const size_t DEFAULT_RECT_CAPACITY = 64;
-    static const size_t SCREEN_SIZE_UNIFORM_LOCATION = 1;
-    static const size_t TEXTURE_LOCATION = 0;
+    struct RectVertex
+    {
+        glm::vec2 vertex_position;
+        glm::vec2 uv;
+
+        static constexpr auto vertex_attributes = std::array {
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(vertex_position, 0),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(uv, 1),
+        };
+    } __attribute__((__packed__));
+
+    struct RectInstance
+    {
+        glm::vec2 size;
+        glm::vec2 position;
+        glm::vec4 color;
+        glm::vec4 trbl_border_radius;
+
+        static constexpr auto vertex_attributes = std::array {
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(size, 2),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(position, 3),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(color, 4),
+            DIVISION_DECLARE_VERTEX_ATTRIBUTE(trbl_border_radius, 5),
+        };
+    } __attribute__((__packed__));
 
     static constexpr auto RECT_VERTICES = std::array {
         RectVertex {
@@ -74,6 +71,11 @@ public:
             .uv = glm::vec2(1., 1.),
         },
     };
+
+    static const size_t DEFAULT_RECT_CAPACITY = 64;
+    static const size_t SCREEN_SIZE_UNIFORM_LOCATION = 1;
+    static const size_t TEXTURE_LOCATION = 0;
+
     static constexpr auto RECT_INDICES = std::array { 0u, 1u, 2u, 2u, 3u, 0u };
 
     RectDrawer(const RectDrawer&) = default;

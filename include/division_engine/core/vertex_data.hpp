@@ -15,6 +15,9 @@
 #include <utility>
 #include <vector>
 
+#define DIVISION_DECLARE_VERTEX_ATTRIBUTE(field, location) \
+    division_engine::core::make_vertex_attribute<decltype(field)>(location)
+
 #define DIVISION_IMPL_VERTEX_ATTR_SPEC(c_type, division_type)                            \
     template<>                                                                           \
     constexpr DivisionVertexAttributeSettings make_vertex_attribute<c_type>(int location \
