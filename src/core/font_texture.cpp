@@ -46,6 +46,8 @@ FontTexture::FontTexture(
 
 FontTexture::~FontTexture() 
 {
+    if (!_pixel_buffer) return;
+    
     _ctx.delete_texture(_texture_id);
     _ctx.delete_font(_font_id);
 

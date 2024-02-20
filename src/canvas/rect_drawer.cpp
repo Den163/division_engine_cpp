@@ -28,22 +28,22 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
         .id = state.white_texture_id,
         .shader_location = TEXTURE_LOCATION,
     } })
-  , _ctx_helper(state.context)
+  , _ctx(state.context)
   , _screen_size_uniform(DivisionIdWithBinding {
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
     })
-  , _vertex_buffer_id(make_vertex_buffer(_ctx_helper, rect_capacity))
+  , _vertex_buffer_id(make_vertex_buffer(_ctx, rect_capacity))
   , _instance_capacity(rect_capacity)
+  , _resources_owner(true)
 {
     using path = std::filesystem::path;
 
-    _shader_id = _ctx_helper.create_bundled_shader(
-        path { "resources" } / "shaders" / "canvas" / "rect"
-    );
+    _shader_id =
+        _ctx.create_bundled_shader(path { "resources" } / "shaders" / "canvas" / "rect");
 
     _render_pass_descriptor_id =
-        _ctx_helper.render_pass_descriptor_builder()
+        _ctx.render_pass_descriptor_builder()
             .shader(_shader_id)
             .vertex_buffer(_vertex_buffer_id)
             .enable_aplha_blending(
@@ -74,8 +74,11 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
 
 RectDrawer::~RectDrawer()
 {
-    _ctx_helper.delete_shader(_shader_id);
-    _ctx_helper.delete_vertex_buffer(_vertex_buffer_id);
+    if (!_resources_owner)
+        return;
+
+    _ctx.delete_shader(_shader_id);
+    _ctx.delete_vertex_buffer(_vertex_buffer_id);
 }
 
 void RectDrawer::update(State& state)
@@ -85,7 +88,7 @@ void RectDrawer::update(State& state)
     const auto needed_capacity = _query.count();
     if (_instance_capacity < needed_capacity)
     {
-        _ctx_helper.resize_vertex_buffer(
+        _ctx.resize_vertex_buffer(
             _vertex_buffer_id,
             DivisionVertexBufferSize {
                 .vertex_count = RECT_VERTICES.size(),
@@ -96,8 +99,7 @@ void RectDrawer::update(State& state)
     }
 
     auto data =
-        _ctx_helper.borrow_vertex_buffer_data<RectVertex, RectInstance>(_vertex_buffer_id
-        );
+        _ctx.borrow_vertex_buffer_data<RectVertex, RectInstance>(_vertex_buffer_id);
     auto instances = data.per_instance_data();
 
     _query.iter(

@@ -22,10 +22,8 @@ namespace division_engine::canvas
 class RectDrawer
 {
 public:
-    using RenderTexture = components::RenderTexture;
-    using RenderOrder = components::RenderOrder;
-    using RenderBounds = components::RenderBounds;
-    using RenderableRect = components::RenderableRect;
+    using renderable_type =
+        std::tuple<components::RenderableRect, components::RenderBounds>;
 
     struct RectVertex
     {
@@ -78,24 +76,44 @@ public:
 
     static constexpr auto RECT_INDICES = std::array { 0u, 1u, 2u, 2u, 3u, 0u };
 
-    RectDrawer(const RectDrawer&) = default;
-    RectDrawer(RectDrawer&&) = delete;
-    RectDrawer& operator=(const RectDrawer&) = default;
-    RectDrawer& operator=(RectDrawer&&) = delete;
+    RectDrawer(const RectDrawer&) = delete;
+    RectDrawer& operator=(const RectDrawer&) = delete;
+
+    RectDrawer& operator=(RectDrawer&&) noexcept = delete;
+    RectDrawer(RectDrawer&& other) noexcept
+      : _query(std::move(other._query))
+      , _texture_bindings(std::move(other._texture_bindings))
+      , _ctx(other._ctx)
+      , _screen_size_uniform(other._screen_size_uniform)
+      , _shader_id(other._shader_id)
+      , _vertex_buffer_id(other._vertex_buffer_id)
+      , _render_pass_descriptor_id(other._render_pass_descriptor_id)
+      , _instance_capacity(other._instance_capacity)
+      , _resources_owner(true)
+    {
+        other._resources_owner = false;
+    }
+
     RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
     ~RectDrawer();
 
     void update(State& state);
 
 private:
+    using RenderTexture = components::RenderTexture;
+    using RenderOrder = components::RenderOrder;
+    using RenderBounds = components::RenderBounds;
+    using RenderableRect = components::RenderableRect;
+
     flecs::query<
         const RenderBounds,
         const RenderableRect,
         const RenderOrder,
         const RenderTexture>
         _query;
+
     std::vector<DivisionIdWithBinding> _texture_bindings;
-    core::Context _ctx_helper;
+    core::Context _ctx;
     DivisionIdWithBinding _screen_size_uniform;
 
     DivisionId _shader_id;
@@ -103,6 +121,8 @@ private:
     DivisionId _render_pass_descriptor_id;
 
     uint32_t _instance_capacity;
+
+    bool _resources_owner;
 
     static DivisionId
     make_vertex_buffer(core::Context& context_helper, uint32_t instance_capacity);

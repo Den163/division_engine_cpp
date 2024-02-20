@@ -24,17 +24,17 @@ namespace division_engine::canvas
 class TextDrawer
 {
 public:
-    using Context = core::Context;
+    using renderable_type =
+        std::tuple<components::RenderableText, components::RenderBounds>;
 
     struct TextCharVertex
     {
         glm::vec2 position;
         glm::vec2 uv;
 
-        static constexpr auto vertex_attributes = std::array {
-            DIVISION_DECLARE_VERTEX_ATTRIBUTE(position, 0),
-            DIVISION_DECLARE_VERTEX_ATTRIBUTE(uv, 1)
-        };
+        static constexpr auto vertex_attributes =
+            std::array { DIVISION_DECLARE_VERTEX_ATTRIBUTE(position, 0),
+                         DIVISION_DECLARE_VERTEX_ATTRIBUTE(uv, 1) };
     } __attribute__((__packed__));
 
     struct TextCharInstance
@@ -67,19 +67,34 @@ public:
 
     TextDrawer() = delete;
     TextDrawer& operator=(const TextDrawer&) = delete;
-    TextDrawer& operator=(TextDrawer&&) = delete;
     TextDrawer(TextDrawer&) = delete;
-    TextDrawer(TextDrawer&&) = delete;
 
-    TextDrawer(Context& context, State& state, const std::filesystem::path& font_path);
+    TextDrawer& operator=(TextDrawer&&) = default;
+    TextDrawer(TextDrawer&& other) noexcept
+      : _font_texture(std::move(other._font_texture))
+      , _texture_bindings(std::move(other._texture_bindings))
+      , _query(std::move(other._query))
+      , _ctx(other._ctx)
+      , _instance_capacity(other._instance_capacity)
+      , _screen_size_uniform(other._screen_size_uniform)
+      , _shader_id(other._shader_id)
+      , _vertex_buffer_id(other._vertex_buffer_id)
+      , _render_pass_descriptor_id(other._render_pass_descriptor_id)
+      , _resources_owner(true)
+    {
+        other._resources_owner = false;
+    };
+
+    TextDrawer(State& state, const std::filesystem::path& font_path);
     ~TextDrawer();
 
     void update(State& state);
 
 private:
-    using FontTexture = core::FontTexture;
+    using Context = core::Context;
     using RenderableText = components::RenderableText;
     using RenderBounds = components::RenderBounds;
+    using FontTexture = core::FontTexture;
     using RenderOrder = components::RenderOrder;
     using RenderTexture = components::RenderTexture;
 
@@ -101,6 +116,8 @@ private:
     DivisionId _shader_id;
     DivisionId _vertex_buffer_id;
     DivisionId _render_pass_descriptor_id;
+
+    bool _resources_owner;
 
     WordInfo get_next_word(const std::u16string_view& text, float font_scale) const;
 

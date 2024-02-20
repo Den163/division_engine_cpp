@@ -25,15 +25,13 @@ const auto TEXTURE_LOCATION = 0;
 
 using namespace components;
 
-TextDrawer::TextDrawer(
-    Context& context,
-    State& state,
-    const std::filesystem::path& font_path
-)
-  : _font_texture(
-        FontTexture { context, font_path, static_cast<size_t>(RASTERIZED_FONT_SIZE) }
-    )
-  , _ctx(context)
+TextDrawer::TextDrawer(State& state, const std::filesystem::path& font_path)
+  : _font_texture(FontTexture {
+        state.context,
+        font_path,
+        static_cast<size_t>(RASTERIZED_FONT_SIZE),
+    })
+  , _ctx(state.context)
   , _instance_capacity(INSTANCE_CAPACITY)
   , _screen_size_uniform(DivisionIdWithBinding {
         .id = state.screen_size_uniform_id,
@@ -63,6 +61,7 @@ TextDrawer::TextDrawer(
             )
             .build()
     )
+  , _resources_owner(true)
 {
     auto vb_data =
         _ctx.borrow_vertex_buffer_data<TextCharVertex, TextCharInstance>(_vertex_buffer_id
@@ -88,6 +87,8 @@ TextDrawer::TextDrawer(
 
 TextDrawer::~TextDrawer()
 {
+    if (!_resources_owner) return;
+
     _ctx.delete_vertex_buffer(_vertex_buffer_id);
     _ctx.delete_shader(_shader_id);
 }
@@ -160,7 +161,7 @@ void TextDrawer::update(State& state)
             state.render_queue.enqueue_pass(pass, render_order_ptr[0].order);
         }
     );
-    
+
     _font_texture.upload_texture();
 }
 

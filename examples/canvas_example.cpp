@@ -6,6 +6,7 @@
 #include "division_engine/canvas/components/renderable_rect.hpp"
 #include "division_engine/canvas/components/renderable_text.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
+#include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
 #include "division_engine/color.hpp"
@@ -14,6 +15,8 @@
 #include "division_engine/core/font_texture.hpp"
 #include "division_engine/core/lifecycle_manager.hpp"
 
+#include "flecs.h"
+#include "flecs/addons/cpp/type.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "glm/gtc/random.hpp"
 #include "glm/vec2.hpp"
@@ -24,19 +27,23 @@
 #include <iostream>
 #include <locale>
 #include <string>
+#include <tuple>
+#include <utility>
 
 using namespace division_engine;
 using namespace division_engine::canvas;
 using namespace division_engine::canvas::components;
 using namespace division_engine::core;
 
-const size_t RECT_COUNT = 1000;
-const size_t RECT_SIZE = 16;
+const size_t RECT_COUNT = 100'000;
+const size_t RECT_SIZE = 8;
 const size_t TEXT_RECT_SIZE = 256;
 
 const auto FONT_SIZE = 20;
 const auto FONT_PATH =
     std::filesystem::path { "resources" } / "fonts" / "Roboto-Medium.ttf";
+
+using MyRendererManager = RenderManager<RectDrawer, TextDrawer>;
 
 struct Velocity
 {
@@ -54,18 +61,14 @@ struct MyManager
 
     MyManager(DivisionContext* context_ptr)
       : _state(context_ptr)
-      , _rect_drawer(_state)
-      , _text_drawer(_state.context, _state, FONT_PATH)
       , _query(_state.world.query<RenderBounds, RenderableRect, Velocity>())
+      , _renderer_manager(MyRendererManager {
+            RectDrawer { _state },
+            TextDrawer { _state, FONT_PATH },
+        })
     {
         const auto with_white_tex =
             _state.world.entity().set(RenderTexture { _state.white_texture_id });
-
-        const auto batch0 = _state.world.entity().set(RenderBatch { 0 });
-        const auto batch1 = _state.world.entity().set(RenderBatch { 1 });
-        const auto batch2 = _state.world.entity().set(RenderBatch { 2 });
-
-        const std::u16string input_string { u"Привет" };
 
         _state.clear_color = color::WHITE;
 
@@ -73,50 +76,66 @@ struct MyManager
 
         for (int i = 0; i < RECT_COUNT; i++)
         {
-            _state.world.entity()
-                .set(RenderableRect {
-                    .color = glm::linearRand(color::WHITE, color::BLACK),
-                    .border_radius = BorderRadius::all(0),
-                })
-                .set(RenderBounds { Rect::from_center(
-                    glm::linearRand(glm::vec2 { 0 }, screen_size), glm::vec2 { RECT_SIZE }
-                ) })
-                .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
-                .set(RenderOrder { static_cast<uint32_t>(i) })
-                .is_a(with_white_tex)
-                .is_a(batch0);
+            _renderer_manager
+                .create_renderer(
+                    _state,
+                    std::make_tuple(
+                        RenderableRect {
+                            .color = glm::linearRand(color::WHITE, color::BLACK),
+                            .border_radius = BorderRadius::all(0),
+                        },
+                        RenderBounds {
+                            Rect::from_center(
+                                glm::linearRand(glm::vec2 { 0 }, screen_size),
+                                glm::vec2 { RECT_SIZE }
+                            ),
+                        }
+                    ),
+                    std::make_tuple(with_white_tex)
+                )
+                .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
         }
 
-        _state.world.entity()
-            .set(RenderableText {
-                .color = color::PURPLE,
-                .text = u"Hello text drawer",
-                .font_size = FONT_SIZE,
-            })
-            .set(RenderBounds {
-                Rect::from_center(glm::vec2 { 256, 256 }, glm::vec2 { TEXT_RECT_SIZE }) })
-            .set(RenderOrder { RECT_COUNT })
-            .is_a(batch1);
+        _renderer_manager
+            .create_renderer(
+                _state,
+                std::make_tuple(
+                    RenderableText {
+                        .text = u"Hello text drawer",
+                        .color = color::PURPLE,
+                        .font_size = FONT_SIZE,
+                    },
+                    RenderBounds { Rect::from_center(
+                        glm::vec2 { 256, }, glm::vec2 { TEXT_RECT_SIZE }
+                    ) }
+                )
+            )
+            .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
 
-        _state.world.entity()
-            .set(RenderableRect {
-                .color = color::RED,
-                .border_radius = BorderRadius::all(0),
-            })
-            .set(RenderBounds { Rect::from_center(
-                glm::linearRand(glm::vec2 { 0 }, screen_size), glm::vec2 { 128 }
-            ) })
-            .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) })
-            .set(RenderOrder { RECT_COUNT + 1 })
-            .is_a(with_white_tex)
-            .is_a(batch2);
+        _renderer_manager
+            .create_renderer(
+                _state,
+                std::make_tuple(
+                    RenderableRect {
+                        .color = color::RED,
+                        .border_radius = BorderRadius::all(0),
+                    },
+                    RenderBounds {
+                        Rect::from_center(
+                            glm::linearRand(glm::vec2 { 0 }, screen_size),
+                            glm::vec2 { 256 }
+                        ),
+                    }
+                ),
+                std::make_tuple(with_white_tex)
+            )
+            .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
     }
 
     void draw()
     {
         _state.update();
-        _rect_drawer.update(_state);
-        _text_drawer.update(_state);
+        _renderer_manager.update(_state);
 
         update_rects();
 
@@ -165,10 +184,15 @@ struct MyManager
                   << std::endl;
     }
 
+    static void make(State& state)
+    {
+        auto tuple =
+            std::make_tuple(RectDrawer { state }, TextDrawer { state, FONT_PATH });
+    }
+
     State _state;
-    RectDrawer _rect_drawer;
-    TextDrawer _text_drawer;
     flecs::query<RenderBounds, RenderableRect, Velocity> _query;
+    MyRendererManager _renderer_manager;
 };
 
 struct MyManagerBuilder
