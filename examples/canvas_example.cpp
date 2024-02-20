@@ -15,11 +15,9 @@
 #include "division_engine/core/font_texture.hpp"
 #include "division_engine/core/lifecycle_manager.hpp"
 
-#include "flecs.h"
-#include "flecs/addons/cpp/type.hpp"
-#include "glm/ext/vector_float2.hpp"
-#include "glm/gtc/random.hpp"
-#include "glm/vec2.hpp"
+#include <flecs.h>
+#include <glm/gtc/random.hpp>
+#include <glm/vec2.hpp>
 
 #include <array>
 #include <filesystem>
@@ -106,7 +104,10 @@ struct MyManager
                         .font_size = FONT_SIZE,
                     },
                     RenderBounds { Rect::from_center(
-                        glm::vec2 { 256, }, glm::vec2 { TEXT_RECT_SIZE }
+                        glm::vec2 {
+                            256,
+                        },
+                        glm::vec2 { TEXT_RECT_SIZE }
                     ) }
                 )
             )

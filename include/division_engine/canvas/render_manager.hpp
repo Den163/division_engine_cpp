@@ -76,33 +76,6 @@ private:
     std::tuple<TArgs...> _renderers;
     std::optional<std::pair<std::type_index, flecs::entity_t>> _batch;
     uint32_t _render_order;
-
-    template<typename... TComponents>
-    static constexpr bool is_registered_renderable()
-    {
-        using namespace division_engine::utility::algorithm;
-
-        bool has = false;
-
-        tuple_foreach(
-            [&](const auto& renderer)
-            {
-                if (is_registered_renderable<decltype(renderer), TComponents...>())
-                {
-                    has = true;
-                }
-            },
-            std::declval<std::tuple<TComponents...>>()
-        );
-
-        return has;
-    }
-
-    template<Renderer TR, typename... TComponents>
-    static constexpr bool is_registered_renderable()
-    {
-        return std::is_same<typename TR::renderable_type, std::tuple<TComponents...>>();
-    }
 };
 
 }
