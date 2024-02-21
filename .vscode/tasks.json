@@ -24,7 +24,8 @@
             },
             "targets": [
                 "division_core_example",
-                "division_canvas_example"
+                "division_canvas_example",
+                "division_view_tree_example"
             ]
         },
         {

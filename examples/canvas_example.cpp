@@ -197,6 +197,5 @@ struct MyManagerBuilder
 int main(int argc, char** argv)
 {
     const size_t WINDOW_SIZE = 512;
-    MyManagerBuilder manager;
-    CoreRunner { "Canvas example", { WINDOW_SIZE, WINDOW_SIZE } }.run(manager);
+    CoreRunner { "Canvas example", { WINDOW_SIZE, WINDOW_SIZE } }.run(MyManagerBuilder {});
 }

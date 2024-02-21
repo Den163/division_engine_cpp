@@ -22,7 +22,7 @@ struct CoreRunner
     ~CoreRunner();
 
     template<LifecycleManagerBuilder T>
-    void run(T& lifecycle_manager_builder)
+    void run(T&& lifecycle_manager_builder)
     {
         using manager_type = typename T::manager_type;
 
@@ -56,7 +56,7 @@ struct CoreRunner
             },
         };
 
-        run(&lifecycle);
+        execute(&lifecycle);
     }
 
 private:
@@ -64,7 +64,7 @@ private:
     std::string _window_title;
     glm::uvec2 _window_size;
 
-    void run(const DivisionLifecycle* lifecycle);
+    void execute(const DivisionLifecycle* lifecycle);
 
     static void* get_context_user_data(DivisionContext* context_ptr);
     static void set_context_user_data(DivisionContext* context_ptr, void* user_data_ptr);

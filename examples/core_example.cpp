@@ -206,6 +206,5 @@ int main(int argc, char** argv)
         { SCREEN_SIZE, SCREEN_SIZE },
     };
 
-    MyLifecycleManagerBuilder builder {};
-    coreRunner.run(builder);
+    coreRunner.run(MyLifecycleManagerBuilder {});
 }

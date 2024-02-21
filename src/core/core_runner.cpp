@@ -28,7 +28,7 @@ CoreRunner::~CoreRunner()
     }
 }
 
-void CoreRunner::run(const DivisionLifecycle* lifecycle)
+void CoreRunner::execute(const DivisionLifecycle* lifecycle)
 {
     division_engine_context_register_lifecycle(_ctx, lifecycle);
     division_engine_renderer_run_loop(_ctx);

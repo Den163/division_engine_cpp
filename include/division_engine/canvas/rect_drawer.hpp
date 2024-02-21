@@ -79,7 +79,7 @@ public:
     RectDrawer(const RectDrawer&) = delete;
     RectDrawer& operator=(const RectDrawer&) = delete;
     RectDrawer& operator=(RectDrawer&&) noexcept = delete;
-    
+
     RectDrawer(RectDrawer&& other) noexcept
       : _query(std::move(other._query))
       , _texture_bindings(std::move(other._texture_bindings))
@@ -94,7 +94,7 @@ public:
         other._resources_owner = false;
     }
 
-    RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
+    explicit RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
     ~RectDrawer();
 
     void update(State& state);

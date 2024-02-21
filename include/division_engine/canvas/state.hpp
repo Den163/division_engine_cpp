@@ -28,7 +28,7 @@ struct State
     State& operator=(State&&) = delete;
     ~State() = default;
 
-    State(DivisionContext* ctx_ptr)
+    explicit State(DivisionContext* ctx_ptr)
       : clear_color(color::BLACK)
       , context(ctx_ptr)
       , screen_size_uniform_id(context.create_uniform<glm::vec2>())

@@ -4,6 +4,9 @@ target_link_libraries(division_core_example division_engine_cpp)
 add_executable(division_canvas_example canvas_example.cpp)
 target_link_libraries(division_canvas_example division_engine_cpp)
 
+add_executable(division_view_tree_example view_tree_example.cpp)
+target_link_libraries(division_view_tree_example division_engine_cpp)
+
 file(
     GLOB_RECURSE 
     DIVISION_RESOURCES_GLOB

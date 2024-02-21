@@ -9,7 +9,6 @@
             "request": "launch",
             "name": "Launch core example",
             "program": "${workspaceFolder}/build/examples/division_core_example",
-            "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build example"
         },
@@ -18,7 +17,14 @@
             "request": "launch",
             "name": "Launch canvas example",
             "program": "${workspaceFolder}/build/examples/division_canvas_example",
-            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build example"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch view tree example",
+            "program": "${workspaceFolder}/build/examples/division_view_tree_example",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build example"
         },
