@@ -68,8 +68,8 @@ public:
     TextDrawer() = delete;
     TextDrawer& operator=(const TextDrawer&) = delete;
     TextDrawer(TextDrawer&) = delete;
-
     TextDrawer& operator=(TextDrawer&&) = default;
+    
     TextDrawer(TextDrawer&& other) noexcept
       : _font_texture(std::move(other._font_texture))
       , _texture_bindings(std::move(other._texture_bindings))

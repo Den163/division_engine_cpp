@@ -104,10 +104,7 @@ struct MyManager
                         .font_size = FONT_SIZE,
                     },
                     RenderBounds { Rect::from_center(
-                        glm::vec2 {
-                            256,
-                        },
-                        glm::vec2 { TEXT_RECT_SIZE }
+                        glm::vec2 { 256 }, glm::vec2 { TEXT_RECT_SIZE }
                     ) }
                 )
             )
@@ -183,12 +180,6 @@ struct MyManager
     {
         std::cout << "Error code: " << error_code << ". Message: " << error_message
                   << std::endl;
-    }
-
-    static void make(State& state)
-    {
-        auto tuple =
-            std::make_tuple(RectDrawer { state }, TextDrawer { state, FONT_PATH });
     }
 
     State _state;
