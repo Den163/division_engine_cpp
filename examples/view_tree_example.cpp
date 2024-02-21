@@ -2,13 +2,16 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
+#include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
 
 #include <filesystem>
 
-using namespace division_engine::core;
-using namespace division_engine::canvas;
+using namespace division_engine;
+using namespace core;
+using namespace canvas;
+
 using std::filesystem::path;
 // using namespace division_engine::canvas::components;
 
@@ -26,9 +29,16 @@ public:
             TextDrawer { _state, FONT_PATH },
         })
     {
+        _state.clear_color = color::WHITE;
     }
 
-    void draw() {}
+    void draw() 
+    {
+        _state.update();
+        _render_manager.update(_state);
+
+        _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
+    }
 
     void error(int error_code, const char* error_message) {}
 
