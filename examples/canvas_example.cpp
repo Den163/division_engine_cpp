@@ -3,6 +3,7 @@
 #include "division_engine/canvas/components/render_batch.hpp"
 #include "division_engine/canvas/components/render_bounds.hpp"
 #include "division_engine/canvas/components/render_order.hpp"
+#include "division_engine/canvas/components/render_texture.hpp"
 #include "division_engine/canvas/components/renderable_rect.hpp"
 #include "division_engine/canvas/components/renderable_text.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
@@ -41,8 +42,6 @@ const auto FONT_SIZE = 20;
 const auto FONT_PATH =
     std::filesystem::path { "resources" } / "fonts" / "Roboto-Medium.ttf";
 
-using MyRendererManager = RenderManager<RectDrawer, TextDrawer>;
-
 struct Velocity
 {
     glm::vec2 value;
@@ -60,11 +59,10 @@ struct MyManager
     MyManager(DivisionContext* context_ptr)
       : _state(context_ptr)
       , _query(_state.world.query<RenderBounds, RenderableRect, Velocity>())
-      , _renderer_manager(MyRendererManager {
-            RectDrawer { _state },
-            TextDrawer { _state, FONT_PATH },
-        })
     {
+        _renderer_manager.register_renderer<RectDrawer>(_state);
+        _renderer_manager.register_renderer<TextDrawer>(_state, FONT_PATH);
+
         const auto with_white_tex =
             _state.world.entity().set(RenderTexture { _state.white_texture_id });
 
@@ -184,7 +182,7 @@ struct MyManager
 
     State _state;
     flecs::query<RenderBounds, RenderableRect, Velocity> _query;
-    MyRendererManager _renderer_manager;
+    RenderManager _renderer_manager;
 };
 
 struct MyManagerBuilder

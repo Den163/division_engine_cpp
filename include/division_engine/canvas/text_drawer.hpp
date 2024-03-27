@@ -4,6 +4,7 @@
 #include "components/render_order.hpp"
 #include "components/render_texture.hpp"
 #include "components/renderable_text.hpp"
+#include "division_engine/canvas/renderer.hpp"
 #include "state.hpp"
 
 #include "division_engine/core/context.hpp"
@@ -21,7 +22,7 @@
 
 namespace division_engine::canvas
 {
-class TextDrawer
+class TextDrawer : public Renderer
 {
 public:
     using renderable_type =
@@ -65,30 +66,15 @@ public:
 
     static constexpr auto RECT_INDICES = std::array { 0, 1, 2, 2, 3, 0 };
 
-    TextDrawer() = delete;
-    TextDrawer& operator=(const TextDrawer&) = delete;
     TextDrawer(TextDrawer&) = delete;
-    TextDrawer& operator=(TextDrawer&&) = default;
+    TextDrawer(TextDrawer&&) = delete;
+    TextDrawer& operator=(const TextDrawer&) = delete;
+    TextDrawer& operator=(TextDrawer&&) = delete;
     
-    TextDrawer(TextDrawer&& other) noexcept
-      : _font_texture(std::move(other._font_texture))
-      , _texture_bindings(std::move(other._texture_bindings))
-      , _query(std::move(other._query))
-      , _ctx(other._ctx)
-      , _instance_capacity(other._instance_capacity)
-      , _screen_size_uniform(other._screen_size_uniform)
-      , _shader_id(other._shader_id)
-      , _vertex_buffer_id(other._vertex_buffer_id)
-      , _render_pass_descriptor_id(other._render_pass_descriptor_id)
-      , _resources_owner(true)
-    {
-        other._resources_owner = false;
-    };
-
     TextDrawer(State& state, const std::filesystem::path& font_path);
-    ~TextDrawer();
+    ~TextDrawer() override;
 
-    void update(State& state);
+    void fill_render_queue(State& state) override;
 
 private:
     using Context = core::Context;
@@ -116,8 +102,6 @@ private:
     DivisionId _shader_id;
     DivisionId _vertex_buffer_id;
     DivisionId _render_pass_descriptor_id;
-
-    bool _resources_owner;
 
     WordInfo get_next_word(const std::u16string_view& text, float font_scale) const;
 

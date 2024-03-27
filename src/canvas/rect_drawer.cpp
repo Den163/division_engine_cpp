@@ -35,7 +35,6 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
     })
   , _vertex_buffer_id(make_vertex_buffer(_ctx, rect_capacity))
   , _instance_capacity(rect_capacity)
-  , _resources_owner(true)
 {
     using path = std::filesystem::path;
 
@@ -74,14 +73,11 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
 
 RectDrawer::~RectDrawer()
 {
-    if (!_resources_owner)
-        return;
-
     _ctx.delete_shader(_shader_id);
     _ctx.delete_vertex_buffer(_vertex_buffer_id);
 }
 
-void RectDrawer::update(State& state)
+void RectDrawer::fill_render_queue(State& state)
 {
     auto overall_instance_count = 0;
 

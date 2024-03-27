@@ -7,15 +7,13 @@
 #include "division_engine/core/core_runner.hpp"
 
 #include <filesystem>
+#include <type_traits>
 
 using namespace division_engine;
 using namespace core;
 using namespace canvas;
 
 using std::filesystem::path;
-// using namespace division_engine::canvas::components;
-
-using MyRendererManager = RenderManager<RectDrawer, TextDrawer>;
 
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Medium.ttf";
 
@@ -24,15 +22,13 @@ class MyLifecycleManager
 public:
     MyLifecycleManager(DivisionContext* ctx_ptr)
       : _state(State { ctx_ptr })
-      , _render_manager(MyRendererManager {
-            RectDrawer { _state },
-            TextDrawer { _state, FONT_PATH },
-        })
     {
+        _render_manager.register_renderer<RectDrawer>(_state);
+        _render_manager.register_renderer<TextDrawer>(_state, FONT_PATH);
         _state.clear_color = color::WHITE;
     }
 
-    void draw() 
+    void draw()
     {
         _state.update();
         _render_manager.update(_state);
@@ -44,7 +40,7 @@ public:
 
 private:
     State _state;
-    MyRendererManager _render_manager;
+    RenderManager _render_manager;
 };
 
 struct MyBuilder

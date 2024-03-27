@@ -23,25 +23,8 @@ public:
     FontTexture(const FontTexture&) = delete;
     FontTexture& operator=(const FontTexture&) = delete;
 
-    FontTexture& operator=(FontTexture&&) = default;
-    FontTexture(FontTexture&& other) noexcept
-        : _character_to_glyph_index(std::move(other._character_to_glyph_index))
-        , _glyphs(std::move(other._glyphs))
-        , _glyph_positions(std::move(other._glyph_positions))
-        , _free_rows_space(std::move(other._free_rows_space))
-        , _ctx(other._ctx)
-        , _resolution(other._resolution)
-        , _font_size(other._font_size)
-        , _rasterizer_buffer_capacity(other._rasterizer_buffer_capacity)
-        , _pixel_buffer(other._pixel_buffer)
-        , _rasterizer_buffer(other._rasterizer_buffer)
-        , _font_id(other._font_id)
-        , _texture_id(other._texture_id)
-        , _texture_was_changed(other._texture_was_changed)
-    {
-        other._pixel_buffer = nullptr;
-        other._rasterizer_buffer = nullptr;
-    }
+    FontTexture(FontTexture&&) = delete;
+    FontTexture& operator=(FontTexture&&) = delete;
 
     FontTexture(
         Context& context,

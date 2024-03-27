@@ -10,6 +10,7 @@
 #include <array>
 #include <flecs.h>
 
+#include <memory>
 #include <optional>
 #include <tuple>
 #include <type_traits>
@@ -23,15 +24,24 @@
 namespace division_engine::canvas
 {
 
-template<Renderer... TArgs>
 class RenderManager
 {
 public:
-    RenderManager(TArgs&&... renderers)
-      : _renderers(std::tuple<TArgs...>(std::forward<TArgs>(renderers)...))
+    template<typename... TRenderers>
+    RenderManager()
+      : _renderers()
       , _batch(std::nullopt)
       , _render_order(0)
     {
+    }
+
+    template<typename TRenderer, typename... TArgs>
+    void register_renderer(TArgs&... args)
+    {
+        static_assert(std::is_base_of<Renderer, TRenderer>());
+
+        std::unique_ptr<Renderer> ptr = std::make_unique<TRenderer>(args...);
+        _renderers.push_back(std::move(ptr));
     }
 
     template<typename... TComponents, typename... TBatchComponents>
@@ -58,7 +68,7 @@ public:
         tuple_foreach(
             [&](auto& batch_comp) { entity.is_a(batch_comp); }, batch_components
         );
-
+        
         entity.set(RenderOrder { _render_order++ });
         entity.is_a(_batch->second);
 
@@ -69,11 +79,14 @@ public:
     {
         using namespace division_engine::utility::algorithm;
 
-        tuple_foreach([&](auto& renderer) { renderer.update(state); }, _renderers);
+        for (auto& rend : _renderers)
+        {
+            rend->fill_render_queue(state);
+        }
     }
 
 private:
-    std::tuple<TArgs...> _renderers;
+    std::vector<std::unique_ptr<Renderer>> _renderers;
     std::optional<std::pair<std::type_index, flecs::entity_t>> _batch;
     uint32_t _render_order;
 };

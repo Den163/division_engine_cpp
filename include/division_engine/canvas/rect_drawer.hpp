@@ -5,6 +5,7 @@
 #include "components/renderable_rect.hpp"
 
 #include "components/render_bounds.hpp"
+#include "division_engine/canvas/renderer.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/vertex_data.hpp"
 
@@ -19,11 +20,12 @@
 
 namespace division_engine::canvas
 {
-class RectDrawer
+class RectDrawer : public Renderer
 {
 public:
     using renderable_type =
         std::tuple<components::RenderableRect, components::RenderBounds>;
+    using batch_renderable_type = std::tuple<components::RenderTexture>;
 
     struct RectVertex
     {
@@ -78,26 +80,13 @@ public:
 
     RectDrawer(const RectDrawer&) = delete;
     RectDrawer& operator=(const RectDrawer&) = delete;
-    RectDrawer& operator=(RectDrawer&&) noexcept = delete;
-
-    RectDrawer(RectDrawer&& other) noexcept
-      : _query(std::move(other._query))
-      , _texture_bindings(std::move(other._texture_bindings))
-      , _ctx(other._ctx)
-      , _screen_size_uniform(other._screen_size_uniform)
-      , _shader_id(other._shader_id)
-      , _vertex_buffer_id(other._vertex_buffer_id)
-      , _render_pass_descriptor_id(other._render_pass_descriptor_id)
-      , _instance_capacity(other._instance_capacity)
-      , _resources_owner(true)
-    {
-        other._resources_owner = false;
-    }
+    RectDrawer& operator=(RectDrawer&&) = delete;
+    RectDrawer(RectDrawer&& other) = delete;
 
     explicit RectDrawer(State& state, size_t rect_capacity = DEFAULT_RECT_CAPACITY);
-    ~RectDrawer();
+    ~RectDrawer() override;
 
-    void update(State& state);
+    void fill_render_queue(State& state) override;
 
 private:
     using RenderTexture = components::RenderTexture;
@@ -121,8 +110,6 @@ private:
     DivisionId _render_pass_descriptor_id;
 
     uint32_t _instance_capacity;
-
-    bool _resources_owner;
 
     static DivisionId
     make_vertex_buffer(core::Context& context_helper, uint32_t instance_capacity);

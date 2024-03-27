@@ -61,7 +61,6 @@ TextDrawer::TextDrawer(State& state, const std::filesystem::path& font_path)
             )
             .build()
     )
-  , _resources_owner(true)
 {
     auto vb_data =
         _ctx.borrow_vertex_buffer_data<TextCharVertex, TextCharInstance>(_vertex_buffer_id
@@ -87,13 +86,11 @@ TextDrawer::TextDrawer(State& state, const std::filesystem::path& font_path)
 
 TextDrawer::~TextDrawer()
 {
-    if (!_resources_owner) return;
-
     _ctx.delete_vertex_buffer(_vertex_buffer_id);
     _ctx.delete_shader(_shader_id);
 }
 
-void TextDrawer::update(State& state)
+void TextDrawer::fill_render_queue(State& state)
 {
     using core::RenderPassInstanceBuilder;
 
