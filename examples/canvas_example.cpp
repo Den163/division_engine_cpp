@@ -87,7 +87,7 @@ struct MyManager
                             ),
                         }
                     ),
-                    std::make_tuple(with_white_tex)
+                    std::array { with_white_tex.id() }
                 )
                 .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
         }
@@ -123,7 +123,7 @@ struct MyManager
                         ),
                     }
                 ),
-                std::make_tuple(with_white_tex)
+                std::array { with_white_tex.id() }
             )
             .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
     }
