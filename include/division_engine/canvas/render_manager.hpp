@@ -45,12 +45,11 @@ public:
         _renderers.push_back(std::move(ptr));
     }
 
-    template<typename... TComponents, size_t BATCH_COMPONENTS_COUNT = 0>
+    template<typename... TComponents>
     flecs::entity create_renderer(
         State& state,
         std::tuple<TComponents...> components,
-        std::array<flecs::entity_t, BATCH_COMPONENTS_COUNT> batch_components =
-            std::array<flecs::entity_t, 0> {}
+        std::optional<flecs::entity_t> batch_entity = std::nullopt
     )
     {
         using components::RenderBatch;
@@ -68,9 +67,8 @@ public:
         auto new_entity = state.world.entity();
         tuple_foreach([&](auto& comp) { new_entity.set(comp); }, components);
 
-        for (auto& batch_comp : batch_components)
-        {
-            new_entity.is_a(batch_comp);
+        if (batch_entity.has_value()) {
+            new_entity.is_a(batch_entity.value());
         }
 
         new_entity.set(RenderOrder { _render_order++ });

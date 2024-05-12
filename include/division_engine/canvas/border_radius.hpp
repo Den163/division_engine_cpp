@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm/ext/vector_float4.hpp"
 #include <glm/vec4.hpp>
 
 namespace division_engine::canvas

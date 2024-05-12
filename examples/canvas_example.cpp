@@ -87,7 +87,7 @@ struct MyManager
                             ),
                         }
                     ),
-                    std::array { with_white_tex.id() }
+                    with_white_tex.id()
                 )
                 .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
         }
@@ -123,7 +123,7 @@ struct MyManager
                         ),
                     }
                 ),
-                std::array { with_white_tex.id() }
+                with_white_tex.id()
             )
             .set(Velocity { glm::linearRand(glm::vec2 { -1 }, glm::vec2 { 1 }) });
     }
@@ -157,6 +157,7 @@ struct MyManager
                 else if (rect_bounds.left() < 0)
                 {
                     rect_bounds.set_left(0);
+
                     dir.x = -dir.x;
                 }
 

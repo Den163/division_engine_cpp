@@ -1,31 +1,64 @@
+#include "division_engine/canvas/padding.hpp"
+#include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
+#include "division_engine/canvas/view_tree/column_view.hpp"
+#include "division_engine/canvas/view_tree/decorated_box_view.hpp"
+#include "division_engine/canvas/view_tree/padding_view.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec4.hpp"
 
 #include <filesystem>
+#include <tuple>
 #include <type_traits>
 
 using namespace division_engine;
 using namespace core;
 using namespace canvas;
+using namespace view_tree;
 
 using std::filesystem::path;
 
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Medium.ttf";
 
+struct MyUIBuilder
+{
+    auto build_ui(State& state)
+    {
+        return ColumnView {
+            std::tuple {
+                DecoratedBoxView { .background_color = color::RED },
+                PaddingView(DecoratedBoxView { .background_color = color::BLUE })
+                    .with_padding(Padding::all(0)),
+                DecoratedBoxView { .background_color = color::GREEN },
+                DecoratedBoxView { .background_color = color::GREEN },
+                DecoratedBoxView { .background_color = color::BLUE },
+                DecoratedBoxView { .background_color = color::BLUE },
+            },
+        };
+    }
+};
+
 class MyLifecycleManager
 {
 public:
+    using root_view =
+        std::invoke_result<decltype(&MyUIBuilder::build_ui), MyUIBuilder, State&>::type;
+
     MyLifecycleManager(DivisionContext* ctx_ptr)
-      : _state(State { ctx_ptr })
+      : _state(State { ctx_ptr, color::WHITE })
+      , _ui_builder(MyUIBuilder())
+      , _root_view(_ui_builder.build_ui(_state))
+      , _root_view_render(root_view::renderer::create(_state, _render_manager, _root_view)
+        )
     {
         _render_manager.register_renderer<RectDrawer>(_state);
         _render_manager.register_renderer<TextDrawer>(_state, FONT_PATH);
-        _state.clear_color = color::WHITE;
     }
 
     void draw()
@@ -33,6 +66,10 @@ public:
         _state.update();
         _render_manager.update(_state);
 
+        auto screen_size = _state.context.get_screen_size();
+        auto screen_rect = Rect::from_bottom_left(glm::vec2 { 0 }, screen_size);
+
+        _root_view_render.render(_state, _render_manager, screen_rect, _root_view);
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
@@ -41,6 +78,9 @@ public:
 private:
     State _state;
     RenderManager _render_manager;
+    MyUIBuilder _ui_builder;
+    root_view _root_view;
+    root_view::renderer _root_view_render;
 };
 
 struct MyBuilder

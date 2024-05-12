@@ -28,8 +28,8 @@ struct State
     State& operator=(State&&) = delete;
     ~State() = default;
 
-    explicit State(DivisionContext* ctx_ptr)
-      : clear_color(color::BLACK)
+    explicit State(DivisionContext* ctx_ptr, const glm::vec4& clear_color = color::BLACK)
+      : clear_color(clear_color)
       , context(ctx_ptr)
       , screen_size_uniform_id(context.create_uniform<glm::vec2>())
       , white_texture_id(context.create_texture(
