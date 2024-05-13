@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(division_engine_cpp VERSION 0.1.0 LANGUAGES C CXX)
+project(division_engine VERSION 0.1.0 LANGUAGES C CXX)
 
 set(IGNORE_ERRORS 
     "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-bitwise-instead-of-logical"
@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(flecs)
 
 add_subdirectory(division_engine_core)
 
-set(DIVISION_ENGINE_CPP_SOURCES
+set(DIVISION_ENGINE_SOURCES
     src/core/context.cpp
     src/core/core_runner.cpp
     src/core/font_texture.cpp
@@ -39,15 +39,15 @@ set(DIVISION_ENGINE_CPP_SOURCES
     src/canvas/text_drawer.cpp
 )
 
-add_library(division_engine_cpp ${DIVISION_ENGINE_CPP_SOURCES})
-target_compile_definitions(division_engine_cpp PUBLIC)
+add_library(division_engine ${DIVISION_ENGINE_SOURCES})
+target_compile_definitions(division_engine PUBLIC)
 
 target_include_directories(
-    division_engine_cpp 
+    division_engine 
     PUBLIC include 
     PRIVATE include/division_engine
 )
-target_link_libraries(division_engine_cpp 
+target_link_libraries(division_engine
     PUBLIC glm::glm
     PUBLIC division_engine_core
     PUBLIC flecs::flecs_static

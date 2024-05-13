@@ -1,11 +1,11 @@
 add_executable(division_core_example core_example.cpp)
-target_link_libraries(division_core_example division_engine_cpp)
+target_link_libraries(division_core_example division_engine)
 
 add_executable(division_canvas_example canvas_example.cpp)
-target_link_libraries(division_canvas_example division_engine_cpp)
+target_link_libraries(division_canvas_example division_engine)
 
 add_executable(division_view_tree_example view_tree_example.cpp)
-target_link_libraries(division_view_tree_example division_engine_cpp)
+target_link_libraries(division_view_tree_example division_engine)
 
 file(
     GLOB_RECURSE 
