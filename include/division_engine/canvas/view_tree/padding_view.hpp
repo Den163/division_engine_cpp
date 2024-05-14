@@ -1,5 +1,6 @@
 #pragma once
 
+#include "division_engine/canvas/view_tree/view_traits.hpp"
 #include "division_engine/canvas/box_constraints.hpp"
 #include "division_engine/canvas/padding.hpp"
 #include "division_engine/canvas/rect.hpp"
@@ -19,7 +20,7 @@ struct PaddingViewRender;
 template<typename T>
 struct PaddingView
 {
-    using renderer = PaddingViewRender<typename T::renderer>;
+    using renderer_type = PaddingViewRender<typename T::renderer_type>;
 
     Padding padding;
     T child;
@@ -37,19 +38,19 @@ struct PaddingView
 template<typename T>
 struct PaddingViewRender
 {
+    using view_type = PaddingView<typename T::view_type>;
+
     T child;
 
-    template<typename S>
     static PaddingViewRender<T>
-    create(State& state, RenderManager& render_manager, const PaddingView<S>& view)
+    create(State& state, RenderManager& render_manager, const view_type& view)
     {
         return PaddingViewRender<T> {
             .child = T::create(state, render_manager, view.child),
         };
     }
 
-    template<typename S>
-    SizeVariant layout(const BoxConstraints& constraints, const PaddingView<S>& view) 
+    SizeVariant layout(const BoxConstraints& constraints, const view_type& view) 
     { 
         glm::vec2 padded_size {
             view.padding.left + view.padding.right,
@@ -64,7 +65,7 @@ struct PaddingViewRender
         SizeVariant child_size = child.layout(child_constraints, view.child);
 
         if (child_size.is_filled()) {
-            return SizeVariant::fill();
+            return SizeVariant::filled();
         }
         else if (child_size.is_fixed()) {
             const auto fixed_size = std::get<SizeVariant::Fixed>(child_size.variant);
@@ -74,12 +75,11 @@ struct PaddingViewRender
         throw std::runtime_error { "Unknown child size variant" };
     }
 
-    template<typename S>
     void render(
         State& state,
         RenderManager& render_manager,
         Rect& rect,
-        const PaddingView<S>& view
+        const view_type& view
     )
     {
         const auto& padding = view.padding;

@@ -18,7 +18,7 @@ struct SizeVariant
 
     std::variant<Filled, Fixed> variant;
 
-    static SizeVariant fill() { return SizeVariant { Filled {} }; }
+    static SizeVariant filled() { return SizeVariant { Filled {} }; }
 
     static SizeVariant fixed(const glm::vec2& size)
     {

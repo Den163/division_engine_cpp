@@ -22,7 +22,7 @@ struct TextViewRender;
 
 struct TextView
 {
-    using renderer = TextViewRender;
+    using renderer_type = TextViewRender;
 
     std::u16string text {};
     glm::vec4 color = color::WHITE;
@@ -31,10 +31,12 @@ struct TextView
 
 struct TextViewRender
 {
+    using view_type = TextView;
+
     flecs::entity_t renderable_id;
 
     static TextViewRender
-    create(State& state, RenderManager& render_manager, const TextView& view)
+    create(State& state, RenderManager& render_manager, const view_type& view)
     {
         using namespace components;
         auto renderable = render_manager.create_renderer(
@@ -52,13 +54,13 @@ struct TextViewRender
         return TextViewRender { renderable };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const TextView& view)
+    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::fill();
+        return SizeVariant::filled();
     }
 
     void
-    render(State& state, RenderManager& render_manager, Rect& rect, const TextView& view)
+    render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         using namespace components;
 

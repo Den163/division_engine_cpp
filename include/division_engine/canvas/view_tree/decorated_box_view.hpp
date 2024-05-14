@@ -22,7 +22,7 @@ struct DecoratedBoxViewRenderer;
 
 struct DecoratedBoxView
 {
-    using renderer = DecoratedBoxViewRenderer;
+    using renderer_type = DecoratedBoxViewRenderer;
 
     glm::vec4 background_color = color::WHITE;
     BorderRadius border_radius = BorderRadius::all(0);
@@ -30,10 +30,12 @@ struct DecoratedBoxView
 
 struct DecoratedBoxViewRenderer
 {
+    using view_type = DecoratedBoxView;
+
     flecs::entity_t renderable_id;
 
     static DecoratedBoxViewRenderer
-    create(State& state, RenderManager& render_manager, const DecoratedBoxView& view)
+    create(State& state, RenderManager& render_manager, const view_type& view)
     {
         using namespace components;
 
@@ -54,16 +56,16 @@ struct DecoratedBoxViewRenderer
         return DecoratedBoxViewRenderer { renderable_id };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const DecoratedBoxView& view)
+    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::fill();
+        return SizeVariant::filled();
     }
 
     void render(
         State& state,
         RenderManager& render_manager,
         Rect& rect,
-        const DecoratedBoxView& view
+        const view_type& view
     )
     {
         using namespace components;

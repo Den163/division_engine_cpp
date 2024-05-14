@@ -6,6 +6,8 @@
 #include "division_engine/canvas/size_variant.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/utility/algorithm.hpp"
+#include "view_traits.hpp"
+
 #include "glm/ext/vector_float2.hpp"
 
 #include <glm/vec2.hpp>
@@ -26,77 +28,66 @@ enum class Direction
     Vertical
 };
 
-template<typename... TChildRenderer>
+template<Direction elements_direction, typename... TChildRenderer>
 struct ListViewRender;
-
-template<typename TView>
-using view_renderer_t = typename TView::renderer;
 
 template<Direction elements_direction, typename... TChildView>
 struct ListView
 {
-    using renderer = ListViewRender<view_renderer_t<TChildView>...>;
+    using renderer_type =
+        ListViewRender<elements_direction, renderer_of_view_t<TChildView>...>;
 
     std::tuple<TChildView...> children;
 };
 
-template<typename... TChildView>
-struct HorizontalListView : ListView<Direction::Horinzontal, TChildView...>
+template<typename... T>
+using HorizontalListView = ListView<Direction::Horinzontal, T...>;
+
+template<typename... T>
+using VerticalListView = ListView<Direction::Vertical, T...>;
+
+template<typename... T>
+HorizontalListView<T...> make_horizontal_list(std::tuple<T...>&& children)
 {
-};
+    return HorizontalListView<T...> { children };
+}
 
-template<typename... TChildView>
-HorizontalListView(std::tuple<TChildView...>) -> HorizontalListView<TChildView...>;
-
-template<typename... TChildView>
-struct VerticalListView : ListView<Direction::Vertical, TChildView...>
+template<typename... T>
+VerticalListView<T...> make_vertical_list(std::tuple<T...>&& children)
 {
-};
+    return VerticalListView<T...> { children };
+}
 
-template<typename... TChildView>
-VerticalListView(std::tuple<TChildView...>) -> VerticalListView<TChildView...>;
-
-template<typename... TChildRenderer>
+template<Direction elements_direction, typename... TChildRenderer>
 struct ListViewRender
 {
+    using view_type = ListView<elements_direction, view_of_renderer_t<TChildRenderer>...>;
+
     std::tuple<TChildRenderer...> children;
 
-    template<Direction elements_direction, typename... TChildView>
-    static ListViewRender<TChildRenderer...> create(
-        State& state,
-        RenderManager& render_manager,
-        const ListView<elements_direction, TChildView...>& view
-    )
+    static ListViewRender<elements_direction, TChildRenderer...>
+    create(State& state, RenderManager& render_manager, const view_type& view)
     {
-        return ListViewRender<TChildRenderer...> {
+        return ListViewRender<elements_direction, TChildRenderer...> {
             .children = utility::algorithm::tuple_transform(
                 [&](auto v)
                 {
                     using view_type = decltype(v);
 
-                    return view_type::renderer::create(state, render_manager, v);
+                    return view_type::renderer_type::create(state, render_manager, v);
                 },
                 view.children
             )
         };
     }
 
-    template<Direction elements_direction, typename... TChildView>
-    SizeVariant layout(
-        const BoxConstraints& constraints,
-        const ListView<elements_direction, TChildView...>& view
-    )
+    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::fill();
+        return SizeVariant::filled();
     }
 
-    template<Direction elements_direction, typename... TChildView>
-    void render(
-        State& state,
-        RenderManager& render_manager,
-        Rect& rect,
-        const ListView<elements_direction, TChildView...>& view
-    )
+    void
+    render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         const auto rect_size = rect.size();
 
@@ -104,7 +95,7 @@ struct ListViewRender
         glm::vec2 all_fixed_size = glm::vec2 { 0 };
         int fixed_size_count = 0;
 
-        utility::algorithm::tuples_zip(
+        utility::algorithm::tuples_zip_foreach(
             [&](auto& child_renderer, auto& child_view)
             {
                 BoxConstraints constraints {
@@ -137,7 +128,8 @@ struct ListViewRender
             view.children
         );
 
-        const auto filled_size_count = sizeof...(TChildView) - fixed_size_count;
+        constexpr size_t child_count = std::tuple_size_v<decltype(children)>;
+        const auto filled_size_count = child_count - fixed_size_count;
 
         const glm::vec2 filled_space = (rect_size - all_fixed_size);
         glm::vec2 size_per_filled = rect_size;
@@ -154,11 +146,13 @@ struct ListViewRender
 
         glm::vec2 offset { 0 };
 
-        utility::algorithm::tuples_zip(
+        utility::algorithm::tuples_zip_foreach(
             [&](auto& child_renderer, auto& child_view)
             {
-                BoxConstraints constraints { .min_size = glm::vec2 { 0 },
-                                             .max_size = available_size };
+                BoxConstraints constraints {
+                    .min_size = glm::vec2 { 0 },
+                    .max_size = available_size,
+                };
                 const SizeVariant child_size =
                     child_renderer.layout(constraints, child_view);
 
@@ -167,7 +161,7 @@ struct ListViewRender
 
                 if (child_size.is_filled())
                 {
-                    auto draw_rect = Rect::from_top_left( top_left, size_per_filled );
+                    auto draw_rect = Rect::from_top_left(top_left, size_per_filled);
                     child_renderer.render(state, render_manager, draw_rect, child_view);
 
                     if constexpr (elements_direction == Direction::Horinzontal)

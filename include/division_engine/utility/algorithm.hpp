@@ -61,7 +61,7 @@ void tuple_foreach(TCallback& callback, std::tuple<TArgs...>& tuple)
 }
 
 template<class TCallback, class... TTuple>
-void tuples_zip(const TCallback& callback, TTuple&... tuple)
+void tuples_zip_foreach(const TCallback& callback, TTuple&... tuple)
 {
     constexpr size_t min_tuple_size =
         std::min(std::initializer_list<size_t> { std::tuple_size<TTuple>()... });

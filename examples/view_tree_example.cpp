@@ -8,6 +8,7 @@
 #include "division_engine/canvas/view_tree/decorated_box_view.hpp"
 #include "division_engine/canvas/view_tree/list_view.hpp"
 #include "division_engine/canvas/view_tree/padding_view.hpp"
+#include "division_engine/canvas/view_tree/stack_view.hpp"
 #include "division_engine/canvas/view_tree/text_view.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
@@ -33,7 +34,7 @@ struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return HorizontalListView {
+        return make_horizontal_list(
             std::tuple {
                 DecoratedBoxView { .background_color = color::RED },
                 PaddingView {
@@ -44,16 +45,16 @@ struct MyUIBuilder
                 }
                     .with_padding(Padding::all(10)),
                 DecoratedBoxView { .background_color = color::GREEN },
-                VerticalListView {
+                StackView {
                     std::tuple {
                         DecoratedBoxView { .background_color = color::RED },
                         TextView { .text = u"Hey world", .color = color::BLACK },
-                    },
+                    }
                 },
                 DecoratedBoxView { .background_color = color::BLUE },
                 DecoratedBoxView { .background_color = color::PURPLE },
-            },
-        };
+            }
+        );
     }
 };
 
@@ -67,7 +68,7 @@ public:
       : _state(State { ctx_ptr, color::WHITE })
       , _ui_builder(MyUIBuilder())
       , _root_view(_ui_builder.build_ui(_state))
-      , _root_view_render(root_view::renderer::create(_state, _render_manager, _root_view)
+      , _root_view_render(root_view::renderer_type::create(_state, _render_manager, _root_view)
         )
     {
         _render_manager.register_renderer<RectDrawer>(_state);
@@ -96,7 +97,7 @@ private:
     RenderManager _render_manager;
     MyUIBuilder _ui_builder;
     root_view _root_view;
-    root_view::renderer _root_view_render;
+    root_view::renderer_type _root_view_render;
 };
 
 struct MyBuilder
