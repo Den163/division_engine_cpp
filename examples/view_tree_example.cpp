@@ -5,8 +5,8 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
-#include "division_engine/canvas/view_tree/column_view.hpp"
 #include "division_engine/canvas/view_tree/decorated_box_view.hpp"
+#include "division_engine/canvas/view_tree/list_view.hpp"
 #include "division_engine/canvas/view_tree/padding_view.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
@@ -32,20 +32,20 @@ struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return ColumnView {
-            std::tuple {
-                DecoratedBoxView { .background_color = color::RED },
-                PaddingView(DecoratedBoxView {
-                                .background_color = color::BLUE,
-                                .border_radius = BorderRadius::all(10),
-                            })
-                    .with_padding(Padding::all(10)),
-                DecoratedBoxView { .background_color = color::GREEN },
-                DecoratedBoxView { .background_color = color::GREEN },
-                DecoratedBoxView { .background_color = color::BLUE },
-                DecoratedBoxView { .background_color = color::BLUE },
-            },
-        };
+        return HorizontalListView { std::tuple {
+            DecoratedBoxView { .background_color = color::RED },
+            PaddingView {
+                DecoratedBoxView {
+                    .background_color = color::BLUE,
+                    .border_radius = BorderRadius::all(10),
+                },
+            }
+                .with_padding(Padding::all(10)),
+            DecoratedBoxView { .background_color = color::GREEN },
+            DecoratedBoxView { .background_color = color::WHITE },
+            DecoratedBoxView { .background_color = color::BLUE },
+            DecoratedBoxView { .background_color = color::PURPLE },
+        } };
     }
 };
 
@@ -78,7 +78,8 @@ public:
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
-    void error(int error_code, const char* error_message) {
+    void error(int error_code, const char* error_message)
+    {
         std::cerr << error_message << std::endl;
     }
 
