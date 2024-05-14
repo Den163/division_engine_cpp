@@ -8,6 +8,7 @@
 #include "division_engine/canvas/view_tree/decorated_box_view.hpp"
 #include "division_engine/canvas/view_tree/list_view.hpp"
 #include "division_engine/canvas/view_tree/padding_view.hpp"
+#include "division_engine/canvas/view_tree/text_view.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
@@ -32,20 +33,27 @@ struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return HorizontalListView { std::tuple {
-            DecoratedBoxView { .background_color = color::RED },
-            PaddingView {
-                DecoratedBoxView {
-                    .background_color = color::BLUE,
-                    .border_radius = BorderRadius::all(10),
+        return HorizontalListView {
+            std::tuple {
+                DecoratedBoxView { .background_color = color::RED },
+                PaddingView {
+                    DecoratedBoxView {
+                        .background_color = color::BLUE,
+                        .border_radius = BorderRadius::all(10),
+                    },
+                }
+                    .with_padding(Padding::all(10)),
+                DecoratedBoxView { .background_color = color::GREEN },
+                VerticalListView {
+                    std::tuple {
+                        DecoratedBoxView { .background_color = color::RED },
+                        TextView { .text = u"Hey world", .color = color::BLACK },
+                    },
                 },
-            }
-                .with_padding(Padding::all(10)),
-            DecoratedBoxView { .background_color = color::GREEN },
-            DecoratedBoxView { .background_color = color::WHITE },
-            DecoratedBoxView { .background_color = color::BLUE },
-            DecoratedBoxView { .background_color = color::PURPLE },
-        } };
+                DecoratedBoxView { .background_color = color::BLUE },
+                DecoratedBoxView { .background_color = color::PURPLE },
+            },
+        };
     }
 };
 

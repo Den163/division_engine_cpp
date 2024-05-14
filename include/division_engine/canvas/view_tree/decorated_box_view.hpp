@@ -51,8 +51,7 @@ struct DecoratedBoxViewRenderer
             batch_entity.id()
         );
 
-        DecoratedBoxViewRenderer render { .renderable_id = renderable_id };
-        return render;
+        return DecoratedBoxViewRenderer { renderable_id };
     }
 
     SizeVariant layout(const BoxConstraints& constraints, const DecoratedBoxView& view)
@@ -69,13 +68,13 @@ struct DecoratedBoxViewRenderer
     {
         using namespace components;
 
-        auto e = flecs::entity { state.world, renderable_id };
+        flecs::entity entity { state.world, renderable_id };
 
-        auto& renderable = *e.get_mut<RenderableRect>();
+        auto& renderable = *entity.get_mut<RenderableRect>();
         renderable.color = view.background_color;
         renderable.border_radius = view.border_radius;
 
-        auto& bounds = *e.get_mut<RenderBounds>();
+        auto& bounds = *entity.get_mut<RenderBounds>();
         bounds = rect;
     }
 };
