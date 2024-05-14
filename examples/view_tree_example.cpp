@@ -34,27 +34,26 @@ struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return make_horizontal_list(
-            std::tuple {
-                DecoratedBoxView { .background_color = color::RED },
-                PaddingView {
-                    DecoratedBoxView {
-                        .background_color = color::BLUE,
-                        .border_radius = BorderRadius::all(10),
-                    },
-                }
-                    .with_padding(Padding::all(10)),
-                DecoratedBoxView { .background_color = color::GREEN },
-                StackView {
-                    std::tuple {
-                        DecoratedBoxView { .background_color = color::RED },
-                        TextView { .text = u"Hey world", .color = color::BLACK },
-                    }
+        return make_horizontal_list(std::tuple {
+            DecoratedBoxView { .background_color = color::RED },
+            PaddingView {
+                DecoratedBoxView {
+                    .background_color = color::BLUE,
+                    .border_radius = BorderRadius::all(10),
                 },
-                DecoratedBoxView { .background_color = color::BLUE },
-                DecoratedBoxView { .background_color = color::PURPLE },
             }
-        );
+                .with_padding(Padding::all(10)),
+            DecoratedBoxView { .background_color = color::GREEN },
+            make_vertical_list(std::tuple {
+                DecoratedBoxView { .background_color = color::AQUA },
+                StackView { std::tuple {
+                    DecoratedBoxView { .background_color = color::RED },
+                    TextView { .text = u"Hey world", .color = color::BLACK },
+                } },
+            }),
+            DecoratedBoxView { .background_color = color::BLUE },
+            DecoratedBoxView { .background_color = color::PURPLE },
+        });
     }
 };
 
@@ -68,7 +67,8 @@ public:
       : _state(State { ctx_ptr, color::WHITE })
       , _ui_builder(MyUIBuilder())
       , _root_view(_ui_builder.build_ui(_state))
-      , _root_view_render(root_view::renderer_type::create(_state, _render_manager, _root_view)
+      , _root_view_render(
+            root_view::renderer_type::create(_state, _render_manager, _root_view)
         )
     {
         _render_manager.register_renderer<RectDrawer>(_state);
