@@ -1,6 +1,7 @@
 #pragma once
 
 #include "division_engine/canvas/box_constraints.hpp"
+#include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size_variant.hpp"
 #include "division_engine/utility/algorithm.hpp"
@@ -50,7 +51,8 @@ struct StackViewRender
         return SizeVariant::filled();
     }
 
-    void render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
+    void
+    render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         utility::algorithm::tuples_zip_foreach(
             [&](auto child_renderer, auto child_view)
