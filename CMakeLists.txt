@@ -26,7 +26,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(flecs)
 
+option(DIVISION_SHADER_COMPILER_EXECUTABLE ON)
+
 add_subdirectory(division_engine_core)
+add_subdirectory(tools/division_shader_compiler)
 
 set(DIVISION_ENGINE_SOURCES
     src/core/context.cpp
@@ -56,3 +59,42 @@ target_link_libraries(division_engine
 if(DEFINED ENV{DIVISION_ENGINE_CPP_EXAMPLES})
     add_subdirectory(examples)
 endif()
+
+### Compiling shaders from GLSL to MSL
+
+file(
+    GLOB_RECURSE 
+    DIVISION_RESOURCES_GLOB
+    CONFIGURE_DEPENDS
+    "${CMAKE_BINARY_DIR}/*/resources/shaders/*.vert" 
+    "${CMAKE_BINARY_DIR}/*/resources/shaders/*.frag"
+)
+
+foreach(D_FILE_ABS ${DIVISION_RESOURCES_GLOB})
+    file(RELATIVE_PATH D_FILE_REL ${CMAKE_BINARY_DIR} ${D_FILE_ABS})
+    get_filename_component(D_FILE_EXT ${D_FILE_REL} EXT)
+    get_filename_component(D_FILE_NAME ${D_FILE_REL} NAME)
+
+    if (${D_FILE_EXT} STREQUAL ".vert")
+        set(SHADER_TYPE "vertex")
+    elseif(${D_FILE_EXT} STREQUAL ".frag")
+        set(SHADER_TYPE "fragment")
+    else()
+        continue()
+    endif()
+
+    set(D_FILE_ABS_OUTPUT ${D_FILE_ABS}.metal)
+    add_custom_command(
+        OUTPUT ${D_FILE_ABS_OUTPUT}
+        COMMAND ${CMAKE_BINARY_DIR}/tools/division_shader_compiler/division_shader_compiler 
+                --${SHADER_TYPE} ${D_FILE_ABS} ${D_FILE_ABS_OUTPUT}
+        DEPENDS ${D_FILE_ABS}
+        COMMENT "Recompiling ${D_FILE_ABS} to MSL..."
+        VERBATIM
+    )
+
+    list(APPEND SHADER_SOURCES ${D_FILE_ABS_OUTPUT})
+endforeach()
+
+add_custom_target(division_engine_shaders DEPENDS division_shader_compiler ${SHADER_SOURCES})
+add_dependencies(division_engine division_engine_shaders)

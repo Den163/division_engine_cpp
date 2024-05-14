@@ -21,5 +21,4 @@ foreach(D_FILE_REL ${DIVISION_RESOURCES_GLOB})
         ${CMAKE_SOURCE_DIR}/${D_FILE_REL}
         ${CMAKE_CURRENT_BINARY_DIR}/${D_DIR}/${D_FILE}
     )
-    message(${D_FILE})
 endforeach()

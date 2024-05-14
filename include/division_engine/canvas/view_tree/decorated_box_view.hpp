@@ -25,6 +25,7 @@ struct DecoratedBoxView
     using renderer = DecoratedBoxViewRenderer;
 
     glm::vec4 background_color = color::WHITE;
+    BorderRadius border_radius = BorderRadius::all(0);
 };
 
 struct DecoratedBoxViewRenderer
@@ -44,7 +45,7 @@ struct DecoratedBoxViewRenderer
             RectDrawer::renderable_type {
                 RenderableRect {
                     .color = view.background_color,
-                    .border_radius = BorderRadius::all(0.),
+                    .border_radius = view.border_radius,
                 },
                 RenderBounds { Rect::from_center(glm::vec2 { 0 }, glm::vec2 { 0 }) } },
             batch_entity.id()
@@ -72,6 +73,7 @@ struct DecoratedBoxViewRenderer
 
         auto& renderable = *e.get_mut<RenderableRect>();
         renderable.color = view.background_color;
+        renderable.border_radius = view.border_radius;
 
         auto& bounds = *e.get_mut<RenderBounds>();
         bounds = rect;

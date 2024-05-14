@@ -1,3 +1,4 @@
+#include "division_engine/canvas/border_radius.hpp"
 #include "division_engine/canvas/padding.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
@@ -33,8 +34,11 @@ struct MyUIBuilder
         return ColumnView {
             std::tuple {
                 DecoratedBoxView { .background_color = color::RED },
-                PaddingView(DecoratedBoxView { .background_color = color::BLUE })
-                    .with_padding(Padding::all(0)),
+                PaddingView(DecoratedBoxView {
+                                .background_color = color::BLUE,
+                                .border_radius = BorderRadius::all(10),
+                            })
+                    .with_padding(Padding::all(10)),
                 DecoratedBoxView { .background_color = color::GREEN },
                 DecoratedBoxView { .background_color = color::GREEN },
                 DecoratedBoxView { .background_color = color::BLUE },
