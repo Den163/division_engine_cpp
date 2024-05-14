@@ -26,20 +26,21 @@ float sdRoundedBox(in vec2 p, in vec2 b, in vec4 r)
     r.xy = select(p.x > 0.0, r.xy, r.zw);
     r.x  = select(p.y > 0.0, r.x, r.y);
     
-    vec2 q = abs(p)-b+r.x;
-    return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
+    vec2 edgeDist = abs(p)-b+r.x;
+    float outsideDist = length(max(edgeDist, float(0)));
+    float insideDist = min(max(edgeDist.x, edgeDist.y), float(0));
+
+    return insideDist + outsideDist - r.x;
 }
 
-void main() 
+void main()
 {
     vec4 texColor = texture(Tex, UV);
     vec2 extents = Size * 0.5;
-    float sdf = -sdRoundedBox(
-        VertPos - Position - extents,
-        extents, 
-        TRBRTLBL_BorderRadius
-    );
+    vec2 centerToVert = VertPos - (Position + extents);
 
-    ResultColor = texColor * Color;
-    ResultColor.a *= clamp(sdf, 0, 1);
+    float dist = sdRoundedBox(centerToVert, extents, TRBRTLBL_BorderRadius);
+    float cutoff = select(dist < 0.5, 1, 0); 
+
+    ResultColor = vec4(vec3(texColor) * vec3(Color), cutoff);
 }

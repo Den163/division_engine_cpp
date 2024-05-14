@@ -78,7 +78,6 @@ struct MyManager
                     std::make_tuple(
                         RenderableRect {
                             .color = glm::linearRand(color::WHITE, color::BLACK),
-                            .border_radius = BorderRadius::all(0),
                         },
                         RenderBounds {
                             Rect::from_center(
@@ -114,7 +113,7 @@ struct MyManager
                 std::make_tuple(
                     RenderableRect {
                         .color = color::RED,
-                        .border_radius = BorderRadius::all(0),
+                        .border_radius = BorderRadius::all(10),
                     },
                     RenderBounds {
                         Rect::from_center(
