@@ -20,5 +20,6 @@ foreach(D_FILE_REL ${DIVISION_RESOURCES_GLOB})
     configure_file(
         ${CMAKE_SOURCE_DIR}/${D_FILE_REL}
         ${CMAKE_CURRENT_BINARY_DIR}/${D_DIR}/${D_FILE}
+        COPYONLY
     )
 endforeach()

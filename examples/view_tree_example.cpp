@@ -15,6 +15,7 @@
 #include "glm/vec4.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <tuple>
 #include <type_traits>
 
@@ -25,7 +26,7 @@ using namespace view_tree;
 
 using std::filesystem::path;
 
-const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Medium.ttf";
+const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Regular.ttf";
 
 struct MyUIBuilder
 {
@@ -77,7 +78,9 @@ public:
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
-    void error(int error_code, const char* error_message) {}
+    void error(int error_code, const char* error_message) {
+        std::cerr << error_message << std::endl;
+    }
 
 private:
     State _state;

@@ -15,8 +15,7 @@ std::string read_text(PathType& path)
     std::ifstream file { path };
     if (!file.is_open())
     {
-        throw core::Exception { "Failed to create a file at path " +
-                                std::string { path } };
+        throw core::Exception { "Failed to open a file at path " + std::string { path } };
     }
 
     std::ostringstream output {};

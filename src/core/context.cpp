@@ -205,7 +205,7 @@ DivisionId Context::create_font(const std::filesystem::path& font_path, uint32_t
     if (!division_engine_font_alloc(_ctx, font_path.c_str(), font_height, &font_id))
     {
         throw Exception {
-            std::string { "Failed to create new font by path: " } + font_path.c_str(),
+            std::string { "Failed to open font by path: " } + font_path.c_str(),
         };
     }
 

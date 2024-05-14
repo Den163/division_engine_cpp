@@ -26,7 +26,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(flecs)
 
-option(DIVISION_SHADER_COMPILER_EXECUTABLE ON)
+set(DIVISION_SHADER_COMPILER_EXECUTABLE ON CACHE BOOL "Build shader compiler executable")
 
 add_subdirectory(division_engine_core)
 add_subdirectory(tools/division_shader_compiler)
