@@ -34,7 +34,7 @@ struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return make_horizontal_list(std::tuple {
+        return HorizontalListView { std::tuple {
             DecoratedBoxView { .background_color = color::RED },
             PaddingView {
                 DecoratedBoxView {
@@ -44,16 +44,19 @@ struct MyUIBuilder
             }
                 .with_padding(Padding::all(10)),
             DecoratedBoxView { .background_color = color::GREEN },
-            make_vertical_list(std::tuple {
+            VerticalListView { std::tuple {
                 DecoratedBoxView { .background_color = color::AQUA },
                 StackView { std::tuple {
                     DecoratedBoxView { .background_color = color::RED },
-                    TextView { .text = u"Hey world", .color = color::BLACK },
+                    TextView {
+                        .text = u"Hey world",
+                        .color = color::BLACK,
+                    },
                 } },
-            }),
+            } },
             DecoratedBoxView { .background_color = color::BLUE },
             DecoratedBoxView { .background_color = color::PURPLE },
-        });
+        } };
     }
 };
 

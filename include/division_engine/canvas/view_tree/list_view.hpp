@@ -31,37 +31,58 @@ enum class Direction
 template<Direction elements_direction, typename... TChildRenderer>
 struct ListViewRender;
 
+namespace
+{
 template<Direction elements_direction, typename... TChildView>
-struct ListView
+struct __BaseListView
 {
     using renderer_type =
         ListViewRender<elements_direction, renderer_of_view_t<TChildView>...>;
 
     std::tuple<TChildView...> children;
 };
+};
 
 template<typename... T>
-using HorizontalListView = ListView<Direction::Horinzontal, T...>;
-
-template<typename... T>
-using VerticalListView = ListView<Direction::Vertical, T...>;
-
-template<typename... T>
-HorizontalListView<T...> make_horizontal_list(std::tuple<T...>&& children)
+struct HorizontalListView : __BaseListView<Direction::Horinzontal, T...>
 {
-    return HorizontalListView<T...> { children };
-}
+};
 
 template<typename... T>
-VerticalListView<T...> make_vertical_list(std::tuple<T...>&& children)
+struct VerticalListView : __BaseListView<Direction::Vertical, T...>
 {
-    return VerticalListView<T...> { children };
-}
+};
+
+template<typename... T>
+HorizontalListView(std::tuple<T...>&& childs) -> HorizontalListView<T...>;
+
+template<typename... T>
+VerticalListView(std::tuple<T...>&& childs) -> VerticalListView<T...>;
+
+template<Direction elements_direction, typename... TChildRenderer>
+struct list_view_direction_selector
+{
+};
+
+template<typename... TChildRenderer>
+struct list_view_direction_selector<Direction::Horinzontal, TChildRenderer...>
+{
+    using type = HorizontalListView<TChildRenderer...>;
+};
+
+template<typename... TChildRenderer>
+struct list_view_direction_selector<Direction::Vertical, TChildRenderer...>
+{
+    using type = VerticalListView<TChildRenderer...>;
+};
 
 template<Direction elements_direction, typename... TChildRenderer>
 struct ListViewRender
 {
-    using view_type = ListView<elements_direction, view_of_renderer_t<TChildRenderer>...>;
+    using list_view_selector = list_view_direction_selector<
+        elements_direction,
+        view_of_renderer_t<TChildRenderer>...>;
+    using view_type = list_view_selector::type;
 
     std::tuple<TChildRenderer...> children;
 
