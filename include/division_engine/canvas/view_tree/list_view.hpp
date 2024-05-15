@@ -3,7 +3,7 @@
 #include "division_engine/canvas/box_constraints.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
-#include "division_engine/canvas/size_variant.hpp"
+#include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/utility/algorithm.hpp"
 #include "view_traits.hpp"
@@ -82,6 +82,7 @@ struct ListViewRender
     using list_view_selector = list_view_direction_selector<
         elements_direction,
         view_of_renderer_t<TChildRenderer>...>;
+
     using view_type = list_view_selector::type;
 
     std::tuple<TChildRenderer...> children;
@@ -102,9 +103,9 @@ struct ListViewRender
         };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
+    Size layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::filled();
+        return Size::unconstrainted();
     }
 
     void
@@ -124,25 +125,21 @@ struct ListViewRender
                     .max_size = glm::vec2 { available_size.x, available_size.y },
                 };
 
-                const SizeVariant child_size =
-                    child_renderer.layout(constraints, child_view);
+                const Size child_size = child_renderer.layout(constraints, child_view);
 
-                if (child_size.is_fixed())
+                if (!is_unconstrainted<main_direction()>(child_size))
                 {
-                    const auto fixed_size =
-                        std::get<SizeVariant::Fixed>(child_size.variant);
                     fixed_size_count++;
 
-                    if constexpr (elements_direction == Direction::Horinzontal)
-                    {
-                        available_size.x -= fixed_size.size.x;
-                        all_fixed_size.x += fixed_size.size.x;
-                    }
-                    else if constexpr (elements_direction == Direction::Vertical)
-                    {
-                        available_size.y -= fixed_size.size.y;
-                        all_fixed_size.y += fixed_size.size.y;
-                    }
+                    auto& available_size_comp =
+                        get_vec_component_by_direction<main_direction()>(available_size);
+                    auto& child_size_comp =
+                        get_vec_component_by_direction<main_direction()>(child_size);
+                    auto& all_fixed_size_comp =
+                        get_vec_component_by_direction<main_direction()>(all_fixed_size);
+
+                    available_size_comp -= child_size_comp;
+                    all_fixed_size_comp += child_size_comp;
                 }
             },
             children,
@@ -154,14 +151,12 @@ struct ListViewRender
 
         const glm::vec2 filled_space = (rect_size - all_fixed_size);
         glm::vec2 size_per_filled = rect_size;
-        if constexpr (elements_direction == Direction::Horinzontal)
-        {
-            size_per_filled.x = filled_space.x / filled_size_count;
-        }
-        else if constexpr (elements_direction == Direction::Vertical)
-        {
-            size_per_filled.y = filled_space.y / filled_size_count;
-        }
+
+        auto& filled_space_comp =
+            get_vec_component_by_direction<main_direction()>(filled_space);
+        auto& size_per_filled_comp =
+            get_vec_component_by_direction<main_direction()>(size_per_filled);
+        size_per_filled_comp = filled_space_comp / filled_size_count;
 
         available_size = rect_size;
 
@@ -174,45 +169,66 @@ struct ListViewRender
                     .min_size = glm::vec2 { 0 },
                     .max_size = available_size,
                 };
-                const SizeVariant child_size =
-                    child_renderer.layout(constraints, child_view);
+                const Size child_size = child_renderer.layout(constraints, child_view);
 
                 auto top_left =
                     glm::vec2 { rect.left() + offset.x, rect.top() - offset.y };
 
-                if (child_size.is_filled())
+                float& offset_comp =
+                    get_vec_component_by_direction<main_direction()>(offset);
+                if (is_unconstrainted<elements_direction>(child_size))
                 {
                     auto draw_rect = Rect::from_top_left(top_left, size_per_filled);
                     child_renderer.render(state, render_manager, draw_rect, child_view);
 
-                    if constexpr (elements_direction == Direction::Horinzontal)
-                    {
-                        offset.x += size_per_filled.x;
-                    }
-                    else if constexpr (elements_direction == Direction::Vertical)
-                    {
-                        offset.y += size_per_filled.y;
-                    }
-                }
-                else if (child_size.is_fixed())
-                {
-                    auto fixed_size = std::get<SizeVariant::Fixed>(child_size.variant);
-                    auto draw_rect = Rect::from_top_left(top_left, fixed_size.size);
-                    child_renderer.render(state, render_manager, draw_rect, child_view);
+                    float size_per_filled_comp =
+                        get_vec_component_by_direction<main_direction()>(size_per_filled);
 
-                    if constexpr (elements_direction == Direction::Horinzontal)
-                    {
-                        offset.x += draw_rect.size().x;
-                    }
-                    else if constexpr (elements_direction == Direction::Vertical)
-                    {
-                        offset.y += draw_rect.size().y;
-                    }
+                    offset_comp += size_per_filled_comp;
+                }
+                else
+                {
+                    auto draw_rect = Rect::from_top_left(top_left, child_size);
+                    auto draw_rect_size = draw_rect.size();
+                    const float draw_rect_size_comp =
+                        get_vec_component_by_direction<main_direction()>(draw_rect_size);
+
+                    child_renderer.render(state, render_manager, draw_rect, child_view);
+                    offset_comp += draw_rect_size_comp;
                 }
             },
             children,
             view.children
         );
+    }
+
+private:
+    template<Direction direction>
+    constexpr static bool is_unconstrainted(const Size& size)
+    {
+        return direction == Direction::Horinzontal ? size.width_unconstrainted()
+                                                   : size.height_unconstrainted();
+    }
+
+    constexpr static Direction main_direction() { return elements_direction; }
+
+    constexpr static Direction cross_direction()
+    {
+        return elements_direction == Direction::Horinzontal
+                   ? Direction::Vertical
+                   : Direction::Horinzontal;
+    }
+
+    template<Direction direction>
+    constexpr static float& get_vec_component_by_direction(glm::vec2& v)
+    {
+        return direction == Direction::Horinzontal ? v.x : v.y;
+    }
+
+    template<Direction direction>
+    constexpr static const float& get_vec_component_by_direction(const glm::vec2& v)
+    {
+        return direction == Direction::Horinzontal ? v.x : v.y;
     }
 };
 }

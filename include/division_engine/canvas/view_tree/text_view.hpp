@@ -5,7 +5,7 @@
 #include "division_engine/canvas/components/renderable_text.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
-#include "division_engine/canvas/size_variant.hpp"
+#include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/color.hpp"
 #include "flecs/addons/cpp/entity.hpp"
@@ -54,9 +54,9 @@ struct TextViewRender
         return TextViewRender { renderable };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
+    Size layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::filled();
+        return Size::unconstrainted();
     }
 
     void

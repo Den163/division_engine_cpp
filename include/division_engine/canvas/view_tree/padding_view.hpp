@@ -5,7 +5,7 @@
 #include "division_engine/canvas/padding.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
-#include "division_engine/canvas/size_variant.hpp"
+#include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "glm/common.hpp"
 #include "glm/ext/vector_float2.hpp"
@@ -50,7 +50,7 @@ struct PaddingViewRender
         };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const view_type& view) 
+    Size layout(const BoxConstraints& constraints, const view_type& view) 
     { 
         glm::vec2 padded_size {
             view.padding.left + view.padding.right,
@@ -62,17 +62,17 @@ struct PaddingViewRender
             .max_size = constraints.max_size - padded_size,
         };
 
-        SizeVariant child_size = child.layout(child_constraints, view.child);
+        Size child_size = child.layout(child_constraints, view.child);
 
-        if (child_size.is_filled()) {
-            return SizeVariant::filled();
+        Size result_size = Size::unconstrainted();
+        if (!child_size.width_unconstrainted()) {
+            result_size.width = child_size.width + padded_size.x;
         }
-        else if (child_size.is_fixed()) {
-            const auto fixed_size = std::get<SizeVariant::Fixed>(child_size.variant);
-            return SizeVariant::fixed(fixed_size.size + padded_size);
+        if (!child_size.height_unconstrainted()) {
+            result_size.height = child_size.height + padded_size.y;
         }
-        
-        throw std::runtime_error { "Unknown child size variant" };
+
+        return result_size;
     }
 
     void render(

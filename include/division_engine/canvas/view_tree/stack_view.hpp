@@ -3,7 +3,7 @@
 #include "division_engine/canvas/box_constraints.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
-#include "division_engine/canvas/size_variant.hpp"
+#include "division_engine/canvas/size.hpp"
 #include "division_engine/utility/algorithm.hpp"
 
 #include "view_traits.hpp"
@@ -46,9 +46,9 @@ struct StackViewRender
         ) };
     }
 
-    SizeVariant layout(const BoxConstraints& constraints, const view_type& view)
+    Size layout(const BoxConstraints& constraints, const view_type& view)
     {
-        return SizeVariant::filled();
+        return Size::unconstrainted();
     }
 
     void
