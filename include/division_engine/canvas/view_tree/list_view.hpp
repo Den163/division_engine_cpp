@@ -83,7 +83,7 @@ struct ListViewRender
         elements_direction,
         view_of_renderer_t<TChildRenderer>...>;
 
-    using view_type = list_view_selector::type;
+    using view_type = typename list_view_selector::type;
 
     std::tuple<TChildRenderer...> children;
 
