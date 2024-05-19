@@ -5,8 +5,10 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
+#include "division_engine/canvas/view_tree/padding_view.hpp"
+#include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/utility/algorithm.hpp"
-#include "view_traits.hpp"
+#include "division_engine/utility/meta.hpp"
 
 #include "glm/ext/vector_float2.hpp"
 
@@ -17,6 +19,7 @@
 #include <iterator>
 #include <tuple>
 #include <type_traits>
+#include <typeinfo>
 #include <utility>
 #include <variant>
 
@@ -28,79 +31,63 @@ enum class Direction
     Vertical
 };
 
-template<Direction elements_direction, typename... TChildRenderer>
-struct ListViewRender;
-
 namespace
 {
-template<Direction elements_direction, typename... TChildView>
+template<Direction elements_direction, View... TChildView>
 struct __BaseListView
 {
-    using renderer_type =
-        ListViewRender<elements_direction, renderer_of_view_t<TChildView>...>;
+    struct Renderer;
+    using base_type = __BaseListView<elements_direction, TChildView...>;
 
     std::tuple<TChildView...> children;
-};
-};
 
-template<typename... T>
+    __BaseListView(TChildView... children)
+      : children(std::make_tuple(children...))
+    {
+    }
+};
+}
+
+template<View... T>
 struct HorizontalListView : __BaseListView<Direction::Horinzontal, T...>
 {
+    HorizontalListView(T... children)
+      : __BaseListView<Direction::Horinzontal, T...>(children...)
+    {
+    }
 };
 
-template<typename... T>
+template<View... T>
 struct VerticalListView : __BaseListView<Direction::Vertical, T...>
 {
-};
-
-template<typename... T>
-HorizontalListView(std::tuple<T...>&& childs) -> HorizontalListView<T...>;
-
-template<typename... T>
-VerticalListView(std::tuple<T...>&& childs) -> VerticalListView<T...>;
-
-template<Direction elements_direction, typename... TChildRenderer>
-struct list_view_direction_selector
-{
-};
-
-template<typename... TChildRenderer>
-struct list_view_direction_selector<Direction::Horinzontal, TChildRenderer...>
-{
-    using type = HorizontalListView<TChildRenderer...>;
-};
-
-template<typename... TChildRenderer>
-struct list_view_direction_selector<Direction::Vertical, TChildRenderer...>
-{
-    using type = VerticalListView<TChildRenderer...>;
-};
-
-template<Direction elements_direction, typename... TChildRenderer>
-struct ListViewRender
-{
-    using list_view_selector = list_view_direction_selector<
-        elements_direction,
-        view_of_renderer_t<TChildRenderer>...>;
-
-    using view_type = typename list_view_selector::type;
-
-    std::tuple<TChildRenderer...> children;
-
-    static ListViewRender<elements_direction, TChildRenderer...>
-    create(State& state, RenderManager& render_manager, const view_type& view)
+    VerticalListView(T... children)
+      : __BaseListView<Direction::Vertical, T...>(children...)
     {
-        return ListViewRender<elements_direction, TChildRenderer...> {
-            .children = utility::algorithm::tuple_transform(
-                [&](auto v)
-                {
-                    using view_type = decltype(v);
+    }
+};
 
-                    return view_type::renderer_type::create(state, render_manager, v);
-                },
-                view.children
-            )
-        };
+template<Direction elements_direction, View... TChildView>
+struct __BaseListView<elements_direction, TChildView...>::Renderer
+{
+    using view_type = utility::meta::type_selector_t<
+        elements_direction == Direction::Horinzontal,
+        HorizontalListView<TChildView...>,
+        VerticalListView<TChildView...>
+    >;
+
+    std::tuple<typename TChildView::Renderer...> children;
+
+    Renderer(State& state, RenderManager& render_manager, const view_type& view)
+      : children(utility::algorithm::tuple_transform(
+            [&state, &render_manager](auto v)
+            {
+                using child_view_t = decltype(v);
+                using child_renderer_t = typename child_view_t::Renderer;
+                return child_renderer_t { state, render_manager, v };
+            },
+            view.children
+        ))
+    {
     }
 
     Size layout(const BoxConstraints& constraints, const view_type& view)
@@ -163,7 +150,7 @@ struct ListViewRender
         glm::vec2 offset { 0 };
 
         utility::algorithm::tuples_zip_foreach(
-            [&](auto& child_renderer, auto& child_view)
+            [&](View auto& child_view, auto& child_renderer)
             {
                 BoxConstraints constraints {
                     .min_size = glm::vec2 { 0 },
@@ -197,8 +184,8 @@ struct ListViewRender
                     offset_comp += draw_rect_size_comp;
                 }
             },
-            children,
-            view.children
+            view.children,
+            children
         );
     }
 

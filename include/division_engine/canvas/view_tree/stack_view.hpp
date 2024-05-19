@@ -4,46 +4,46 @@
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size.hpp"
+#include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/utility/algorithm.hpp"
-
-#include "view_traits.hpp"
 
 #include <tuple>
 
 namespace division_engine::canvas::view_tree
 {
-template<typename... TChildRenderer>
-struct StackViewRender;
 
-template<typename... TChildView>
+template<View... TChildView>
 struct StackView
 {
-    using renderer_type = StackViewRender<renderer_of_view_t<TChildView>...>;
+    struct Renderer;
 
     std::tuple<TChildView...> children;
+
+    StackView(TChildView... children) : children(children...) {}
 };
 
-template<typename... TChildView>
+template<View... TChildView>
 StackView(std::tuple<TChildView...>) -> StackView<TChildView...>;
 
-template<typename... TChildRenderer>
-struct StackViewRender
+template<View... TChildView>
+struct StackView<TChildView...>::Renderer
 {
-    using view_type = StackView<view_of_renderer_t<TChildRenderer>...>;
+    using view_type = StackView<TChildView...>;
 
-    std::tuple<TChildRenderer...> children;
+    std::tuple<typename TChildView::Renderer...> children;
 
-    static StackViewRender<TChildRenderer...>
-    create(State& state, RenderManager& render_manager, const view_type& view)
-    {
-        return StackViewRender<TChildRenderer...> { utility::algorithm::tuple_transform(
-            [&](auto el)
-            {
-                using child_view_type = decltype(el);
-                return child_view_type::renderer_type::create(state, render_manager, el);
+    Renderer(State& state, RenderManager& render_manager, const view_type& view)
+      : children(utility::algorithm::tuple_transform(
+            [&](View auto el)
+            {   
+                using child_view_t = decltype(el);
+                using child_renderer_t = typename child_view_t::Renderer;
+                
+                return child_renderer_t { state, render_manager, el };
             },
             view.children
-        ) };
+        ))
+    {
     }
 
     Size layout(const BoxConstraints& constraints, const view_type& view)

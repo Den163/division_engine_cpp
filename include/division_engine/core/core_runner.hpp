@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <type_traits>
 
 struct DivisionContext;
 
@@ -24,7 +25,8 @@ struct CoreRunner
     template<LifecycleManagerBuilder T>
     void run(T&& lifecycle_manager_builder)
     {
-        using manager_type = typename T::manager_type;
+        using manager_ptr_type = 
+            typename std::invoke_result_t<decltype(&T::build), T, DivisionContext*>;
 
         set_context_user_data(_ctx, &lifecycle_manager_builder);
         DivisionLifecycle lifecycle {
@@ -39,19 +41,19 @@ struct CoreRunner
             .draw_callback =
                 [](DivisionContext* ctx)
             {
-                auto& manager = *static_cast<manager_type*>(get_context_user_data(ctx));
+                auto& manager = *static_cast<manager_ptr_type>(get_context_user_data(ctx));
                 manager.draw();
             },
             .free_callback =
                 [](DivisionContext* ctx)
             {
-                auto* manager = static_cast<manager_type*>(get_context_user_data(ctx));
+                auto* manager = static_cast<manager_ptr_type>(get_context_user_data(ctx));
                 delete manager;
             },
             .error_callback =
                 [](DivisionContext* ctx, int error_code, const char* error_message)
             {
-                auto& manager = *static_cast<manager_type*>(get_context_user_data(ctx));
+                auto& manager = *static_cast<manager_ptr_type>(get_context_user_data(ctx));
                 manager.error(error_code, error_message);
             },
         };

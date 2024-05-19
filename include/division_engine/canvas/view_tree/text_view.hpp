@@ -5,6 +5,7 @@
 #include "division_engine/canvas/components/renderable_text.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
+#include "division_engine/canvas/renderer.hpp"
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/color.hpp"
@@ -18,28 +19,25 @@
 
 namespace division_engine::canvas::view_tree
 {
-struct TextViewRender;
-
 struct TextView
 {
-    using renderer_type = TextViewRender;
+    struct Renderer;
 
     std::u16string text {};
     glm::vec4 color = color::WHITE;
     float font_size = components::RenderableText::DEFAULT_FONT_SIZE;
 };
 
-struct TextViewRender
+struct TextView::Renderer
 {
     using view_type = TextView;
 
     flecs::entity_t renderable_id;
 
-    static TextViewRender
-    create(State& state, RenderManager& render_manager, const view_type& view)
+    Renderer(State& state, RenderManager& render_manager, const view_type& view)
     {
         using namespace components;
-        auto renderable = render_manager.create_renderer(
+        auto id = render_manager.create_renderer(
             state,
             std::tuple {
                 RenderableText {
@@ -51,7 +49,7 @@ struct TextViewRender
             }
         );
 
-        return TextViewRender { renderable };
+        renderable_id = id;
     }
 
     Size layout(const BoxConstraints& constraints, const view_type& view)

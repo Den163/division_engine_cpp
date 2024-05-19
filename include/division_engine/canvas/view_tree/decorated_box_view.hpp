@@ -18,31 +18,29 @@
 
 namespace division_engine::canvas::view_tree
 {
-struct DecoratedBoxViewRenderer;
-
 struct DecoratedBoxView
 {
-    using renderer_type = DecoratedBoxViewRenderer;
+    struct Renderer;
+    using renderer_type = Renderer;
 
     glm::vec4 background_color = color::WHITE;
     BorderRadius border_radius = BorderRadius::all(0);
 };
 
-struct DecoratedBoxViewRenderer
+struct DecoratedBoxView::Renderer
 {
     using view_type = DecoratedBoxView;
 
     flecs::entity_t renderable_id;
 
-    static DecoratedBoxViewRenderer
-    create(State& state, RenderManager& render_manager, const view_type& view)
+    Renderer(State& state, RenderManager& render_manager, const view_type& view)
     {
         using namespace components;
 
         auto batch_entity =
             state.world.entity().set(RenderTexture { state.white_texture_id });
 
-        auto renderable_id = render_manager.create_renderer(
+        renderable_id = render_manager.create_renderer(
             state,
             RectDrawer::renderable_type {
                 RenderableRect {
@@ -52,8 +50,6 @@ struct DecoratedBoxViewRenderer
                 RenderBounds { Rect::from_center(glm::vec2 { 0 }, glm::vec2 { 0 }) } },
             batch_entity.id()
         );
-
-        return DecoratedBoxViewRenderer { renderable_id };
     }
 
     Size layout(const BoxConstraints& constraints, const view_type& view)
@@ -61,12 +57,8 @@ struct DecoratedBoxViewRenderer
         return Size::unconstrainted();
     }
 
-    void render(
-        State& state,
-        RenderManager& render_manager,
-        Rect& rect,
-        const view_type& view
-    )
+    void
+    render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         using namespace components;
 

@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <stdint.h>
+#include <type_traits>
 
 struct DivisionContext;
 
@@ -24,9 +25,9 @@ concept LifecycleManager = requires(
 
 template<typename T>
 concept LifecycleManagerBuilder =
-  LifecycleManager<typename T::manager_type> && requires(T builder, DivisionContext* ctx) {
-      {
-          builder.build(ctx)
-      } -> std::same_as<typename T::manager_type*>;
-  };
+    requires(T builder, DivisionContext* ctx) {
+        {
+            *builder.build(ctx)
+        } -> LifecycleManager;
+    };
 }

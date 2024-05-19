@@ -10,9 +10,11 @@
 #include "division_engine/canvas/view_tree/padding_view.hpp"
 #include "division_engine/canvas/view_tree/stack_view.hpp"
 #include "division_engine/canvas/view_tree/text_view.hpp"
+#include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
+#include "division_engine_core/context.h"
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
@@ -30,48 +32,58 @@ using std::filesystem::path;
 
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Regular.ttf";
 
+template<typename T>
+concept UIBuilder = 
+    requires(T t, State& state) {
+        {
+            t.build_ui(state)
+        } -> View;
+    };
+
 struct MyUIBuilder
 {
-    auto build_ui(State& state)
+    View auto build_ui(State& state)
     {
-        return HorizontalListView { std::tuple {
+        return HorizontalListView {
             DecoratedBoxView { .background_color = color::RED },
             PaddingView {
                 DecoratedBoxView {
                     .background_color = color::BLUE,
                     .border_radius = BorderRadius::all(10),
                 },
-            }
-                .with_padding(Padding::all(10)),
+                Padding::all(10)
+            },
             DecoratedBoxView { .background_color = color::GREEN },
-            VerticalListView { std::tuple {
+            VerticalListView {
                 DecoratedBoxView { .background_color = color::AQUA },
-                StackView { std::tuple {
+                StackView {
                     DecoratedBoxView { .background_color = color::RED },
                     TextView {
                         .text = u"Hey world",
                         .color = color::BLACK,
                     },
-                } },
-            } },
+                },
+            },
             DecoratedBoxView { .background_color = color::BLUE },
             DecoratedBoxView { .background_color = color::PURPLE },
-        } };
+        };
     }
 };
 
+template<UIBuilder T>
 class MyLifecycleManager
 {
 public:
-    using root_view =
-        std::invoke_result<decltype(&MyUIBuilder::build_ui), MyUIBuilder, State&>::type;
+    using root_view_t =
+        typename std::invoke_result_t<decltype(&T::build_ui), T, State&>;
+    using root_view_renderer_t = typename root_view_t::Renderer;
 
-    MyLifecycleManager(DivisionContext* ctx_ptr)
+    MyLifecycleManager(DivisionContext* ctx_ptr, T ui_builder)
       : _state(State { ctx_ptr, color::WHITE })
-      , _ui_builder(MyUIBuilder())
+      , _ui_builder(ui_builder)
       , _root_view(_ui_builder.build_ui(_state))
       , _root_view_render(
-            root_view::renderer_type::create(_state, _render_manager, _root_view)
+            root_view_renderer_t { _state, _render_manager, _root_view }
         )
     {
         _render_manager.register_renderer<RectDrawer>(_state);
@@ -98,16 +110,17 @@ public:
 private:
     State _state;
     RenderManager _render_manager;
-    MyUIBuilder _ui_builder;
-    root_view _root_view;
-    root_view::renderer_type _root_view_render;
+    T _ui_builder;
+    root_view_t _root_view;
+    root_view_renderer_t _root_view_render;
 };
 
 struct MyBuilder
 {
-    using manager_type = MyLifecycleManager;
-
-    manager_type* build(DivisionContext* ctx) { return new MyLifecycleManager { ctx }; }
+    MyLifecycleManager<MyUIBuilder>* build(DivisionContext* ctx)
+    {
+        return new MyLifecycleManager { ctx, MyUIBuilder {} };
+    }
 };
 
 int main(int argc, char** argv)
