@@ -25,7 +25,7 @@ struct PaddingView
     TChild child;
 
     PaddingView(TChild child, Padding padding = Padding::all(0))
-      : child(child) {};
+      : child(child), padding(padding) {};
 
     PaddingView&& with_padding(Padding padding)
     {
