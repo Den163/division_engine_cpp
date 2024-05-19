@@ -21,8 +21,8 @@ struct PaddingView
 
     using renderer_type = Renderer;
 
-    Padding padding;
     TChild child;
+    Padding padding;
 
     PaddingView(TChild child, Padding padding = Padding::all(0))
       : child(child), padding(padding) {};
