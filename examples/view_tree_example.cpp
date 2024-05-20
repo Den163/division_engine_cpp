@@ -5,6 +5,7 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
+#include "division_engine/canvas/view_tree/any_view.hpp"
 #include "division_engine/canvas/view_tree/decorated_box_view.hpp"
 #include "division_engine/canvas/view_tree/list_view.hpp"
 #include "division_engine/canvas/view_tree/padding_view.hpp"
@@ -33,39 +34,40 @@ using std::filesystem::path;
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Regular.ttf";
 
 template<typename T>
-concept UIBuilder = 
-    requires(T t, State& state) {
-        {
-            t.build_ui(state)
-        } -> View;
-    };
+concept UIBuilder = requires(T t, State& state) {
+                        {
+                            t.build_ui(state)
+                        } -> View;
+                    };
 
 struct MyUIBuilder
 {
-    View auto build_ui(State& state)
+    AnyView build_ui(State& state)
     {
-        return HorizontalListView {
-            DecoratedBoxView { .background_color = color::RED },
-            PaddingView {
-                DecoratedBoxView {
-                    .background_color = color::BLUE,
-                    .border_radius = BorderRadius::all(10),
-                },
-                Padding::all(10)
-            },
-            DecoratedBoxView { .background_color = color::GREEN },
-            VerticalListView {
-                DecoratedBoxView { .background_color = color::AQUA },
-                StackView {
-                    DecoratedBoxView { .background_color = color::RED },
-                    TextView {
-                        .text = u"Hey world",
-                        .color = color::BLACK,
+        return AnyView {
+            HorizontalListView {
+                DecoratedBoxView { .background_color = color::RED },
+                PaddingView {
+                    DecoratedBoxView {
+                        .background_color = color::BLUE,
+                        .border_radius = BorderRadius::all(10),
+                    },
+                }
+                    .with_padding(Padding::all(10)),
+                DecoratedBoxView { .background_color = color::GREEN },
+                VerticalListView {
+                    DecoratedBoxView { .background_color = color::AQUA },
+                    StackView {
+                        DecoratedBoxView { .background_color = color::RED },
+                        TextView {
+                            .text = u"Hey world",
+                            .color = color::BLACK,
+                        },
                     },
                 },
+                DecoratedBoxView { .background_color = color::BLUE },
+                DecoratedBoxView { .background_color = color::PURPLE },
             },
-            DecoratedBoxView { .background_color = color::BLUE },
-            DecoratedBoxView { .background_color = color::PURPLE },
         };
     }
 };
@@ -74,17 +76,14 @@ template<UIBuilder T>
 class MyLifecycleManager
 {
 public:
-    using root_view_t =
-        typename std::invoke_result_t<decltype(&T::build_ui), T, State&>;
+    using root_view_t = typename std::invoke_result_t<decltype(&T::build_ui), T, State&>;
     using root_view_renderer_t = typename root_view_t::Renderer;
 
     MyLifecycleManager(DivisionContext* ctx_ptr, T ui_builder)
       : _state(State { ctx_ptr, color::WHITE })
       , _ui_builder(ui_builder)
       , _root_view(_ui_builder.build_ui(_state))
-      , _root_view_render(
-            root_view_renderer_t { _state, _render_manager, _root_view }
-        )
+      , _root_view_render(root_view_renderer_t { _state, _render_manager, _root_view })
     {
         _render_manager.register_renderer<RectDrawer>(_state);
         _render_manager.register_renderer<TextDrawer>(_state, FONT_PATH);

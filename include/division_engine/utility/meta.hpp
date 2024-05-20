@@ -1,3 +1,5 @@
+#pragma once
+
 namespace division_engine::utility::meta
 {
 template<bool value, typename TrueType, typename FalseType>

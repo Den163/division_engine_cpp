@@ -18,7 +18,7 @@ concept View =
     requires(
         V v,
         typename V::Renderer r,
-        BoxConstraints box_constraints, 
+        const BoxConstraints& box_constraints, 
         State& state,
         RenderManager &render_manager, 
         Rect& rect
