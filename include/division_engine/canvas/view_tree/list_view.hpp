@@ -8,7 +8,6 @@
 #include "division_engine/canvas/view_tree/padding_view.hpp"
 #include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/utility/algorithm.hpp"
-#include "division_engine/utility/meta.hpp"
 
 #include "glm/ext/vector_float2.hpp"
 
@@ -69,7 +68,7 @@ struct VerticalListView : __BaseListView<Direction::Vertical, T...>
 template<Direction elements_direction, View... TChildView>
 struct __BaseListView<elements_direction, TChildView...>::Renderer
 {
-    using view_type = utility::meta::type_selector_t<
+    using view_type = std::conditional_t<
         elements_direction == Direction::Horinzontal,
         HorizontalListView<TChildView...>,
         VerticalListView<TChildView...>
