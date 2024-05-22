@@ -48,7 +48,7 @@ struct AnyView
             {
                 auto func = std::mem_fn(&V::Renderer::layout);
                 return func(
-                    *static_cast<V::Renderer*>(this_renderer),
+                    *static_cast<typename V::Renderer*>(this_renderer),
                     constraints,
                     *static_cast<const V*>(view)
                 );
@@ -63,7 +63,7 @@ struct AnyView
             {
                 auto func = std::mem_fn(&V::Renderer::render);
                 func(
-                    *static_cast<V::Renderer*>(this_renderer),
+                    *static_cast<typename V::Renderer*>(this_renderer),
                     state,
                     render_manager,
                     rect,

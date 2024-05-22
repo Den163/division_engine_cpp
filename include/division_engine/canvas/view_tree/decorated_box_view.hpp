@@ -21,7 +21,6 @@ namespace division_engine::canvas::view_tree
 struct DecoratedBoxView
 {
     struct Renderer;
-    using renderer_type = Renderer;
 
     glm::vec4 background_color = color::WHITE;
     BorderRadius border_radius = BorderRadius::all(0);

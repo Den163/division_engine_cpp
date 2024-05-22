@@ -34,40 +34,44 @@ using std::filesystem::path;
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Regular.ttf";
 
 template<typename T>
-concept UIBuilder = requires(T t, State& state) {
-                        {
-                            t.build_ui(state)
-                        } -> View;
-                    };
+concept UIBuilder = 
+    requires(T t, State& state) {
+        {
+            t.build_ui(state)
+        } -> View;
+    };
 
 struct MyUIBuilder
 {
-    AnyView build_ui(State& state)
+    auto build_ui(State& state)
     {
-        return AnyView {
-            HorizontalListView {
-                DecoratedBoxView { .background_color = color::RED },
-                PaddingView {
-                    DecoratedBoxView {
-                        .background_color = color::BLUE,
-                        .border_radius = BorderRadius::all(10),
-                    },
-                }
-                    .with_padding(Padding::all(10)),
-                DecoratedBoxView { .background_color = color::GREEN },
-                VerticalListView {
-                    DecoratedBoxView { .background_color = color::AQUA },
-                    StackView {
-                        DecoratedBoxView { .background_color = color::RED },
-                        TextView {
-                            .text = u"Hey world",
-                            .color = color::BLACK,
-                        },
+        return HorizontalListView 
+        {
+            DecoratedBoxView { .background_color = color::RED },
+            PaddingView 
+            {
+                DecoratedBoxView 
+                {
+                    .background_color = color::BLUE,
+                    .border_radius = BorderRadius::all(10),
+                },
+            }.with_padding(Padding::all(10)),
+            DecoratedBoxView { .background_color = color::GREEN },
+            VerticalListView 
+            {
+                DecoratedBoxView { .background_color = color::AQUA },
+                StackView 
+                {
+                    DecoratedBoxView { .background_color = color::RED },
+                    TextView 
+                    {
+                        .text = u"Hey world",
+                        .color = color::BLACK,
                     },
                 },
-                DecoratedBoxView { .background_color = color::BLUE },
-                DecoratedBoxView { .background_color = color::PURPLE },
             },
+            DecoratedBoxView { .background_color = color::BLUE },
+            DecoratedBoxView { .background_color = color::PURPLE },
         };
     }
 };

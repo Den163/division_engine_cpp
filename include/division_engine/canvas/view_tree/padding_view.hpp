@@ -19,8 +19,6 @@ struct PaddingView
 {
     struct Renderer;
 
-    using renderer_type = Renderer;
-
     TChild child;
     Padding padding;
 
@@ -38,7 +36,7 @@ template<View TChild>
 struct PaddingView<TChild>::Renderer
 {
     using view_type = PaddingView<TChild>;
-    using child_renderer_type = typename TChild::renderer_type;
+    using child_renderer_type = typename TChild::Renderer;
 
     child_renderer_type child_renderer;
 
