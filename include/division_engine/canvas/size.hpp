@@ -12,6 +12,8 @@ struct Size
     float width;
     float height;
 
+    Size() = default;
+
     Size(const glm::vec2& size_vec)
       : width(size_vec.x)
       , height(size_vec.y)

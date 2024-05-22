@@ -3,12 +3,14 @@
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
 #include "division_engine/canvas/render_manager.hpp"
+#include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/text_drawer.hpp"
 #include "division_engine/canvas/view_tree/any_view.hpp"
 #include "division_engine/canvas/view_tree/decorated_box_view.hpp"
 #include "division_engine/canvas/view_tree/list_view.hpp"
 #include "division_engine/canvas/view_tree/padding_view.hpp"
+#include "division_engine/canvas/view_tree/size_view.hpp"
 #include "division_engine/canvas/view_tree/stack_view.hpp"
 #include "division_engine/canvas/view_tree/text_view.hpp"
 #include "division_engine/canvas/view_tree/view.hpp"
@@ -16,6 +18,7 @@
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
 #include "division_engine_core/context.h"
+#include "glm/ext/vector_float2.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
@@ -34,37 +37,38 @@ using std::filesystem::path;
 const path FONT_PATH = path { "resources" } / "fonts" / "Roboto-Regular.ttf";
 
 template<typename T>
-concept UIBuilder = 
-    requires(T t, State& state) {
-        {
-            t.build_ui(state)
-        } -> View;
-    };
+concept UIBuilder = requires(T t, State& state) {
+                        {
+                            t.build_ui(state)
+                            } -> View;
+                    };
 
 struct MyUIBuilder
 {
     auto build_ui(State& state)
     {
-        return HorizontalListView 
-        {
+        return HorizontalListView {
             DecoratedBoxView { .background_color = color::RED },
-            PaddingView 
-            {
-                DecoratedBoxView 
-                {
+            SizeView {
+                StackView {
+                    TextView { .text = u"Hello world", .color = color::RED },
+                    DecoratedBoxView { .background_color = color::YELLOW },
+                },
+            }
+                .with_size(glm::vec2 { 100, 100 }),
+            PaddingView {
+                DecoratedBoxView {
                     .background_color = color::BLUE,
                     .border_radius = BorderRadius::all(10),
                 },
-            }.with_padding(Padding::all(10)),
+            }
+                .with_padding(Padding::all(10)),
             DecoratedBoxView { .background_color = color::GREEN },
-            VerticalListView 
-            {
+            VerticalListView {
                 DecoratedBoxView { .background_color = color::AQUA },
-                StackView 
-                {
+                StackView {
                     DecoratedBoxView { .background_color = color::RED },
-                    TextView 
-                    {
+                    TextView {
                         .text = u"Hey world",
                         .color = color::BLACK,
                     },
