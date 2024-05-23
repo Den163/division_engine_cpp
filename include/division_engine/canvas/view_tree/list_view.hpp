@@ -47,7 +47,7 @@ struct __BaseListView
 };
 }
 
-template<View... T>
+template<typename... T>
 struct HorizontalListView : __BaseListView<Direction::Horinzontal, T...>
 {
     HorizontalListView(T... children)
@@ -56,7 +56,7 @@ struct HorizontalListView : __BaseListView<Direction::Horinzontal, T...>
     }
 };
 
-template<View... T>
+template<typename... T>
 struct VerticalListView : __BaseListView<Direction::Vertical, T...>
 {
     VerticalListView(T... children)

@@ -45,7 +45,7 @@ concept UIBuilder = requires(T t, State& state) {
 
 struct MyUIBuilder
 {
-    auto build_ui(State& state)
+    View auto build_ui(State& state)
     {
         return HorizontalListView {
             DecoratedBoxView { .background_color = color::RED },
@@ -55,7 +55,7 @@ struct MyUIBuilder
                     DecoratedBoxView { .background_color = color::YELLOW },
                 },
             }
-                .with_size(glm::vec2 { 100, 100 }),
+                .with_size(glm::vec2 { 200, 100 }),
             PaddingView {
                 DecoratedBoxView {
                     .background_color = color::BLUE,
