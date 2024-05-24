@@ -65,8 +65,10 @@ RectDrawer::RectDrawer(State& state, size_t rect_capacity)
             .up(flecs::IsA)
             .term<RenderTexture>()
             .up(flecs::IsA)
-            .order_by<RenderOrder>([](auto, const auto* x, auto, const auto* y)
-                                   { return x->compare(*y); })
+            .order_by<RenderOrder>(
+                [](auto, const RenderOrder* x, auto, const RenderOrder* y)
+                { return x->compare(*y); }
+            )
             .instanced()
             .build();
 }
