@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm/ext/vector_float2.hpp"
+#include <cmath>
 #include <glm/vec2.hpp>
 #include <limits>
 
@@ -11,8 +12,6 @@ struct Size
 {
     float width;
     float height;
-
-    Size() = default;
 
     Size(const glm::vec2& size_vec)
       : width(size_vec.x)
@@ -29,12 +28,12 @@ struct Size
 
     bool width_unconstrainted() const
     {
-        return width == std::numeric_limits<float>::infinity();
+        return std::isinf(width);
     }
 
     bool height_unconstrainted() const
     {
-        return height == std::numeric_limits<float>::infinity();
+        return std::isinf(height);
     }
 
     bool is_unconstrainted() const
