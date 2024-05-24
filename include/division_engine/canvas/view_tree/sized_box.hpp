@@ -18,18 +18,14 @@ struct SizedBox
     struct Renderer;
 
     TChild child;
-    Size size;
+    Size size = Size::unconstrainted();
 
-    SizedBox(TChild child, Size size = Size::unconstrainted())
+    SizedBox(TChild child)
       : child(child)
-      , size(size)
     {
     }
 
-    SizedBox<TChild> with_size(Size new_size) const
-    {
-        return SizedBox(this->child, new_size);
-    }
+    SizedBox(Size size, TChild child) : size(size), child(child) {}
 };
 
 template<View TChild>

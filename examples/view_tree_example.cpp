@@ -49,21 +49,22 @@ struct MyUIBuilder
         return HorizontalList {
             DecoratedBox { .background_color = color::RED },
             SizedBox {
+                glm::vec2 { 200, 100 },
                 Stack {
                     Text { .text = u"Hello world", .color = color::RED },
                     DecoratedBox { .background_color = color::YELLOW },
                 },
-            }
-                .with_size(glm::vec2 { 200, 100 }),
+            },
             Padding {
+                EdgeInsets::all(10),
                 DecoratedBox {
                     .background_color = color::BLUE,
                     .border_radius = BorderRadius::all(10),
                 },
-                EdgeInsets::all(10)
             },
             DecoratedBox { .background_color = color::GREEN },
             Padding {
+                EdgeInsets::all(5),
                 VerticalList {
                     DecoratedBox { .background_color = color::AQUA },
                     Stack {
@@ -73,12 +74,11 @@ struct MyUIBuilder
                             .color = color::BLACK,
                         },
                     },
-                    HorizontalList { 
-                        Text { .text = u"1", .color = color::BLACK }, 
-                        Text { .text = u"2", .color = color::BLACK } 
-                    }
+                    HorizontalList {
+                        Text { .text = u"1", .color = color::BLACK },
+                        Text { .text = u"2", .color = color::BLACK },
+                    },
                 },
-                EdgeInsets::all(5)
             },
             DecoratedBox { .background_color = color::BLUE },
             DecoratedBox { .background_color = color::PURPLE },

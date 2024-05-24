@@ -20,16 +20,16 @@ struct Padding
     struct Renderer;
 
     TChild child;
-    EdgeInsets insets;
+    EdgeInsets padding = EdgeInsets::all(0);
 
-    Padding(TChild child, EdgeInsets padding = EdgeInsets::all(0))
-      : child(child), insets(padding) {};
-
-    Padding&& with_padding(EdgeInsets padding)
+    Padding(EdgeInsets padding, TChild child)
+      : child(child)
+      , padding(padding)
     {
-        this->insets = padding;
-        return std::move(*this);
     }
+
+    Padding(TChild child)
+      : child(child) {};
 };
 
 template<View TChild>
@@ -47,8 +47,8 @@ struct Padding<TChild>::Renderer
 
     Size layout(const BoxConstraints& constraints, const view_type& view)
     {
-        glm::vec2 padded_size { view.insets.left + view.insets.right,
-                                view.insets.top + view.insets.bottom };
+        glm::vec2 padded_size { view.padding.left + view.padding.right,
+                                view.padding.top + view.padding.bottom };
 
         BoxConstraints child_constraints {
             .min_size = glm::min(glm::vec2 { 0 }, constraints.min_size - padded_size),
@@ -73,7 +73,7 @@ struct Padding<TChild>::Renderer
     void
     render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
-        const auto& padding = view.insets;
+        const auto& padding = view.padding;
 
         auto rect_size = rect.size();
         rect = Rect::from_bottom_left(
