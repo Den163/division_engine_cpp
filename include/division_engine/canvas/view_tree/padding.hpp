@@ -1,7 +1,7 @@
 #pragma once
 
 #include "division_engine/canvas/box_constraints.hpp"
-#include "division_engine/canvas/padding.hpp"
+#include "division_engine/canvas/edge_insets.hpp"
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size.hpp"
@@ -15,27 +15,27 @@
 namespace division_engine::canvas::view_tree
 {
 template<View TChild>
-struct PaddingView
+struct Padding
 {
     struct Renderer;
 
     TChild child;
-    Padding padding;
+    EdgeInsets insets;
 
-    PaddingView(TChild child, Padding padding = Padding::all(0))
-      : child(child), padding(padding) {};
+    Padding(TChild child, EdgeInsets padding = EdgeInsets::all(0))
+      : child(child), insets(padding) {};
 
-    PaddingView&& with_padding(Padding padding)
+    Padding&& with_padding(EdgeInsets padding)
     {
-        this->padding = padding;
+        this->insets = padding;
         return std::move(*this);
     }
 };
 
 template<View TChild>
-struct PaddingView<TChild>::Renderer
+struct Padding<TChild>::Renderer
 {
-    using view_type = PaddingView<TChild>;
+    using view_type = Padding<TChild>;
     using child_renderer_type = typename TChild::Renderer;
 
     child_renderer_type child_renderer;
@@ -47,8 +47,8 @@ struct PaddingView<TChild>::Renderer
 
     Size layout(const BoxConstraints& constraints, const view_type& view)
     {
-        glm::vec2 padded_size { view.padding.left + view.padding.right,
-                                view.padding.top + view.padding.bottom };
+        glm::vec2 padded_size { view.insets.left + view.insets.right,
+                                view.insets.top + view.insets.bottom };
 
         BoxConstraints child_constraints {
             .min_size = glm::min(glm::vec2 { 0 }, constraints.min_size - padded_size),
@@ -73,7 +73,7 @@ struct PaddingView<TChild>::Renderer
     void
     render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
-        const auto& padding = view.padding;
+        const auto& padding = view.insets;
 
         auto rect_size = rect.size();
         rect = Rect::from_bottom_left(

@@ -13,29 +13,29 @@
 namespace division_engine::canvas::view_tree
 {
 template<View TChild>
-struct SizeView
+struct SizedBox
 {
     struct Renderer;
 
     TChild child;
     Size size;
 
-    SizeView(TChild child, Size size = Size::unconstrainted())
+    SizedBox(TChild child, Size size = Size::unconstrainted())
       : child(child)
       , size(size)
     {
     }
 
-    SizeView<TChild> with_size(Size new_size) const
+    SizedBox<TChild> with_size(Size new_size) const
     {
-        return SizeView(this->child, new_size);
+        return SizedBox(this->child, new_size);
     }
 };
 
 template<View TChild>
-struct SizeView<TChild>::Renderer
+struct SizedBox<TChild>::Renderer
 {
-    using view_type = SizeView<TChild>;
+    using view_type = SizedBox<TChild>;
     using child_renerer_type = typename TChild::Renderer;
 
     child_renerer_type child_renderer;

@@ -18,7 +18,7 @@
 
 namespace division_engine::canvas::view_tree
 {
-struct DecoratedBoxView
+struct DecoratedBox
 {
     struct Renderer;
 
@@ -26,9 +26,9 @@ struct DecoratedBoxView
     BorderRadius border_radius = BorderRadius::all(0);
 };
 
-struct DecoratedBoxView::Renderer
+struct DecoratedBox::Renderer
 {
-    using view_type = DecoratedBoxView;
+    using view_type = DecoratedBox;
 
     flecs::entity_t renderable_id;
 

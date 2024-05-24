@@ -5,7 +5,6 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
-#include "division_engine/canvas/view_tree/padding_view.hpp"
 #include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/utility/algorithm.hpp"
 
@@ -48,18 +47,18 @@ struct __BaseListView
 }
 
 template<typename... T>
-struct HorizontalListView : __BaseListView<Direction::Horinzontal, T...>
+struct HorizontalList : __BaseListView<Direction::Horinzontal, T...>
 {
-    HorizontalListView(T... children)
+    HorizontalList(T... children)
       : __BaseListView<Direction::Horinzontal, T...>(children...)
     {
     }
 };
 
 template<typename... T>
-struct VerticalListView : __BaseListView<Direction::Vertical, T...>
+struct VerticalList : __BaseListView<Direction::Vertical, T...>
 {
-    VerticalListView(T... children)
+    VerticalList(T... children)
       : __BaseListView<Direction::Vertical, T...>(children...)
     {
     }
@@ -70,8 +69,8 @@ struct __BaseListView<elements_direction, TChildView...>::Renderer
 {
     using view_type = std::conditional_t<
         elements_direction == Direction::Horinzontal,
-        HorizontalListView<TChildView...>,
-        VerticalListView<TChildView...>
+        HorizontalList<TChildView...>,
+        VerticalList<TChildView...>
     >;
 
     std::tuple<typename TChildView::Renderer...> children;

@@ -13,22 +13,22 @@ namespace division_engine::canvas::view_tree
 {
 
 template<View... TChildView>
-struct StackView
+struct Stack
 {
     struct Renderer;
 
     std::tuple<TChildView...> children;
 
-    StackView(TChildView... children) : children(children...) {}
+    Stack(TChildView... children) : children(children...) {}
 };
 
 template<View... TChildView>
-StackView(std::tuple<TChildView...>) -> StackView<TChildView...>;
+Stack(std::tuple<TChildView...>) -> Stack<TChildView...>;
 
 template<View... TChildView>
-struct StackView<TChildView...>::Renderer
+struct Stack<TChildView...>::Renderer
 {
-    using view_type = StackView<TChildView...>;
+    using view_type = Stack<TChildView...>;
 
     std::tuple<typename TChildView::Renderer...> children;
 

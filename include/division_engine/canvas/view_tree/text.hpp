@@ -19,7 +19,7 @@
 
 namespace division_engine::canvas::view_tree
 {
-struct TextView
+struct Text
 {
     struct Renderer;
 
@@ -28,9 +28,9 @@ struct TextView
     float font_size = components::RenderableText::DEFAULT_FONT_SIZE;
 };
 
-struct TextView::Renderer
+struct Text::Renderer
 {
-    using view_type = TextView;
+    using view_type = Text;
 
     flecs::entity_t renderable_id;
 
