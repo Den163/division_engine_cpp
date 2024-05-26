@@ -5,6 +5,7 @@
 #include "division_engine/canvas/render_manager.hpp"
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/utility/algorithm.hpp"
+#include "division_engine/utility/meta.hpp"
 
 #include <algorithm>
 #include <concepts>
@@ -13,7 +14,6 @@
 
 namespace division_engine::canvas::view_tree
 {
-
 template<typename T, typename = void>
 constexpr bool has_renderer = false;
 
@@ -56,18 +56,6 @@ struct is_multi_child_view
     static const bool value = (... && View<Children>);
 };
 
-template<typename>
-struct is_tuple : std::false_type
-{
-};
-template<typename... Args>
-struct is_tuple<std::tuple<Args...>> : std::true_type
-{
-};
-
-template<typename T>
-concept tuple_like = is_tuple<T>();
-
 template<typename... Args>
 constexpr bool all_are_views()
 {
@@ -100,5 +88,4 @@ struct is_view_tuple<std::tuple<Args...>>
 
 template<typename V>
 concept MultiChildView = View<V> && is_view_tuple<decltype(V::children)>();
-
 }
