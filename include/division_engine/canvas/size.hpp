@@ -10,31 +10,37 @@ namespace division_engine::canvas
 
 struct Size
 {
+    static constexpr float UNCONSTRAINTED = std::numeric_limits<float>::infinity();
+
     float width;
     float height;
 
+    Size(float width, float height)
+      : width(width)
+      , height(height) {};
+
     Size(const glm::vec2& size_vec)
-      : width(size_vec.x)
-      , height(size_vec.y)
+      : Size(size_vec.x, size_vec.y)
     {
     }
 
     operator glm::vec2() const { return glm::vec2 { width, height }; }
 
-    static Size unconstrainted()
+    static Size unconstrainted() { return Size { UNCONSTRAINTED, UNCONSTRAINTED }; }
+
+    static Size with_unconstrainted_width(float height)
     {
-        return Size { glm::vec2 { std::numeric_limits<float>::infinity() } };
+        return Size { UNCONSTRAINTED, height };
     }
 
-    bool width_unconstrainted() const
+    static Size with_unconstrainted_height(float width)
     {
-        return std::isinf(width);
+        return Size { width, UNCONSTRAINTED };
     }
 
-    bool height_unconstrainted() const
-    {
-        return std::isinf(height);
-    }
+    bool width_unconstrainted() const { return std::isinf(width); }
+
+    bool height_unconstrainted() const { return std::isinf(height); }
 
     bool is_unconstrainted() const
     {

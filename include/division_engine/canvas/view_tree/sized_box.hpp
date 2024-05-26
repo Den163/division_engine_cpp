@@ -25,7 +25,7 @@ struct SizedBox
     {
     }
 
-    SizedBox(Size size, TChild child) : size(size), child(child) {}
+    SizedBox(Size size, TChild child) : child(child), size(size) {}
 };
 
 template<View TChild>

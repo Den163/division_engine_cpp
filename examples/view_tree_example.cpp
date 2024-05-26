@@ -39,7 +39,7 @@ template<typename T>
 concept UIBuilder = requires(T t, State& state) {
                         {
                             t.build_ui(state)
-                            } -> View;
+                        } -> View;
                     };
 
 struct MyUIBuilder
@@ -49,7 +49,7 @@ struct MyUIBuilder
         return HorizontalList {
             DecoratedBox { .background_color = color::RED },
             SizedBox {
-                glm::vec2 { 200, 100 },
+                Size { 200, 100 },
                 Stack {
                     Text { .text = u"Hello world", .color = color::RED },
                     DecoratedBox { .background_color = color::YELLOW },
