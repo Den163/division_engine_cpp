@@ -24,6 +24,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <tuple>
 #include <type_traits>
 
@@ -98,8 +99,10 @@ public:
     MyLifecycleManager(DivisionContext* ctx_ptr, T ui_builder)
       : _state(State { ctx_ptr, color::WHITE })
       , _ui_builder(ui_builder)
-      , _root_view(_ui_builder.build_ui(_state))
-      , _root_view_render(root_view_renderer_t { _state, _render_manager, _root_view })
+      , _root_view(std::make_unique<root_view_t>(_ui_builder.build_ui(_state)))
+      , _root_view_render(std::make_unique<root_view_renderer_t>(
+            root_view_renderer_t { _state, _render_manager, *_root_view.get() }
+        ))
     {
         _render_manager.register_renderer<RectDrawer>(_state);
         _render_manager.register_renderer<TextDrawer>(_state, FONT_PATH);
@@ -113,7 +116,9 @@ public:
         const auto screen_size = _state.context.get_screen_size();
         auto screen_rect = Rect::from_bottom_left(glm::vec2 { 0 }, screen_size);
 
-        _root_view_render.render(_state, _render_manager, screen_rect, _root_view);
+        _root_view_render->render(
+            _state, _render_manager, screen_rect, *_root_view.get()
+        );
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
@@ -126,8 +131,8 @@ private:
     State _state;
     RenderManager _render_manager;
     T _ui_builder;
-    root_view_t _root_view;
-    root_view_renderer_t _root_view_render;
+    std::unique_ptr<root_view_t> _root_view;
+    std::unique_ptr<root_view_renderer_t> _root_view_render;
 };
 
 struct MyBuilder
