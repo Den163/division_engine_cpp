@@ -70,8 +70,7 @@ struct __BaseListView<elements_direction, TChildView...>::Renderer
     using view_type = std::conditional_t<
         elements_direction == Direction::Horinzontal,
         HorizontalList<TChildView...>,
-        VerticalList<TChildView...>
-    >;
+        VerticalList<TChildView...>>;
 
     std::tuple<typename TChildView::Renderer...> children;
 

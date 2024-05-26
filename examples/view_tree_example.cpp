@@ -13,6 +13,7 @@
 #include "division_engine/canvas/view_tree/stack.hpp"
 #include "division_engine/canvas/view_tree/text.hpp"
 #include "division_engine/canvas/view_tree/view.hpp"
+#include "division_engine/canvas/view_tree/view_builder.hpp"
 #include "division_engine/color.hpp"
 #include "division_engine/core/context.hpp"
 #include "division_engine/core/core_runner.hpp"
@@ -55,6 +56,7 @@ struct MyUIBuilder
                     DecoratedBox { .background_color = color::YELLOW },
                 },
             },
+            ViewBuilder { [](State& state) { return DecoratedBox {}; } },
             Padding {
                 EdgeInsets::all(10),
                 DecoratedBox {
