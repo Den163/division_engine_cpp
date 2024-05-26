@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <tuple>
@@ -48,16 +49,27 @@ auto sorted_insert(
     return lower_bound;
 }
 
+template<typename TCallback, typename... TArgs>
+constexpr bool is_foreach_callback =
+    (std::is_convertible<TCallback, std::function<void(TArgs&)>>() || ...);
+
+template<typename TCallback, typename... TArgs>
+constexpr bool is_foreach_with_indexer_callback =
+    (std::is_convertible<TCallback, std::function<void(TArgs&, size_t)>>() || ...);
+
 template<class TCallback, class... TArgs>
+    requires(is_foreach_callback<TCallback, TArgs...>)
 void tuple_foreach(const TCallback& callback, std::tuple<TArgs...>& tuple)
 {
     std::apply([&](TArgs&... el) { ([&]() { callback(el); }(), ...); }, tuple);
 }
 
 template<class TCallback, class... TArgs>
-void tuple_foreach(TCallback& callback, std::tuple<TArgs...>& tuple)
+    requires(is_foreach_with_indexer_callback<TCallback, TArgs...>)
+void tuple_foreach(const TCallback& callback, std::tuple<TArgs...>& tuple)
 {
-    std::apply([&](TArgs&... el) { ([&]() { callback(el); }(), ...); }, tuple);
+    size_t i = 0;
+    std::apply([&](TArgs&... el) { ([&]() { callback(el, i++); }(), ...); }, tuple);
 }
 
 template<class TCallback, class... TTuple>
