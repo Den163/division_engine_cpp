@@ -8,8 +8,6 @@
 #include "division_engine/canvas/view_tree/view.hpp"
 #include "division_engine/utility/algorithm.hpp"
 
-#include "glm/ext/vector_float2.hpp"
-
 #include <glm/vec2.hpp>
 
 #include <array>

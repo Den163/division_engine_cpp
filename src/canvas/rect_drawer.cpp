@@ -144,6 +144,11 @@ void RectDrawer::fill_render_queue(State& state)
 
             overall_instance_count += static_cast<int>(rect_count);
 
+            if (rect_count == 0)
+            {
+                return;
+            }
+            
             state.render_queue.enqueue_pass(
                 make_render_pass_instance(
                     &_texture_bindings[texture_index], first_instance, rect_count

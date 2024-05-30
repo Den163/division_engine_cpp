@@ -158,6 +158,11 @@ void TextDrawer::fill_render_queue(State& state)
                 overall_instance_count += rendered_char_count;
             }
 
+            if (overall_instance_count == 0)
+            {
+                return;
+            }
+
             const auto pass =
                 RenderPassInstanceBuilder { _render_pass_descriptor_id }
                     .instances(overall_instance_count)

@@ -23,7 +23,6 @@
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
-#include <__chrono/duration.h>
 #include <chrono>
 #include <filesystem>
 #include <iostream>
@@ -31,7 +30,6 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <utility>
 
 using namespace division_engine;
 using namespace core;

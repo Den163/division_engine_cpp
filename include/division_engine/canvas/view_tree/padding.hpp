@@ -7,10 +7,9 @@
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/canvas/view_tree/view.hpp"
-#include "glm/common.hpp"
-#include "glm/vec2.hpp"
-#include <stdexcept>
-#include <variant>
+
+#include <glm/common.hpp>
+#include <glm/vec2.hpp>
 
 namespace division_engine::canvas::view_tree
 {
