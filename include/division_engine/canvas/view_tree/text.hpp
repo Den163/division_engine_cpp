@@ -9,8 +9,6 @@
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/color.hpp"
-#include "flecs/addons/cpp/entity.hpp"
-#include "freetype/ftlcdfil.h"
 
 #include <flecs.h>
 #include <glm/vec4.hpp>
@@ -23,7 +21,7 @@ struct Text
 {
     struct Renderer;
 
-    std::u16string text {};
+    std::string text {};
     glm::vec4 color = color::WHITE;
     float font_size = components::RenderableText::DEFAULT_FONT_SIZE;
 };
@@ -32,12 +30,12 @@ struct Text::Renderer
 {
     using view_type = Text;
 
-    flecs::entity_t renderable_id;
+    flecs::entity entity;
 
     Renderer(State& state, RenderManager& render_manager, const view_type& view)
     {
         using namespace components;
-        auto id = render_manager.create_renderer(
+        entity = render_manager.create_renderer(
             state,
             std::tuple {
                 RenderableText {
@@ -48,8 +46,30 @@ struct Text::Renderer
                 RenderBounds { Rect::from_center(glm::vec2 { 0 }, glm::vec2 { 0 }) },
             }
         );
+    }
 
-        renderable_id = id;
+    Renderer(Renderer&& other) noexcept
+      : entity(other.entity)
+    {
+        other.entity = flecs::entity::null();
+    }
+    
+    Renderer& operator=(Renderer&& other) noexcept
+    {
+        this->entity = other.entity;
+        other.entity = flecs::entity::null();
+        return *this;
+    }
+
+    Renderer(const Renderer& other) = delete;
+    Renderer& operator=(const Renderer& other) = delete;
+
+    ~Renderer()
+    {
+        if (!entity.is_alive())
+            return;
+
+        entity.destruct();
     }
 
     Size layout(const BoxConstraints& constraints, const view_type& view)
@@ -61,8 +81,6 @@ struct Text::Renderer
     render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         using namespace components;
-
-        flecs::entity entity { state.world, renderable_id };
 
         auto& text = *entity.get_mut<RenderableText>();
         text.text = view.text;

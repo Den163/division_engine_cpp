@@ -76,9 +76,9 @@ struct __BaseListView<elements_direction, TChildView...>::Renderer
 
     Renderer(State& state, RenderManager& render_manager, const view_type& view)
       : children(utility::algorithm::tuple_transform(
-            [&state, &render_manager](auto v)
+            [&state, &render_manager](auto& v)
             {
-                using child_view_t = decltype(v);
+                using child_view_t = std::remove_reference_t<decltype(v)>;
                 using child_renderer_t = typename child_view_t::Renderer;
                 return child_renderer_t { state, render_manager, v };
             },

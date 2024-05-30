@@ -2,7 +2,9 @@
 
 #include "canvas/components/render_batch.hpp"
 #include "core/alpha_blend.hpp"
+#include "core/context.hpp"
 #include "core/render_pass_instance_builder.hpp"
+#include "core/vertex_buffer_data.hpp"
 #include "flecs/addons/cpp/iter.hpp"
 
 #include <division_engine_core/types/id.h>
@@ -14,6 +16,7 @@
 #include <filesystem>
 #include <ranges>
 #include <string>
+#include <string_view>
 
 namespace division_engine::canvas
 {
@@ -32,7 +35,6 @@ TextDrawer::TextDrawer(State& state, const std::filesystem::path& font_path)
         static_cast<size_t>(RASTERIZED_FONT_SIZE),
     })
   , _ctx(state.context)
-  , _instance_capacity(INSTANCE_CAPACITY)
   , _screen_size_uniform(DivisionIdWithBinding {
         .id = state.screen_size_uniform_id,
         .shader_location = SCREEN_SIZE_UNIFORM_LOCATION,
@@ -90,16 +92,23 @@ TextDrawer::~TextDrawer()
     _ctx.delete_shader(_shader_id);
 }
 
+static inline core::
+    VertexBufferData<TextDrawer::TextCharVertex, TextDrawer::TextCharInstance>
+    borrow_vertex_buffer_data(core::Context& ctx, DivisionId vertex_buffer_id)
+{
+    return ctx.borrow_vertex_buffer_data<
+        TextDrawer::TextCharVertex,
+        TextDrawer::TextCharInstance>(vertex_buffer_id);
+}
+
 void TextDrawer::fill_render_queue(State& state)
 {
     using core::RenderPassInstanceBuilder;
 
     size_t overall_instance_count = 0;
 
-    auto vb_data =
-        _ctx.borrow_vertex_buffer_data<TextCharVertex, TextCharInstance>(_vertex_buffer_id
-        );
-    auto instances = vb_data.per_instance_data();
+    auto vb_instance_size =
+        borrow_vertex_buffer_data(_ctx, _vertex_buffer_id).per_instance_data().size();
 
     if (_query.count() == 0)
     {
@@ -124,7 +133,7 @@ void TextDrawer::fill_render_queue(State& state)
                 }
 
                 const auto needed_capacity = overall_instance_count + text_str.size();
-                if (_instance_capacity < needed_capacity)
+                if (vb_instance_size < needed_capacity)
                 {
                     _ctx.resize_vertex_buffer(
                         _vertex_buffer_id,
@@ -133,8 +142,12 @@ void TextDrawer::fill_render_queue(State& state)
                             .index_count = RECT_INDICES.size(),
                             .instance_count = static_cast<uint32_t>(needed_capacity) }
                     );
-                    _instance_capacity = needed_capacity;
+
+                    vb_instance_size = needed_capacity;
                 }
+
+                auto vb_data = borrow_vertex_buffer_data(_ctx, _vertex_buffer_id);
+                auto instances = vb_data.per_instance_data();
 
                 auto subinstances =
                     instances.last(instances.size() - overall_instance_count);
@@ -170,7 +183,7 @@ size_t TextDrawer::add_renderable_to_vertex_buffer(
 {
     const auto& text_str = renderable.text;
     const auto font_scale = renderable.font_size / RASTERIZED_FONT_SIZE;
-    const auto space_index = _font_texture.reserve_character(u' ');
+    const auto space_index = _font_texture.reserve_character(' ');
     const auto space_glyph = _font_texture.glyph_at(space_index);
     const auto space_advance_x = static_cast<float>(space_glyph.advance_x) * font_scale;
 
@@ -187,13 +200,13 @@ size_t TextDrawer::add_renderable_to_vertex_buffer(
 
         switch (ch)
         {
-            case u' ':
+            case ' ':
             {
                 pen_pos.x += space_advance_x;
                 i += 1;
                 continue;
             }
-            case u'\n':
+            case '\n':
             {
                 pen_pos = { bounds_rect.left(), pen_pos.y - font_size };
                 i += 1;
@@ -206,11 +219,11 @@ size_t TextDrawer::add_renderable_to_vertex_buffer(
             break;
         }
 
-        using str_diff_type = std::u16string::difference_type;
+        using str_diff_type = std::string::difference_type;
 
         const auto word_start_it = text_str.begin() + static_cast<str_diff_type>(i);
         const auto word = get_next_word(
-            std::u16string_view {
+            std::string_view {
                 word_start_it,
                 text_str.end(),
             },
@@ -248,14 +261,14 @@ size_t TextDrawer::add_renderable_to_vertex_buffer(
 }
 
 TextDrawer::WordInfo
-TextDrawer::get_next_word(const std::u16string_view& text, float font_scale) const
+TextDrawer::get_next_word(const std::string_view& text, float font_scale) const
 {
     WordInfo word { 0, 0 };
 
     for (int i = 0; i < text.size(); i++)
     {
         const auto ch = text[i];
-        if (ch == u' ' | ch == u'\n')
+        if (ch == ' ' | ch == '\n')
         {
             break;
         }
@@ -271,7 +284,7 @@ TextDrawer::get_next_word(const std::u16string_view& text, float font_scale) con
 }
 
 void TextDrawer::add_word_to_vertex_buffer(
-    const std::u16string_view& word,
+    const std::string_view& word,
     const glm::vec2& position,
     const glm::vec4& color,
     float font_scale,

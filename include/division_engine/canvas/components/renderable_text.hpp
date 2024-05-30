@@ -11,7 +11,7 @@ struct RenderableText
 {
     constexpr static float DEFAULT_FONT_SIZE = 16;
 
-    std::u16string text;
+    std::string text;
     glm::vec4 color = color::BLACK;
     float font_size = DEFAULT_FONT_SIZE;
 };

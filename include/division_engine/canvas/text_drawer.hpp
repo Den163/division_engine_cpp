@@ -96,14 +96,12 @@ private:
 
     Context _ctx;
 
-    size_t _instance_capacity;
-
     DivisionIdWithBinding _screen_size_uniform;
     DivisionId _shader_id;
     DivisionId _vertex_buffer_id;
     DivisionId _render_pass_descriptor_id;
 
-    WordInfo get_next_word(const std::u16string_view& text, float font_scale) const;
+    WordInfo get_next_word(const std::string_view& text, float font_scale) const;
 
     size_t add_renderable_to_vertex_buffer(
         std::span<TextCharInstance> instances,
@@ -112,7 +110,7 @@ private:
     );
 
     void add_word_to_vertex_buffer(
-        const std::u16string_view& word,
+        const std::string_view& word,
         const glm::vec2& position,
         const glm::vec4& color,
         float font_scale,

@@ -8,12 +8,15 @@
 #include "division_engine/canvas/rect.hpp"
 #include "division_engine/canvas/rect_drawer.hpp"
 #include "division_engine/canvas/render_manager.hpp"
+#include "division_engine/canvas/renderer.hpp"
 #include "division_engine/canvas/size.hpp"
 #include "division_engine/canvas/state.hpp"
 #include "division_engine/color.hpp"
-#include "flecs.h"
+
+#include <flecs.h>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <iostream>
 #include <tuple>
 
 namespace division_engine::canvas::view_tree
@@ -30,7 +33,7 @@ struct DecoratedBox::Renderer
 {
     using view_type = DecoratedBox;
 
-    flecs::entity_t renderable_id;
+    flecs::entity entity;
 
     Renderer(State& state, RenderManager& render_manager, const view_type& view)
     {
@@ -39,7 +42,7 @@ struct DecoratedBox::Renderer
         auto batch_entity =
             state.world.entity().set(RenderTexture { state.white_texture_id });
 
-        renderable_id = render_manager.create_renderer(
+        entity = render_manager.create_renderer(
             state,
             RectDrawer::renderable_type {
                 RenderableRect {
@@ -51,6 +54,32 @@ struct DecoratedBox::Renderer
         );
     }
 
+    Renderer(Renderer&& other) noexcept
+      : entity(other.entity)
+    {
+        other.entity = flecs::entity::null();
+    }
+    
+    Renderer& operator=(Renderer&& other) noexcept
+    {
+        this->entity = other.entity;
+        other.entity = flecs::entity::null();
+        return *this;
+    }
+
+    Renderer(const Renderer& other) = delete;
+    Renderer& operator=(const Renderer& other) = delete;
+
+    ~Renderer()
+    {
+        if (!entity.is_alive())
+        {
+            return;
+        }
+
+        entity.destruct();
+    }
+
     Size layout(const BoxConstraints& constraints, const view_type& view)
     {
         return Size::unconstrainted();
@@ -60,8 +89,6 @@ struct DecoratedBox::Renderer
     render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         using namespace components;
-
-        flecs::entity entity { state.world, renderable_id };
 
         auto& renderable = *entity.get_mut<RenderableRect>();
         renderable.color = view.background_color;

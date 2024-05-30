@@ -8,6 +8,7 @@
 #include "division_engine/utility/algorithm.hpp"
 
 #include <tuple>
+#include <type_traits>
 
 namespace division_engine::canvas::view_tree
 {
@@ -34,9 +35,9 @@ struct Stack<TChildView...>::Renderer
 
     Renderer(State& state, RenderManager& render_manager, const view_type& view)
       : children(utility::algorithm::tuple_transform(
-            [&](View auto el)
+            [&](View auto& el)
             {   
-                using child_view_t = decltype(el);
+                using child_view_t = std::remove_reference_t<decltype(el)>;
                 using child_renderer_t = typename child_view_t::Renderer;
                 
                 return child_renderer_t { state, render_manager, el };
@@ -55,7 +56,7 @@ struct Stack<TChildView...>::Renderer
     render(State& state, RenderManager& render_manager, Rect& rect, const view_type& view)
     {
         utility::algorithm::tuples_zip_foreach(
-            [&](auto child_renderer, auto child_view)
+            [&](auto& child_renderer, auto& child_view)
             { child_renderer.render(state, render_manager, rect, child_view); },
             children,
             view.children

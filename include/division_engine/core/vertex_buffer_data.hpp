@@ -16,7 +16,6 @@ template<typename TVertexData, typename TInstanceData>
 struct VertexBufferData
 {
     VertexBufferData(const VertexBufferData&) = delete;
-    VertexBufferData(VertexBufferData&&) = delete;
     VertexBufferData& operator=(const VertexBufferData&) = delete;
     VertexBufferData& operator=(VertexBufferData&&) = delete;
 
@@ -33,8 +32,21 @@ struct VertexBufferData
         }
     }
 
+    VertexBufferData(VertexBufferData&& other) noexcept
+      : context_ptr(other.context_ptr)
+      , vertex_buffer_id(other.vertex_buffer_id)
+      , borrowed_data(other.borrowed_data)
+    {
+        other.context_ptr = nullptr;
+    }
+
     ~VertexBufferData()
     {
+        if (context_ptr == nullptr)
+        {
+            return;
+        }
+
         division_engine_vertex_buffer_return_data(
             context_ptr, vertex_buffer_id, &borrowed_data
         );

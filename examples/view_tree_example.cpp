@@ -19,14 +19,19 @@
 #include "division_engine/core/core_runner.hpp"
 #include "division_engine_core/context.h"
 #include "glm/ext/vector_float2.hpp"
+#include "glm/ext/vector_float4.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
+#include <__chrono/duration.h>
+#include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 using namespace division_engine;
 using namespace core;
@@ -46,45 +51,31 @@ concept UIBuilder = requires(T t, State& state) {
 
 struct MyUIBuilder
 {
+    using time_point_t = std::chrono::time_point<std::chrono::steady_clock>;
+
+    time_point_t _prev_time = std::chrono::steady_clock::now();
+
     View auto build_ui(State& state)
     {
+        const auto now = std::chrono::steady_clock::now();
+        const auto delta_time = (now - _prev_time);
+        const auto delta_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(delta_time).count();
+
+        _prev_time = now;
+
         return HorizontalList {
-            DecoratedBox { .background_color = color::RED },
             SizedBox {
                 Size { 200, 100 },
                 Stack {
-                    Text { .text = u"Hello world", .color = color::RED },
-                    DecoratedBox { .background_color = color::YELLOW },
-                },
-            },
-            ViewBuilder { [](State& state) { return DecoratedBox {}; } },
-            Padding {
-                EdgeInsets::all(10),
-                DecoratedBox {
-                    .background_color = color::BLUE,
-                    .border_radius = BorderRadius::all(10),
-                },
-            },
-            DecoratedBox { .background_color = color::GREEN },
-            Padding {
-                EdgeInsets::all(5),
-                VerticalList {
-                    DecoratedBox { .background_color = color::AQUA },
-                    Stack {
-                        DecoratedBox { .background_color = color::RED },
-                        Text {
-                            .text = u"Hey world",
-                            .color = color::BLACK,
-                        },
-                    },
-                    HorizontalList {
-                        Text { .text = u"1", .color = color::BLACK },
-                        Text { .text = u"2", .color = color::BLACK },
+                    DecoratedBox { .background_color = glm::vec4 { 0.5, 0.5, 0.5, 1 } },
+                    Text {
+                        .text = std::string { "UI build delta time: " } +
+                                std::to_string(delta_ms) + " ms",
+                        .color = color::BLACK,
                     },
                 },
             },
-            DecoratedBox { .background_color = color::BLUE },
-            DecoratedBox { .background_color = color::PURPLE },
         };
     }
 };
@@ -101,7 +92,9 @@ public:
       , _ui_builder(ui_builder)
       , _root_view(std::make_unique<root_view_t>(_ui_builder.build_ui(_state)))
       , _root_view_render(std::make_unique<root_view_renderer_t>(
-            root_view_renderer_t { _state, _render_manager, *_root_view.get() }
+            _state,
+            _render_manager,
+            *_root_view.get()
         ))
     {
         _render_manager.register_renderer<RectDrawer>(_state);
@@ -110,15 +103,31 @@ public:
 
     void draw()
     {
+        _rebuild_ui = true;
+
         _state.update();
         _render_manager.update(_state);
 
         const auto screen_size = _state.context.get_screen_size();
         auto screen_rect = Rect::from_bottom_left(glm::vec2 { 0 }, screen_size);
 
-        _root_view_render->render(
-            _state, _render_manager, screen_rect, *_root_view.get()
-        );
+        if (_rebuild_ui)
+        {
+            std::exchange(*_root_view, _ui_builder.build_ui(_state));
+            std::exchange(
+                *_root_view_render,
+                root_view_renderer_t {
+                    _state,
+                    _render_manager,
+                    *_root_view,
+                }
+            );
+
+            _root_view_render->render(
+                _state, _render_manager, screen_rect, *_root_view.get()
+            );
+        }
+
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
 
@@ -133,6 +142,8 @@ private:
     T _ui_builder;
     std::unique_ptr<root_view_t> _root_view;
     std::unique_ptr<root_view_renderer_t> _root_view_render;
+
+    bool _rebuild_ui = true;
 };
 
 struct MyBuilder

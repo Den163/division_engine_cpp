@@ -96,7 +96,7 @@ struct MyManager
                 _state,
                 std::make_tuple(
                     RenderableText {
-                        .text = u"Hello text drawer",
+                        .text = "Hello text drawer",
                         .color = color::PURPLE,
                         .font_size = FONT_SIZE,
                     },

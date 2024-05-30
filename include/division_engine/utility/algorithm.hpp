@@ -1,5 +1,7 @@
 #pragma once
 
+#include <__tuple/tuple_element.h>
+#include <__utility/integer_sequence.h>
 #include <algorithm>
 #include <concepts>
 #include <functional>
@@ -27,6 +29,19 @@ void __tuples_zip_impl(
 )
 {
     (__tuples_zip_impl<n_element>(callback, tuple...), ...);
+}
+
+template<size_t... n_element, class TCallback, class TTuple>
+auto __tuple_transform_impl(
+    std::index_sequence<n_element...>,
+    const TCallback& callback,
+    const TTuple& tuple
+)
+{
+    return std::make_tuple(callback(
+        (typename std::tuple_element<n_element, TTuple>::type &)
+        (std::get<n_element>(tuple))
+    )...);
 }
 }
 
@@ -85,8 +100,8 @@ template<class TMapCallback, class... TArgs>
 decltype(auto)
 tuple_transform(const TMapCallback& callback, const std::tuple<TArgs...>& tuple)
 {
-    return std::apply(
-        [&](const TArgs&... el) { return std::make_tuple(callback(el)...); }, tuple
+    return __tuple_transform_impl(
+        std::make_index_sequence<sizeof...(TArgs)>(), callback, tuple
     );
 }
 }

@@ -37,7 +37,7 @@ struct SizedBox<TChild>::Renderer
     child_renerer_type child_renderer;
 
     Renderer(State& state, RenderManager& render_manager, const view_type& view)
-      : child_renderer(child_renerer_type(state, render_manager, view.child))
+      : child_renderer(state, render_manager, view.child)
     {
     }
 
