@@ -1,15 +1,11 @@
 #pragma once
 
-#include <__tuple/tuple_element.h>
-#include <__utility/integer_sequence.h>
 #include <algorithm>
 #include <concepts>
 #include <functional>
-#include <initializer_list>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
-#include <utility>
 
 namespace division_engine::utility::algorithm
 {
