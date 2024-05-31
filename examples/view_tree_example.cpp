@@ -30,6 +30,7 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 using namespace division_engine;
 using namespace core;
@@ -112,18 +113,7 @@ public:
         if (_rebuild_ui)
         {
             std::exchange(*_root_view, _ui_builder.build_ui(_state));
-            std::exchange(
-                *_root_view_render,
-                root_view_renderer_t {
-                    _state,
-                    _render_manager,
-                    *_root_view,
-                }
-            );
-
-            _root_view_render->render(
-                _state, _render_manager, screen_rect, *_root_view.get()
-            );
+            _root_view_render->render(_state, _render_manager, screen_rect, *_root_view);
         }
 
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);

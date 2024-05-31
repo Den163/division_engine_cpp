@@ -17,6 +17,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <tuple>
+#include <utility>
 
 namespace division_engine::canvas::view_tree
 {
@@ -52,18 +53,16 @@ struct DecoratedBox::Renderer
             batch_entity.id()
         );
     }
-
-    Renderer(Renderer&& other) noexcept
-      : entity(other.entity)
-    {
-        other.entity = flecs::entity::null();
-    }
     
     Renderer& operator=(Renderer&& other) noexcept
     {
-        this->entity = other.entity;
-        other.entity = flecs::entity::null();
+        entity = std::exchange(other.entity, flecs::entity::null());
         return *this;
+    }
+
+    Renderer(Renderer&& other) noexcept
+    {
+        *this = std::move(other);
     }
 
     Renderer(const Renderer& other) = delete;

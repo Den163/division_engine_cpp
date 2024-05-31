@@ -14,6 +14,7 @@
 #include <glm/vec4.hpp>
 
 #include <string>
+#include <utility>
 
 namespace division_engine::canvas::view_tree
 {
@@ -47,18 +48,16 @@ struct Text::Renderer
             }
         );
     }
-
-    Renderer(Renderer&& other) noexcept
-      : entity(other.entity)
-    {
-        other.entity = flecs::entity::null();
-    }
     
     Renderer& operator=(Renderer&& other) noexcept
     {
-        this->entity = other.entity;
-        other.entity = flecs::entity::null();
+        entity = std::exchange(other.entity, flecs::entity::null());
         return *this;
+    }
+
+    Renderer(Renderer&& other) noexcept
+    {
+        *this = std::move(other);
     }
 
     Renderer(const Renderer& other) = delete;
