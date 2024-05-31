@@ -93,7 +93,7 @@ public:
       , _root_view_render(std::make_unique<root_view_renderer_t>(
             _state,
             _render_manager,
-            *_root_view.get()
+            *_root_view
         ))
     {
         _render_manager.register_renderer<RectDrawer>(_state);
@@ -102,19 +102,14 @@ public:
 
     void draw()
     {
-        _rebuild_ui = true;
-
         _state.update();
         _render_manager.update(_state);
 
         const auto screen_size = _state.context.get_screen_size();
         auto screen_rect = Rect::from_bottom_left(glm::vec2 { 0 }, screen_size);
 
-        if (_rebuild_ui)
-        {
-            std::exchange(*_root_view, _ui_builder.build_ui(_state));
-            _root_view_render->render(_state, _render_manager, screen_rect, *_root_view);
-        }
+        std::exchange(*_root_view, _ui_builder.build_ui(_state));
+        _root_view_render->render(_state, _render_manager, screen_rect, *_root_view);
 
         _state.render_queue.draw(_state.context.get_ptr(), _state.clear_color);
     }
@@ -130,8 +125,6 @@ private:
     T _ui_builder;
     std::unique_ptr<root_view_t> _root_view;
     std::unique_ptr<root_view_renderer_t> _root_view_render;
-
-    bool _rebuild_ui = true;
 };
 
 struct MyBuilder
